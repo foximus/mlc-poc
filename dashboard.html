@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - MLC</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo">
+        <img src="assets/img/ribbon-right.png" alt="MLC" style="height:48px; filter:brightness(0) invert(1);">
+        <span class="logo-text">MLC</span>
+      </a>
+      <ul>
+        <li><a href="index.html">MLC</a></li>
+        <li><a href="metodologia.html">METODOLOGÍA</a></li>
+        <li><a href="blog.html">BLOG</a></li>
+        <li><a href="dashboard.html" class="active">DASHBOARD</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Logo banner blanco con MLC azul -->
+  <section class="brand-banner">
+    <img src="assets/img/mlc-logo-full.png" alt="MLC - Monitoreo Liderado por la Comunidad">
+  </section>
+
+  <!-- Selector de roles (Prestadores / Usuarios) -->
+  <section style="padding: 0;">
+    <div class="role-grid">
+
+      <!-- Prestadores -->
+      <a href="dashboard-prestadores.html" class="role-card" style="text-decoration: none;">
+        <div class="role-icon">
+          <img src="assets/img/icon-prestadores.png" alt="">
+        </div>
+        <h2 class="role-title">
+          Prestadores de
+          <span class="servicios">SERVICI<span class="o-mark">O</span>S</span>
+        </h2>
+        <p>
+          Soy prestador de servicios de salud y quiero monitorear mi desempeño y la
+          alineación con las expectativas de la comunidad.
+        </p>
+        <span class="role-link">Acceder al panel →</span>
+      </a>
+
+      <!-- Usuarios -->
+      <a href="dashboard-usuarios.html" class="role-card" style="text-decoration: none;">
+        <div class="role-icon">
+          <img src="assets/img/icon-usuarios.png" alt="">
+        </div>
+        <h2 class="role-title">
+          Usuarios de
+          <span class="servicios">SERVICI<span class="o-mark">O</span>S</span>
+        </h2>
+        <p>
+          Soy miembro de la comunidad y quiero conocer la disponibilidad, accesibilidad
+          y calidad de los servicios de salud en mi área.
+        </p>
+        <span class="role-link">Acceder al panel →</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- Características comunes -->
+  <section class="container">
+    <h2 class="section-title" style="text-align:center;">Características disponibles en ambos paneles</h2>
+
+    <div class="cards-grid">
+      <div class="card">
+        <div class="card-header"><h3>Visualizaciones interactivas</h3></div>
+        <div class="card-body"><p>Gráficos y tablas dinámicas para explorar datos por dimensión.</p></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Filtros avanzados</h3></div>
+        <div class="card-body"><p>Filtra por región, unidad, período y otras variables clave.</p></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Análisis de tendencias</h3></div>
+        <div class="card-body"><p>Observa la evolución de los indicadores en el tiempo.</p></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Datos actualizados</h3></div>
+        <div class="card-body"><p>Información revisada regularmente con la participación comunitaria.</p></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Descarga de reportes</h3></div>
+        <div class="card-body"><p>Exporta datos en distintos formatos para tu análisis local.</p></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Retroalimentación</h3></div>
+        <div class="card-body"><p>Espacios para enviar comentarios y sugerencias a los equipos.</p></div>
+      </div>
+    </div>
+
+    <div class="cta-band">
+      <h2>¿Listo para comenzar?</h2>
+      <p>Selecciona el panel correspondiente y explora los datos de monitoreo comunitario.</p>
+      <a href="dashboard-usuarios.html" class="btn btn-primary">Panel de Usuarios</a>
+      <a href="dashboard-prestadores.html" class="btn btn-outline">Panel de Prestadores</a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 MLC - Monitoreo Liderado por la Comunidad | Guatemala</p>
+      <p>Paneles especializados para cada actor del sistema de salud</p>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Usuarios - MLC</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <nav class="navbar">
+      <a href="index.html" class="logo">
+        <img src="assets/img/ribbon-right.png" alt="MLC" style="height:48px; filter:brightness(0) invert(1);">
+        <span class="logo-text">MLC</span>
+      </a>
+      <ul>
+        <li><a href="index.html">MLC</a></li>
+        <li><a href="metodologia.html">METODOLOGÍA</a></li>
+        <li><a href="blog.html">BLOG</a></li>
+        <li><a href="dashboard.html" class="active">DASHBOARD</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Cabecera del dashboard -->
+  <section class="dashboard-header">
+    <div class="container">
+      <h1>Panel de Monitoreo · Usuarios de Servicios</h1>
+      <p>Indicadores de disponibilidad, accesibilidad y calidad de los servicios de salud</p>
+    </div>
+  </section>
+
+  <!-- Main -->
+  <section class="container" style="padding: 1rem 2rem 3rem;">
+
+    <!-- Filtros -->
+    <div class="filters">
+      <div class="filter-group">
+        <label for="unidad-filter">Unidad:</label>
+        <select id="unidad-filter">
+          <option value="">Todas las unidades</option>
+          <option value="Centro de Salud Roosevelt">Centro de Salud Roosevelt</option>
+          <option value="Centro de Salud San Juan de Dios">Centro de Salud San Juan de Dios</option>
+          <option value="Puesto de Salud Esquintla">Puesto de Salud Esquintla</option>
+          <option value="Puesto de Salud Quetzaltenango">Puesto de Salud Quetzaltenango</option>
+          <option value="Puesto de Salud Izabal">Puesto de Salud Izabal</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="etnia-filter">Etnia:</label>
+        <select id="etnia-filter">
+          <option value="">Todas</option>
+          <option value="maya">Maya</option>
+          <option value="ladino_o_mestizo">Ladino o Mestizo</option>
+          <option value="xinka">Xinka</option>
+          <option value="garifuna">Garífuna</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+
+      <button class="btn btn-secondary" onclick="resetFilters()">Limpiar</button>
+    </div>
+
+    <!-- Pilares -->
+    <h2 class="section-title">Selecciona un pilar para ver indicadores</h2>
+
+    <div class="pillars-container">
+      <div class="pillar-tab active" data-pillar="Disponibilidad">
+        <span class="pillar-number" data-count>—</span>
+        <span class="pillar-name">Disponibilidad</span>
+      </div>
+      <div class="pillar-tab" data-pillar="Accesibilidad">
+        <span class="pillar-number" data-count>—</span>
+        <span class="pillar-name">Accesibilidad</span>
+      </div>
+      <div class="pillar-tab" data-pillar="Aceptabilidad">
+        <span class="pillar-number" data-count>—</span>
+        <span class="pillar-name">Aceptabilidad</span>
+      </div>
+      <div class="pillar-tab" data-pillar="Adecuación">
+        <span class="pillar-number" data-count>—</span>
+        <span class="pillar-name">Adecuación</span>
+      </div>
+      <div class="pillar-tab" data-pillar="Asequibilidad">
+        <span class="pillar-number" data-count>—</span>
+        <span class="pillar-name">Asequibilidad</span>
+      </div>
+    </div>
+
+    <!-- Banner del pilar -->
+    <div class="pillar-banner" id="pillar-banner">
+      <h2 id="pillar-banner-title">Disponibilidad</h2>
+      <p id="pillar-banner-question">¿Existen los medicamentos, pruebas e insumos de prevención?</p>
+    </div>
+
+    <!-- Descripción -->
+    <div class="indicator-red">
+      <h3 id="indicator-red-title">Disponibilidad</h3>
+      <p id="indicator-red-desc">
+        Evalúa si los medicamentos, pruebas e insumos de prevención están efectivamente
+        disponibles cuando las personas los necesitan.
+      </p>
+    </div>
+
+    <!-- Gauges (4 indicadores) -->
+    <div class="gauges-container" id="gauges-row"></div>
+
+    <!-- Distribución demográfica -->
+    <h2 class="section-title">Perfil de las personas encuestadas</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+      <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
+        <h3 class="section-subtitle" style="font-size: 1rem;">Por etnia</h3>
+        <canvas id="etniaChart"></canvas>
+      </div>
+      <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
+        <h3 class="section-subtitle" style="font-size: 1rem;">Por rango de edad</h3>
+        <canvas id="edadChart"></canvas>
+      </div>
+      <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
+        <h3 class="section-subtitle" style="font-size: 1rem;">Por unidad de atención</h3>
+        <canvas id="unidadChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Total respuestas -->
+    <div class="responses-box">
+      <h3 id="responses-count">0</h3>
+      <p>Respuestas</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>&copy; 2026 MLC - Monitoreo Liderado por la Comunidad | Guatemala</p>
+      <p>Panel de Usuarios — Datos mock generados desde la encuesta KoboToolbox</p>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+  <script src="js/dashboard-data.js"></script>
+  <script>
+    // Configuración por pilar: pregunta de contexto + indicadores (gauges)
+    const PILLAR_CFG = {
+      "Disponibilidad": {
+        question: "¿Existen los medicamentos, pruebas e insumos de prevención?",
+        desc: "Evalúa si los medicamentos, pruebas e insumos de prevención están efectivamente disponibles cuando las personas los necesitan.",
+        gauges: [
+          { label: "Personas con TAR completo",          name: "p38_entrega_arv_completa",   yes: ["si"] },
+          { label: "Carga viral en últimos 6 meses",     name: "p43_prueba_carga_viral_6m",  yes: ["si"] },
+          { label: "Prueba de CD4 en últimos 6 meses",   name: "p44_prueba_cd4_6m",          yes: ["si"] },
+          { label: "Entrega de condones / lubricantes",  name: "p40_entrega_condones_lubricantes", yes: ["si"] },
+        ],
+      },
+      "Accesibilidad": {
+        question: "¿Pueden las personas acceder a los servicios disponibles?",
+        desc: "Mide la facilidad de acceso considerando tiempos de espera, traslado y barreras económicas o laborales.",
+        gauges: [
+          { label: "Espera ≤ 30 minutos",                name: "p16_tiempo_espera",          yes: ["menos_de_30_minutos"] },
+          { label: "Traslado < 1 hora",                  name: "p17_tiempo_traslado",        yes: ["menos_de_30_minutos","entre_30_y_60_minutos"] },
+          { label: "No faltó por dinero (6m)",           name: "p18_inasistencia_dinero",    yes: ["no"] },
+          { label: "No faltó por permiso laboral (6m)",  name: "p19_inasistencia_permiso",   yes: ["no"] },
+        ],
+      },
+      "Aceptabilidad": {
+        question: "¿Son culturalmente aceptados los servicios?",
+        desc: "Evalúa cómo la comunidad percibe y acepta los servicios según sus valores y experiencia de atención.",
+        gauges: [
+          { label: "No reportó discriminación",          name: "p45_discriminacion_vih",     yes: ["no"] },
+          { label: "Trato bueno o muy bueno",            name: "p46_trato_personal",         yes: ["bueno","muy_bueno"] },
+          { label: "Confidencialidad percibida",         name: "p47_confidencialidad",       yes: ["si","parcialmente"] },
+          { label: "Personal le trató con respeto",      name: "p48_respeto",                yes: ["si"] },
+        ],
+      },
+      "Adecuación": {
+        question: "¿Se ajustan los servicios a las necesidades de las personas?",
+        desc: "Verifica si los servicios responden a la diversidad cultural, lingüística y a poblaciones clave.",
+        gauges: [
+          { label: "Información en su idioma",           name: "p50_info_idioma",            yes: ["si"] },
+          { label: "Servicio preparado para población clave", name: "p51_preparado_poblacion_clave", yes: ["si","parcialmente"] },
+          { label: "Trato adecuado culturalmente",       name: "p52_adecuacion_cultural",    yes: ["si"] },
+          { label: "Espacios adaptados",                 name: "p54_espacios_adaptados",     yes: ["si"] },
+        ],
+      },
+      "Asequibilidad": {
+        question: "¿Son asequibles y sostenibles los servicios?",
+        desc: "Evalúa la carga financiera y de tiempo que implica acceder a los servicios para las personas usuarias.",
+        gauges: [
+          { label: "Sin pago de medicamentos / pruebas (6m)", name: "p24_pago_medicamentos", yes: ["no"] },
+          { label: "Sin pérdida de ingresos hoy",             name: "p26_perdida_ingresos",  yes: ["no"] },
+          { label: "Gasto transporte ≤ Q25",                  name: "_gasto_transp_low" },
+          { label: "Gasto alimentación ≤ Q25",                name: "_gasto_alim_low" },
+        ],
+      },
+    };
+
+    let DATA = null;
+    let charts = { gauges: [], etnia: null, edad: null, unidad: null };
+    const GAUGE_COLORS = ["#790000", "#003049", "#669BBC", "#C1111F"];
+    let currentPillar = "Disponibilidad";
+
+    function pctYes(responses, name, yesValues) {
+      // Soporte para "indicadores derivados" (gasto bajo)
+      if (name === "_gasto_transp_low") return pctNumericBelow(responses, "p22_gasto_transporte", 25);
+      if (name === "_gasto_alim_low")   return pctNumericBelow(responses, "p23_gasto_alimentacion", 25);
+      return MLC.yesPct(responses, name, yesValues);
+    }
+
+    function pctNumericBelow(responses, name, threshold) {
+      const vals = responses.map(r => r[name]).filter(v => typeof v === "number");
+      if (!vals.length) return 0;
+      const lo = vals.filter(v => v <= threshold).length;
+      return Math.round(lo / vals.length * 100);
+    }
+
+    function renderGauges(responses) {
+      const cfg = PILLAR_CFG[currentPillar];
+      const wrap = document.getElementById("gauges-row");
+      wrap.innerHTML = "";
+      // destruir charts previos
+      charts.gauges.forEach(c => c && c.destroy());
+      charts.gauges = [];
+
+      cfg.gauges.forEach((g, i) => {
+        const value = pctYes(responses, g.name, g.yes);
+        const id = `gauge-${i}`;
+        wrap.insertAdjacentHTML("beforeend", `
+          <div class="gauge-item">
+            <div class="gauge-title">${g.label}</div>
+            <div class="gauge-chart"><canvas id="${id}"></canvas></div>
+            <p class="gauge-description"><strong>${value}%</strong> respuesta favorable</p>
+          </div>
+        `);
+        const ctx = document.getElementById(id).getContext("2d");
+        const chart = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["Sí", "No / NS"],
+            datasets: [{
+              data: [value, 100 - value],
+              backgroundColor: [GAUGE_COLORS[i], "#e8e0c8"],
+              borderColor: "#fff", borderWidth: 3
+            }]
+          },
+          options: { plugins: { legend: { position: "bottom" } } }
+        });
+        charts.gauges.push(chart);
+      });
+    }
+
+    function renderDemographics(responses) {
+      // Etnia
+      const etniaCounts = MLC.countValues(responses, "_etnia");
+      if (charts.etnia) charts.etnia.destroy();
+      charts.etnia = new Chart(document.getElementById("etniaChart"), {
+        type: "doughnut",
+        data: {
+          labels: Object.keys(etniaCounts).map(MLC.prettyLabel),
+          datasets: [{
+            data: Object.values(etniaCounts),
+            backgroundColor: ["#790000", "#003049", "#669BBC", "#C1111F", "#FDF0D5", "#9c4a4a"]
+          }]
+        },
+        options: { plugins: { legend: { position: "bottom" } } }
+      });
+
+      // Edad
+      const edadCounts = MLC.countValues(responses, "p07");
+      if (charts.edad) charts.edad.destroy();
+      charts.edad = new Chart(document.getElementById("edadChart"), {
+        type: "bar",
+        data: {
+          labels: Object.keys(edadCounts).map(MLC.prettyLabel),
+          datasets: [{
+            label: "Respuestas",
+            data: Object.values(edadCounts),
+            backgroundColor: "#669BBC"
+          }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+
+      // Unidad
+      const unidadCounts = MLC.countValues(responses, "_unidad");
+      if (charts.unidad) charts.unidad.destroy();
+      charts.unidad = new Chart(document.getElementById("unidadChart"), {
+        type: "bar",
+        data: {
+          labels: Object.keys(unidadCounts),
+          datasets: [{
+            label: "Respuestas",
+            data: Object.values(unidadCounts),
+            backgroundColor: "#003049"
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true } }
+        }
+      });
+    }
+
+    function updatePillarHeader(responses) {
+      const cfg = PILLAR_CFG[currentPillar];
+      document.getElementById("pillar-banner-title").textContent = currentPillar;
+      document.getElementById("pillar-banner-question").textContent = cfg.question;
+      document.getElementById("indicator-red-title").textContent = currentPillar;
+      document.getElementById("indicator-red-desc").textContent = cfg.desc;
+      document.getElementById("responses-count").textContent = responses.length;
+    }
+
+    function updateTabCounts() {
+      // Contar preguntas asociadas a cada pilar (referencial al estilo de la maqueta)
+      document.querySelectorAll(".pillar-tab").forEach(tab => {
+        const p = tab.getAttribute("data-pillar");
+        const n = DATA.schema.filter(q => q.pilar === p).length;
+        tab.querySelector("[data-count]").textContent = n;
+      });
+    }
+
+    function refresh() {
+      const filters = {
+        unidad: document.getElementById("unidad-filter").value || null,
+        etnia: document.getElementById("etnia-filter").value || null,
+      };
+      const responses = MLC.filterResponses(DATA.responses, filters);
+      updatePillarHeader(responses);
+      renderGauges(responses);
+      renderDemographics(responses);
+    }
+
+    function resetFilters() {
+      document.getElementById("unidad-filter").value = "";
+      document.getElementById("etnia-filter").value = "";
+      refresh();
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      DATA = await MLC.loadMock("usuarios");
+      updateTabCounts();
+
+      document.querySelectorAll(".pillar-tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".pillar-tab").forEach(t => t.classList.remove("active"));
+          tab.classList.add("active");
+          currentPillar = tab.getAttribute("data-pillar");
+          refresh();
+        });
+      });
+
+      ["unidad-filter","etnia-filter"]
+        .forEach(id => document.getElementById(id).addEventListener("change", refresh));
+
+      refresh();
+    });
+  </script>
+</body>
+</html>

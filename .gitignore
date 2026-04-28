@@ -1,0 +1,26 @@
+# --- Activos de diseño originales (no necesarios en el sitio publicado) ---
+info/
+
+# --- Capturas de verificación generadas por Playwright ---
+/index-hero.png
+/dashboard.png
+/dashboard-prestadores.png
+/dashboard-prestadores-mock.png
+/dashboard-prestadores-mock-v2.png
+/dashboard-usuarios.png
+/dashboard-usuarios-mock.png
+/dashboard-usuarios-aceptabilidad.png
+/dashboard-usuarios-aceptabilidad-full.png
+/metodologia.png
+/blog.png
+.playwright-mcp/
+
+# --- Python ---
+__pycache__/
+*.pyc
+
+# --- Sistema operativo / IDE ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
