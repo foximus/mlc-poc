@@ -561,6 +561,31 @@ footer strong { color: var(--mystic-blue); }
 }
 .about-box li strong { color: var(--blood-rust); }
 
+.antecedente-section {
+  background: var(--text-light);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.antecedente-content {
+  max-width: 900px;
+  margin: 2rem auto 0;
+  background: var(--vanilla-cream);
+  border-left: 6px solid var(--mystic-blue);
+  padding: 2rem 2.25rem;
+  border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(0, 48, 73, 0.06);
+}
+
+.antecedente-content p {
+  color: var(--deep-oceanic);
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.antecedente-content p:last-child { margin-bottom: 0; }
+.antecedente-content strong { color: var(--blood-rust); }
+
 /* ============================================================
    Dashboard - Selector general
    ============================================================ */
