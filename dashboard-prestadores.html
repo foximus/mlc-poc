@@ -183,7 +183,13 @@
       </div>
 
       <button class="btn btn-secondary" onclick="resetFilters()">Limpiar</button>
-      <span id="responses-info" class="muted" style="align-self:center; margin-left:auto;"></span>
+    </div>
+
+    <!-- Total respuestas (compacto, debajo de filtros) -->
+    <div class="responses-box responses-box--inline">
+      <span class="rb-num" id="responses-count">0</span>
+      <span class="rb-label">Respuestas</span>
+      <span class="rb-aux" id="responses-info"></span>
     </div>
 
     <!-- Desempeño general -->
@@ -285,7 +291,7 @@
   <footer>
     <div class="container">
       <p>&copy; 2026 MLC - Monitoreo Liderado por la Comunidad | Guatemala</p>
-      <p>Panel de Prestadores · Datos mock generados a partir de la encuesta KoboToolbox</p>
+      <p>Panel de Prestadores </p>
     </div>
   </footer>
 
@@ -477,8 +483,9 @@
       const misRespuestas = MLC.filterResponses(DATA.responses, filters);
       const todas = DATA.responses;
 
+      document.getElementById("responses-count").textContent = misRespuestas.length;
       document.getElementById("responses-info").textContent =
-        `Mostrando ${misRespuestas.length} de ${todas.length} encuestas`;
+        `de ${todas.length} encuestas`;
 
       buildKpis(misRespuestas, todas);
       buildComparativa(misRespuestas, todas);

@@ -850,7 +850,7 @@ footer strong { color: var(--mystic-blue); }
 
 .gauge-description { color: #4b5b66; font-size: 0.9rem; margin-top: 1rem; }
 
-/* Caja "respuestas totales" */
+/* Caja "respuestas totales" — variante compacta inline */
 .responses-box {
   background: var(--deep-oceanic);
   color: var(--vanilla-cream);
@@ -866,6 +866,35 @@ footer strong { color: var(--mystic-blue); }
   margin: 0;
 }
 .responses-box p { color: var(--vanilla-cream); margin: 0.25rem 0 0; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; }
+
+.responses-box--inline {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  padding: 0.5rem 1rem;
+  margin: 0 0 1.25rem;
+  border-radius: 6px;
+  text-align: left;
+}
+.responses-box--inline .rb-num {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--vanilla-cream);
+}
+.responses-box--inline .rb-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--vanilla-cream);
+  opacity: 0.92;
+}
+.responses-box--inline .rb-aux {
+  font-size: 0.75rem;
+  letter-spacing: 0.3px;
+  color: rgba(253, 240, 213, 0.75);
+}
 
 /* Tabla */
 .table-container {
@@ -1522,11 +1551,97 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
 }
 
 @media (max-width: 768px) {
-  nav ul { gap: 1rem; flex-wrap: wrap; justify-content: flex-end; }
-  .navbar { flex-direction: column; gap: 1rem; }
+  /* Navegación */
+  nav ul { gap: 1rem; flex-wrap: wrap; justify-content: flex-end; font-size: 0.85rem; }
+  .navbar { flex-direction: column; gap: 1rem; padding: 0 1rem; }
+  .container { padding: 0 1rem; }
+
+  /* Hero */
   .hero { padding: 3rem 1.5rem 4rem; }
   .hero h1 { font-size: 2.5rem; }
-  .filters { flex-direction: column; }
-  .filter-group { flex-direction: column; align-items: flex-start; }
-  .pillars-container { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+
+  /* Dashboard header */
+  .dashboard-header h1 { font-size: 1.5rem; }
+  .dashboard-header p { font-size: 0.9rem; }
+
+  /* Filtros */
+  .filters { flex-direction: column; align-items: stretch; padding: 1rem; gap: 0.75rem; }
+  .filter-group { flex-direction: column; align-items: stretch; width: 100%; }
+  .filter-group select,
+  .filter-group input { width: 100%; }
+  .filters .btn { width: 100%; }
+
+  /* Pilares */
+  .pillars-container { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+  .pillar-tab { padding: 0.85rem 0.5rem; }
+  .pillar-number { font-size: 1.4rem; }
+  .pillar-name { font-size: 0.8rem; }
+  .pillar-banner { padding: 1rem 1.25rem; }
+  .pillar-banner h2 { font-size: 1.6rem; }
+  .pillar-banner p { font-size: 0.85rem; }
+
+  /* Gauges: una columna */
+  .gauges-container { grid-template-columns: 1fr; gap: 1rem; }
+  .gauge-item { padding: 1.25rem; }
+  .gauge-chart { height: 200px; }
+
+  /* Indicator cards */
+  .indicator-card { padding: 1rem; gap: 0.85rem; }
+  .indicator-card-num { font-size: 1.8rem; }
+  .indicator-card-chart { grid-template-columns: 110px 1fr; gap: 0.5rem; }
+  .indicator-card-canvas { width: 110px; height: 110px; }
+  .indicator-card-question { font-size: 0.8rem; }
+  .indicator-card-legend { font-size: 0.7rem; }
+  .indicator-card-text p { font-size: 0.85rem; }
+
+  /* Summary table */
+  .summary-panel { padding: 1rem; }
+  .summary-table { font-size: 0.75rem; }
+  .summary-table .su-corner { width: 110px; padding: 0.4rem 0.5rem; font-size: 0.75rem; }
+  .summary-table .su-pilar { width: 50px; height: 100px; }
+  .summary-table .su-pilar > span { font-size: 0.7rem; }
+  .summary-table .su-valor-head { padding: 0.4rem 0.6rem; font-size: 0.85rem; }
+  .summary-table tbody td { padding: 0.35rem 0.45rem; font-size: 0.8rem; }
+  .summary-table .su-unidad { padding-left: 0.5rem; font-size: 0.8rem; }
+
+  /* Intro */
+  .intro-card { padding: 1.25rem; }
+  .intro-heading { font-size: 1.2rem; }
+
+  /* Sección container */
+  section.container[style] { padding: 1rem 1rem 2rem !important; }
+
+  /* Tabla retroalimentación */
+  .table-container { font-size: 0.85rem; }
+  table th, table td { padding: 0.6rem 0.5rem; }
+
+  /* Cards de prestadores */
+  .card-grid,
+  .role-grid { grid-template-columns: 1fr !important; }
+
+  /* Inline grid duros — neutralizar */
+  [style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 480px) {
+  .pillars-container { grid-template-columns: 1fr; }
+  nav ul { gap: 0.6rem; font-size: 0.78rem; }
+  .hero h1 { font-size: 2rem; }
+
+  /* Indicator card: stack chart sobre texto */
+  .indicator-card-chart { grid-template-columns: 1fr; }
+  .indicator-card-canvas { width: 140px; height: 140px; margin: 0 auto; }
+
+  /* Logo más pequeño */
+  .logo img { height: 36px; }
+  header { padding: 0.65rem 0; }
+
+  /* Responses inline más pequeño */
+  .responses-box--inline .rb-num { font-size: 1.1rem; }
+  .responses-box--inline .rb-label { font-size: 0.7rem; }
+
+  /* Summary table aún más compacto */
+  .summary-table .su-pilar { width: 42px; height: 90px; }
+  .summary-table .su-pilar > span { font-size: 0.65rem; }
+  .summary-table tbody td { font-size: 0.75rem; padding: 0.3rem; }
 }

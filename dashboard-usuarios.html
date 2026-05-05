@@ -150,41 +150,6 @@
 
     <div class="dashboard-body" id="dashboard-body">
 
-    <!-- Total respuestas -->
-    <div class="responses-box">
-      <h3 id="responses-count">0</h3>
-      <p>Respuestas</p>
-    </div>
-
-    <!-- Filtros -->
-    <div class="filters">
-      <div class="filter-group">
-        <label for="unidad-filter">Unidad:</label>
-        <select id="unidad-filter">
-          <option value="">Todas las unidades</option>
-          <option value="Centro de Salud Roosevelt">Centro de Salud Roosevelt</option>
-          <option value="Centro de Salud San Juan de Dios">Centro de Salud San Juan de Dios</option>
-          <option value="Puesto de Salud Esquintla">Puesto de Salud Esquintla</option>
-          <option value="Puesto de Salud Quetzaltenango">Puesto de Salud Quetzaltenango</option>
-          <option value="Puesto de Salud Izabal">Puesto de Salud Izabal</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="etnia-filter">Etnia:</label>
-        <select id="etnia-filter">
-          <option value="">Todas</option>
-          <option value="maya">Maya</option>
-          <option value="ladino_o_mestizo">Ladino o Mestizo</option>
-          <option value="xinka">Xinka</option>
-          <option value="garifuna">Garífuna</option>
-          <option value="otro">Otro</option>
-        </select>
-      </div>
-
-      <button class="btn btn-secondary" onclick="resetFilters()">Limpiar</button>
-    </div>
-
     <!-- Pilares -->
     <h2 class="section-title">Selecciona un pilar para ver indicadores</h2>
 
@@ -228,6 +193,41 @@
 
     <!-- Gauges (4 indicadores) -->
     <div class="gauges-container" id="gauges-row"></div>
+
+    <!-- Filtros -->
+    <div class="filters">
+      <div class="filter-group">
+        <label for="unidad-filter">Unidad:</label>
+        <select id="unidad-filter">
+          <option value="">Todas las unidades</option>
+          <option value="Centro de Salud Roosevelt">Centro de Salud Roosevelt</option>
+          <option value="Centro de Salud San Juan de Dios">Centro de Salud San Juan de Dios</option>
+          <option value="Puesto de Salud Esquintla">Puesto de Salud Esquintla</option>
+          <option value="Puesto de Salud Quetzaltenango">Puesto de Salud Quetzaltenango</option>
+          <option value="Puesto de Salud Izabal">Puesto de Salud Izabal</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="etnia-filter">Etnia:</label>
+        <select id="etnia-filter">
+          <option value="">Todas</option>
+          <option value="maya">Maya</option>
+          <option value="ladino_o_mestizo">Ladino o Mestizo</option>
+          <option value="xinka">Xinka</option>
+          <option value="garifuna">Garífuna</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+
+      <button class="btn btn-secondary" onclick="resetFilters()">Limpiar</button>
+    </div>
+
+    <!-- Total respuestas (compacto, debajo de filtros) -->
+    <div class="responses-box responses-box--inline">
+      <span class="rb-num" id="responses-count">0</span>
+      <span class="rb-label">Respuestas</span>
+    </div>
 
     <!-- Indicadores detallados (cards) -->
     <h2 class="section-title">Indicadores detallados del pilar</h2>
@@ -433,7 +433,7 @@
                 <div>
                   <p class="indicator-card-question">${ind.pregunta || ""}</p>
                   <div class="indicator-card-legend">
-                    <span class="indicator-card-legend-title">Respuestas</span>
+                    <span class="indicator-card-legend-title">Respuestas · ${total}</span>
                     ${labels.map((l, i) => `
                       <div class="indicator-card-legend-item">
                         <span class="swatch" style="background:${colors[i]}"></span>
@@ -454,18 +454,23 @@
             <div>
               <p class="indicator-card-question">${ind.pregunta || ""}</p>
               <div class="indicator-card-legend">
-                <span class="indicator-card-legend-title">Respuestas (numérico)</span>
+                <span class="indicator-card-legend-title">Respuestas · ${vals.length}</span>
                 <div>Promedio: <strong>${avg}</strong></div>
                 <div>Mín: <strong>${min}</strong> · Máx: <strong>${max}</strong></div>
-                <div>Total respuestas: <strong>${vals.length}</strong></div>
               </div>
             </div>
           `;
         } else {
           // texto abierto u otro
+          const tcount = ind.field
+            ? responses.filter(r => r[ind.field] !== undefined && r[ind.field] !== null && r[ind.field] !== "").length
+            : responses.length;
           chartHtml = `
             <div>
               <p class="indicator-card-question">${ind.pregunta || ""}</p>
+              <div class="indicator-card-legend">
+                <span class="indicator-card-legend-title">Respuestas · ${tcount}</span>
+              </div>
               <div class="indicator-card-empty">Respuesta abierta — sin distribución gráfica.</div>
             </div>
           `;
