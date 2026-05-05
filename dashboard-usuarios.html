@@ -113,6 +113,10 @@
     <!-- Gauges (4 indicadores) -->
     <div class="gauges-container" id="gauges-row"></div>
 
+    <!-- Indicadores detallados (cards) -->
+    <h2 class="section-title">Indicadores detallados del pilar</h2>
+    <div class="indicator-cards" id="indicator-cards"></div>
+
     <!-- Distribución demográfica -->
     <h2 class="section-title">Perfil de las personas encuestadas</h2>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
@@ -198,9 +202,27 @@
     };
 
     let DATA = null;
-    let charts = { gauges: [], etnia: null, edad: null, unidad: null };
+    let INDICATORS = [];
+    let charts = { gauges: [], etnia: null, edad: null, unidad: null, cards: [] };
     const GAUGE_COLORS = ["#790000", "#003049", "#669BBC", "#C1111F"];
     let currentPillar = "Disponibilidad";
+
+    // Colores por categoría de respuesta (estilo cards del KEY VISUAL)
+    const RESPONSE_COLORS = {
+      positiva: "#1ABCBC",   // Sí / favorable (teal)
+      negativa: "#C1111F",   // No / desfavorable (crimson)
+      parcial:  "#888888",   // Parcial (gris)
+      ns:       "#d0d0d0",   // NS / PNR (gris claro)
+      otra:     "#669BBC",   // otras categorías
+    };
+
+    function classifyValue(v) {
+      if (v == null || MLC.noSabe.has(v))       return "ns";
+      if (MLC.positivas.has(v))                 return "positiva";
+      if (MLC.parciales.has(v))                 return "parcial";
+      if (v === "no" || v === "detectable")     return "negativa";
+      return "otra";
+    }
 
     function pctYes(responses, name, yesValues) {
       // Soporte para "indicadores derivados" (gasto bajo)
@@ -248,6 +270,129 @@
           options: { plugins: { legend: { position: "bottom" } } }
         });
         charts.gauges.push(chart);
+      });
+    }
+
+    function renderIndicatorCards(responses) {
+      const wrap = document.getElementById("indicator-cards");
+      wrap.innerHTML = "";
+      // destruir charts previos
+      charts.cards.forEach(c => c && c.destroy());
+      charts.cards = [];
+
+      const list = INDICATORS.filter(ind => ind.pilar === currentPillar);
+      if (!list.length) {
+        wrap.innerHTML = `<p class="indicator-card-empty">No hay indicadores definidos para este pilar.</p>`;
+        return;
+      }
+
+      list.forEach((ind, idx) => {
+        const cardId = `ind-card-${idx}`;
+        const num = idx + 1;
+        const isCategorical = (ind.type || "").startsWith("select_one") || (ind.type || "").startsWith("select_multiple");
+        const isNumeric = ind.type === "integer" || ind.type === "decimal";
+
+        let chartHtml = "";
+        let bodyData = null;
+
+        if (isCategorical && ind.field) {
+          const counts = MLC.countValues(responses, ind.field);
+          // entradas ordenadas: positiva, parcial, otra, negativa, ns
+          const entries = Object.entries(counts).filter(([k]) => k !== "undefined" && k !== "null");
+          const total = entries.reduce((a, [, v]) => a + v, 0);
+          if (total === 0) {
+            chartHtml = `<div class="indicator-card-empty">Sin respuestas registradas.</div>`;
+          } else {
+            const ord = { positiva: 0, parcial: 1, otra: 2, negativa: 3, ns: 4 };
+            entries.sort(([a], [b]) => ord[classifyValue(a)] - ord[classifyValue(b)]);
+            const labels = entries.map(([k]) => MLC.prettyLabel(k));
+            const values = entries.map(([, v]) => v);
+            const colors = entries.map(([k]) => RESPONSE_COLORS[classifyValue(k)] || RESPONSE_COLORS.otra);
+            bodyData = { labels, values, colors, total };
+            chartHtml = `
+              <div class="indicator-card-chart">
+                <div class="indicator-card-canvas"><canvas id="${cardId}"></canvas></div>
+                <div>
+                  <p class="indicator-card-question">${ind.pregunta || ""}</p>
+                  <div class="indicator-card-legend">
+                    <span class="indicator-card-legend-title">Respuestas</span>
+                    ${labels.map((l, i) => `
+                      <div class="indicator-card-legend-item">
+                        <span class="swatch" style="background:${colors[i]}"></span>
+                        <span>${l}: <strong>${values[i]}</strong> (${Math.round(values[i]/bodyData.total*100)}%)</span>
+                      </div>
+                    `).join("")}
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        } else if (isNumeric && ind.field) {
+          const vals = responses.map(r => r[ind.field]).filter(v => typeof v === "number");
+          const avg = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
+          const min = vals.length ? Math.min(...vals) : 0;
+          const max = vals.length ? Math.max(...vals) : 0;
+          chartHtml = `
+            <div>
+              <p class="indicator-card-question">${ind.pregunta || ""}</p>
+              <div class="indicator-card-legend">
+                <span class="indicator-card-legend-title">Respuestas (numérico)</span>
+                <div>Promedio: <strong>${avg}</strong></div>
+                <div>Mín: <strong>${min}</strong> · Máx: <strong>${max}</strong></div>
+                <div>Total respuestas: <strong>${vals.length}</strong></div>
+              </div>
+            </div>
+          `;
+        } else {
+          // texto abierto u otro
+          chartHtml = `
+            <div>
+              <p class="indicator-card-question">${ind.pregunta || ""}</p>
+              <div class="indicator-card-empty">Respuesta abierta — sin distribución gráfica.</div>
+            </div>
+          `;
+        }
+
+        wrap.insertAdjacentHTML("beforeend", `
+          <div class="indicator-card">
+            <div class="indicator-card-num">${num}</div>
+            ${chartHtml}
+            <div class="indicator-card-text">
+              <p><span class="label">Indicador:</span> <span class="value">${ind.name}</span></p>
+              <p><span class="label">Objetivo de indicador:</span> ${ind.objetivo || "—"}</p>
+            </div>
+          </div>
+        `);
+
+        if (bodyData) {
+          const ctx = document.getElementById(cardId).getContext("2d");
+          const chart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+              labels: bodyData.labels,
+              datasets: [{
+                data: bodyData.values,
+                backgroundColor: bodyData.colors,
+                borderColor: "#fff",
+                borderWidth: 2,
+              }],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              cutout: "55%",
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: (c) => `${c.label}: ${c.parsed} (${Math.round(c.parsed/bodyData.total*100)}%)`,
+                  },
+                },
+              },
+            },
+          });
+          charts.cards.push(chart);
+        }
       });
     }
 
@@ -330,6 +475,7 @@
       const responses = MLC.filterResponses(DATA.responses, filters);
       updatePillarHeader(responses);
       renderGauges(responses);
+      renderIndicatorCards(responses);
       renderDemographics(responses);
     }
 
@@ -341,6 +487,10 @@
 
     document.addEventListener("DOMContentLoaded", async () => {
       DATA = await MLC.loadMock("usuarios");
+      try {
+        const r = await fetch("data/indicators-usuarios.json");
+        INDICATORS = r.ok ? await r.json() : [];
+      } catch (_) { INDICATORS = []; }
       updateTabCounts();
 
       document.querySelectorAll(".pillar-tab").forEach(tab => {

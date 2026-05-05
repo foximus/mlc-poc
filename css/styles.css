@@ -903,6 +903,115 @@ table td.warning  { color: #c47a04; font-weight: 600; }
 table td.critical { color: var(--crimson-blaze); font-weight: 600; }
 
 /* ============================================================
+   Indicator cards (estilo image: nº | donut+leyenda | indicador+objetivo)
+   ============================================================ */
+.indicator-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.indicator-card {
+  display: grid;
+  grid-template-columns: 56px minmax(260px, 1.1fr) 1.4fr;
+  gap: 1.5rem;
+  align-items: center;
+  background: var(--text-light);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 48, 73, 0.08);
+  border-left: 6px solid var(--crimson-blaze);
+}
+
+.indicator-card-num {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 2.4rem;
+  color: var(--deep-oceanic);
+  text-align: center;
+  line-height: 1;
+}
+
+.indicator-card-chart {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.indicator-card-canvas {
+  position: relative;
+  width: 130px;
+  height: 130px;
+}
+
+.indicator-card-question {
+  font-size: 0.85rem;
+  color: var(--deep-oceanic);
+  line-height: 1.35;
+  margin-bottom: 0.5rem;
+}
+
+.indicator-card-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--deep-oceanic);
+}
+
+.indicator-card-legend-title {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.25rem;
+  color: var(--blood-rust);
+}
+
+.indicator-card-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.indicator-card-legend-item .swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex: 0 0 10px;
+}
+
+.indicator-card-text { color: var(--deep-oceanic); }
+
+.indicator-card-text .label {
+  color: var(--blood-rust);
+  font-weight: 700;
+  text-transform: none;
+}
+
+.indicator-card-text .value {
+  color: var(--crimson-blaze);
+  font-weight: 700;
+}
+
+.indicator-card-text p { margin: 0.35rem 0; line-height: 1.4; font-size: 0.92rem; }
+
+.indicator-card-empty {
+  font-size: 0.85rem;
+  color: #6b7a85;
+  font-style: italic;
+}
+
+@media (max-width: 800px) {
+  .indicator-card {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .indicator-card-num { text-align: left; }
+}
+
+/* ============================================================
    Blog
    ============================================================ */
 .blog-title {
