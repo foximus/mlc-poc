@@ -34,40 +34,121 @@
   <!-- Main -->
   <section class="container" style="padding: 1rem 2rem 3rem;">
 
-    <!-- Total respuestas -->
-    <div class="responses-box">
-      <h3 id="responses-count">0</h3>
-      <p>Respuestas</p>
+    <!-- Panel resumen (heatmap unidad x pilar) -->
+    <div class="summary-panel">
+      <div class="summary-panel-title">Resumen por unidad de atención</div>
+      <div class="summary-table-wrap">
+        <table class="summary-table" id="summary-table">
+          <thead>
+            <tr>
+              <th class="su-corner" rowspan="2">Unidad de atención</th>
+              <th class="su-pilar-group" colspan="5">Pilar</th>
+              <th class="su-valor-head" rowspan="2">valor</th>
+            </tr>
+            <tr>
+              <th class="su-pilar"><span>Disponibilidad</span></th>
+              <th class="su-pilar"><span>Accesibilidad</span></th>
+              <th class="su-pilar"><span>Aceptabilidad</span></th>
+              <th class="su-pilar"><span>Adecuación</span></th>
+              <th class="su-pilar"><span>Asequibilidad</span></th>
+            </tr>
+          </thead>
+          <tbody id="summary-tbody"></tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- Filtros -->
-    <div class="filters">
-      <div class="filter-group">
-        <label for="unidad-filter">Unidad:</label>
-        <select id="unidad-filter">
-          <option value="">Todas las unidades</option>
-          <option value="Centro de Salud Roosevelt">Centro de Salud Roosevelt</option>
-          <option value="Centro de Salud San Juan de Dios">Centro de Salud San Juan de Dios</option>
-          <option value="Puesto de Salud Esquintla">Puesto de Salud Esquintla</option>
-          <option value="Puesto de Salud Quetzaltenango">Puesto de Salud Quetzaltenango</option>
-          <option value="Puesto de Salud Izabal">Puesto de Salud Izabal</option>
-        </select>
+    <!-- Instrucciones / Metodología -->
+    <div class="intro-panel" id="intro-panel">
+      <button type="button" class="intro-toggle" id="intro-toggle">Ver instrucciones</button>
+      <div class="intro-content">
+      <div class="intro-block">
+        <h2 class="intro-heading">Instrucciones</h2>
+        <div class="intro-card">
+          <div class="item">
+            <span class="item-title">¿Cómo navegar?:</span>
+            <span class="item-body--accent">
+              Selecciona un pilar (Disponibilidad, Accesibilidad, Aceptabilidad, Adecuación o
+              Asequibilidad) en las pestañas superiores para ver sus indicadores detallados,
+              las gráficas asociadas y el perfil de las personas encuestadas.
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Filtros y caracterización de población:</span>
+            <span class="item-body">
+              Usa los filtros de unidad y etnia para acotar las respuestas que se muestran en
+              todos los gráficos. La caja de "Respuestas" indica el total de encuestas que
+              cumplen con los filtros seleccionados.
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div class="filter-group">
-        <label for="etnia-filter">Etnia:</label>
-        <select id="etnia-filter">
-          <option value="">Todas</option>
-          <option value="maya">Maya</option>
-          <option value="ladino_o_mestizo">Ladino o Mestizo</option>
-          <option value="xinka">Xinka</option>
-          <option value="garifuna">Garífuna</option>
-          <option value="otro">Otro</option>
-        </select>
+      <div class="intro-block">
+        <h2 class="intro-heading">Metodología</h2>
+        <div class="intro-steps">
+          <div class="item">
+            <span class="item-title">Paso 1</span>
+            <span class="item-body">
+              Las preguntas de la encuesta KoboToolbox se agrupan por pilar (Disponibilidad,
+              Accesibilidad, Aceptabilidad, Adecuación, Asequibilidad).
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Paso 2</span>
+            <span class="item-body">
+              Cada indicador toma las respuestas de su pregunta correspondiente y calcula la
+              distribución por categoría (Sí, No, Parcialmente, NS / PNR).
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Paso 3</span>
+            <span class="item-body">
+              Los porcentajes se calculan sobre el total de respuestas válidas; las respuestas
+              "No sé" o "Prefiero no responder" se reportan aparte.
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Paso 4</span>
+            <span class="item-body">
+              El resultado se visualiza como tarjeta con donut de distribución, leyenda de
+              respuestas y el objetivo del indicador para facilitar su interpretación.
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Objetivo de indicador:</span>
+            <span class="item-body">
+              Cada tarjeta documenta qué se busca medir, de modo que la interpretación sea
+              comparable entre establecimientos y a lo largo del tiempo.
+            </span>
+          </div>
+        </div>
       </div>
 
-      <button class="btn btn-secondary" onclick="resetFilters()">Limpiar</button>
+      <div class="intro-block">
+        <h2 class="intro-heading">Avanzando hacia metas 95 95 95</h2>
+        <div class="intro-card">
+          <div class="item">
+            <span class="item-title">Justificar esta sección:</span>
+            <span class="item-body--accent">
+              Las metas 95-95-95 de ONUSIDA buscan que el 95% de personas con VIH conozca su
+              estatus, que el 95% de ellas reciba tratamiento ARV sostenido y que el 95%
+              alcance supresión viral. Los indicadores del MLC permiten monitorear, desde la
+              experiencia de las personas usuarias, las brechas que dificultan alcanzar
+              estas metas en cada establecimiento.
+            </span>
+          </div>
+        </div>
+        <div class="intro-cta-wrap">
+          <button type="button" class="intro-cta" id="intro-cta">
+            Explora aquí indicadores asociados a metas 95 95 95
+          </button>
+        </div>
+      </div>
+      </div><!-- /.intro-content -->
     </div>
+
+    <div class="dashboard-body" id="dashboard-body">
 
     <!-- Pilares -->
     <h2 class="section-title">Selecciona un pilar para ver indicadores</h2>
@@ -113,6 +194,45 @@
     <!-- Gauges (4 indicadores) -->
     <div class="gauges-container" id="gauges-row"></div>
 
+    <!-- Filtros -->
+    <div class="filters">
+      <div class="filter-group">
+        <label for="unidad-filter">Unidad:</label>
+        <select id="unidad-filter">
+          <option value="">Todas las unidades</option>
+          <option value="Centro de Salud Roosevelt">Centro de Salud Roosevelt</option>
+          <option value="Centro de Salud San Juan de Dios">Centro de Salud San Juan de Dios</option>
+          <option value="Puesto de Salud Esquintla">Puesto de Salud Esquintla</option>
+          <option value="Puesto de Salud Quetzaltenango">Puesto de Salud Quetzaltenango</option>
+          <option value="Puesto de Salud Izabal">Puesto de Salud Izabal</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="etnia-filter">Etnia:</label>
+        <select id="etnia-filter">
+          <option value="">Todas</option>
+          <option value="maya">Maya</option>
+          <option value="ladino_o_mestizo">Ladino o Mestizo</option>
+          <option value="xinka">Xinka</option>
+          <option value="garifuna">Garífuna</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+
+      <button class="btn btn-secondary" onclick="resetFilters()">Limpiar</button>
+    </div>
+
+    <!-- Total respuestas (compacto, debajo de filtros) -->
+    <div class="responses-box responses-box--inline">
+      <span class="rb-num" id="responses-count">0</span>
+      <span class="rb-label">Respuestas</span>
+    </div>
+
+    <!-- Indicadores detallados (cards) -->
+    <h2 class="section-title">Indicadores detallados del pilar</h2>
+    <div class="indicator-cards" id="indicator-cards"></div>
+
     <!-- Distribución demográfica -->
     <h2 class="section-title">Perfil de las personas encuestadas</h2>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
@@ -129,6 +249,8 @@
         <canvas id="unidadChart"></canvas>
       </div>
     </div>
+
+    </div><!-- /.dashboard-body -->
 
   </section>
 
@@ -198,9 +320,27 @@
     };
 
     let DATA = null;
-    let charts = { gauges: [], etnia: null, edad: null, unidad: null };
+    let INDICATORS = [];
+    let charts = { gauges: [], etnia: null, edad: null, unidad: null, cards: [] };
     const GAUGE_COLORS = ["#790000", "#003049", "#669BBC", "#C1111F"];
     let currentPillar = "Disponibilidad";
+
+    // Colores por categoría de respuesta (estilo cards del KEY VISUAL)
+    const RESPONSE_COLORS = {
+      positiva: "#1ABCBC",   // Sí / favorable (teal)
+      negativa: "#C1111F",   // No / desfavorable (crimson)
+      parcial:  "#888888",   // Parcial (gris)
+      ns:       "#d0d0d0",   // NS / PNR (gris claro)
+      otra:     "#669BBC",   // otras categorías
+    };
+
+    function classifyValue(v) {
+      if (v == null || MLC.noSabe.has(v))       return "ns";
+      if (MLC.positivas.has(v))                 return "positiva";
+      if (MLC.parciales.has(v))                 return "parcial";
+      if (v === "no" || v === "detectable")     return "negativa";
+      return "otra";
+    }
 
     function pctYes(responses, name, yesValues) {
       // Soporte para "indicadores derivados" (gasto bajo)
@@ -248,6 +388,134 @@
           options: { plugins: { legend: { position: "bottom" } } }
         });
         charts.gauges.push(chart);
+      });
+    }
+
+    function renderIndicatorCards(responses) {
+      const wrap = document.getElementById("indicator-cards");
+      wrap.innerHTML = "";
+      // destruir charts previos
+      charts.cards.forEach(c => c && c.destroy());
+      charts.cards = [];
+
+      const list = INDICATORS.filter(ind => ind.pilar === currentPillar);
+      if (!list.length) {
+        wrap.innerHTML = `<p class="indicator-card-empty">No hay indicadores definidos para este pilar.</p>`;
+        return;
+      }
+
+      list.forEach((ind, idx) => {
+        const cardId = `ind-card-${idx}`;
+        const num = idx + 1;
+        const isCategorical = (ind.type || "").startsWith("select_one") || (ind.type || "").startsWith("select_multiple");
+        const isNumeric = ind.type === "integer" || ind.type === "decimal";
+
+        let chartHtml = "";
+        let bodyData = null;
+
+        if (isCategorical && ind.field) {
+          const counts = MLC.countValues(responses, ind.field);
+          // entradas ordenadas: positiva, parcial, otra, negativa, ns
+          const entries = Object.entries(counts).filter(([k]) => k !== "undefined" && k !== "null");
+          const total = entries.reduce((a, [, v]) => a + v, 0);
+          if (total === 0) {
+            chartHtml = `<div class="indicator-card-empty">Sin respuestas registradas.</div>`;
+          } else {
+            const ord = { positiva: 0, parcial: 1, otra: 2, negativa: 3, ns: 4 };
+            entries.sort(([a], [b]) => ord[classifyValue(a)] - ord[classifyValue(b)]);
+            const labels = entries.map(([k]) => MLC.prettyLabel(k));
+            const values = entries.map(([, v]) => v);
+            const colors = entries.map(([k]) => RESPONSE_COLORS[classifyValue(k)] || RESPONSE_COLORS.otra);
+            bodyData = { labels, values, colors, total };
+            chartHtml = `
+              <div class="indicator-card-chart">
+                <div class="indicator-card-canvas"><canvas id="${cardId}"></canvas></div>
+                <div>
+                  <p class="indicator-card-question">${ind.pregunta || ""}</p>
+                  <div class="indicator-card-legend">
+                    <span class="indicator-card-legend-title">Respuestas · ${total}</span>
+                    ${labels.map((l, i) => `
+                      <div class="indicator-card-legend-item">
+                        <span class="swatch" style="background:${colors[i]}"></span>
+                        <span>${l}: <strong>${values[i]}</strong> (${Math.round(values[i]/bodyData.total*100)}%)</span>
+                      </div>
+                    `).join("")}
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        } else if (isNumeric && ind.field) {
+          const vals = responses.map(r => r[ind.field]).filter(v => typeof v === "number");
+          const avg = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
+          const min = vals.length ? Math.min(...vals) : 0;
+          const max = vals.length ? Math.max(...vals) : 0;
+          chartHtml = `
+            <div>
+              <p class="indicator-card-question">${ind.pregunta || ""}</p>
+              <div class="indicator-card-legend">
+                <span class="indicator-card-legend-title">Respuestas · ${vals.length}</span>
+                <div>Promedio: <strong>${avg}</strong></div>
+                <div>Mín: <strong>${min}</strong> · Máx: <strong>${max}</strong></div>
+              </div>
+            </div>
+          `;
+        } else {
+          // texto abierto u otro
+          const tcount = ind.field
+            ? responses.filter(r => r[ind.field] !== undefined && r[ind.field] !== null && r[ind.field] !== "").length
+            : responses.length;
+          chartHtml = `
+            <div>
+              <p class="indicator-card-question">${ind.pregunta || ""}</p>
+              <div class="indicator-card-legend">
+                <span class="indicator-card-legend-title">Respuestas · ${tcount}</span>
+              </div>
+              <div class="indicator-card-empty">Respuesta abierta — sin distribución gráfica.</div>
+            </div>
+          `;
+        }
+
+        wrap.insertAdjacentHTML("beforeend", `
+          <div class="indicator-card">
+            <div class="indicator-card-num">${num}</div>
+            ${chartHtml}
+            <div class="indicator-card-text">
+              <p><span class="label">Indicador:</span> <span class="value">${ind.name}</span></p>
+              <p><span class="label">Objetivo de indicador:</span> ${ind.objetivo || "—"}</p>
+            </div>
+          </div>
+        `);
+
+        if (bodyData) {
+          const ctx = document.getElementById(cardId).getContext("2d");
+          const chart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+              labels: bodyData.labels,
+              datasets: [{
+                data: bodyData.values,
+                backgroundColor: bodyData.colors,
+                borderColor: "#fff",
+                borderWidth: 2,
+              }],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              cutout: "55%",
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: (c) => `${c.label}: ${c.parsed} (${Math.round(c.parsed/bodyData.total*100)}%)`,
+                  },
+                },
+              },
+            },
+          });
+          charts.cards.push(chart);
+        }
       });
     }
 
@@ -322,6 +590,37 @@
       });
     }
 
+    const SUMMARY_PILLARS = ["Disponibilidad", "Accesibilidad", "Aceptabilidad", "Adecuación", "Asequibilidad"];
+
+    function shortUnidad(u) {
+      return String(u).replace(/^Centro de Salud\s+/i, "")
+                      .replace(/^Puesto de Salud\s+/i, "");
+    }
+
+    function buildSummaryTable() {
+      const tbody = document.getElementById("summary-tbody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      const unidades = [...new Set(DATA.responses.map(r => r._unidad))].sort();
+      for (const u of unidades) {
+        const rs = DATA.responses.filter(r => r._unidad === u);
+        const scores = SUMMARY_PILLARS.map(p => MLC.pillarScore(DATA.schema, rs, p));
+        const total  = scores.reduce((a, b) => a + b, 0);
+        const cells = scores.map(v => {
+          const a = (0.08 + (v / 100) * 0.55).toFixed(2);
+          return `<td class="su-cell" style="background: rgba(193, 17, 31, ${a})">${v}</td>`;
+        }).join("");
+        tbody.insertAdjacentHTML("beforeend", `
+          <tr>
+            <td class="su-unidad">${shortUnidad(u)}</td>
+            ${cells}
+            <td class="su-valor">${total}</td>
+          </tr>
+        `);
+      }
+    }
+
     function refresh() {
       const filters = {
         unidad: document.getElementById("unidad-filter").value || null,
@@ -330,6 +629,7 @@
       const responses = MLC.filterResponses(DATA.responses, filters);
       updatePillarHeader(responses);
       renderGauges(responses);
+      renderIndicatorCards(responses);
       renderDemographics(responses);
     }
 
@@ -339,8 +639,48 @@
       refresh();
     }
 
+    // --- Toggle del panel de Instrucciones (persistente en localStorage) ---
+    const INTRO_KEY = "mlc_intro_dismissed_v1";
+    function setIntroCollapsed(collapsed) {
+      const panel = document.getElementById("intro-panel");
+      const body  = document.getElementById("dashboard-body");
+      if (!panel || !body) return;
+      panel.classList.toggle("collapsed", collapsed);
+      body.classList.toggle("hidden", !collapsed);
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
+      // Estado inicial del intro: si ya fue descartado, lo mostramos colapsado
+      const introDismissed = (() => {
+        try { return localStorage.getItem(INTRO_KEY) === "true"; }
+        catch (_) { return false; }
+      })();
+      setIntroCollapsed(introDismissed);
+
+      const cta    = document.getElementById("intro-cta");
+      const toggle = document.getElementById("intro-toggle");
+      if (cta) {
+        cta.addEventListener("click", () => {
+          try { localStorage.setItem(INTRO_KEY, "true"); } catch (_) {}
+          setIntroCollapsed(true);
+          document.getElementById("dashboard-body")
+            .scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+      if (toggle) {
+        toggle.addEventListener("click", () => {
+          setIntroCollapsed(false);
+          document.getElementById("intro-panel")
+            .scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+
       DATA = await MLC.loadMock("usuarios");
+      try {
+        const r = await fetch("data/indicators-usuarios.json");
+        INDICATORS = r.ok ? await r.json() : [];
+      } catch (_) { INDICATORS = []; }
+      buildSummaryTable();
       updateTabCounts();
 
       document.querySelectorAll(".pillar-tab").forEach(tab => {
