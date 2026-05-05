@@ -32,4 +32,25 @@ document.addEventListener('DOMContentLoaded', function () {
       item.classList.add('active');
     }
   });
+
+  // Hamburguesa: abrir/cerrar el menú móvil
+  const navbar = document.querySelector('.navbar');
+  const toggle = document.querySelector('.navbar-toggle');
+  if (navbar && toggle) {
+    const setOpen = (open) => {
+      navbar.classList.toggle('is-open', open);
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    };
+    toggle.addEventListener('click', () => setOpen(!navbar.classList.contains('is-open')));
+    // Cerrar al hacer clic en un enlace
+    navbar.querySelectorAll('ul a').forEach(a => a.addEventListener('click', () => setOpen(false)));
+    // Cerrar al hacer clic fuera
+    document.addEventListener('click', (e) => {
+      if (!navbar.contains(e.target) && navbar.classList.contains('is-open')) setOpen(false);
+    });
+    // Cerrar con Escape
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+    // Cerrar al pasar a desktop
+    window.addEventListener('resize', () => { if (window.innerWidth > 768) setOpen(false); });
+  }
 });
