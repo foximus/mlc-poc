@@ -34,6 +34,122 @@
   <!-- Main -->
   <section class="container" style="padding: 1rem 2rem 3rem;">
 
+    <!-- Panel resumen (heatmap unidad x pilar) -->
+    <div class="summary-panel">
+      <div class="summary-panel-title">Resumen por unidad de atención</div>
+      <div class="summary-table-wrap">
+        <table class="summary-table" id="summary-table">
+          <thead>
+            <tr>
+              <th class="su-corner" rowspan="2">Unidad de atención</th>
+              <th class="su-pilar-group" colspan="5">Pilar</th>
+              <th class="su-valor-head" rowspan="2">valor</th>
+            </tr>
+            <tr>
+              <th class="su-pilar"><span>Disponibilidad</span></th>
+              <th class="su-pilar"><span>Accesibilidad</span></th>
+              <th class="su-pilar"><span>Aceptabilidad</span></th>
+              <th class="su-pilar"><span>Adecuación</span></th>
+              <th class="su-pilar"><span>Asequibilidad</span></th>
+            </tr>
+          </thead>
+          <tbody id="summary-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Instrucciones / Metodología -->
+    <div class="intro-panel" id="intro-panel">
+      <button type="button" class="intro-toggle" id="intro-toggle">Ver instrucciones</button>
+      <div class="intro-content">
+      <div class="intro-block">
+        <h2 class="intro-heading">Instrucciones</h2>
+        <div class="intro-card">
+          <div class="item">
+            <span class="item-title">¿Cómo navegar?:</span>
+            <span class="item-body--accent">
+              Selecciona un pilar (Disponibilidad, Accesibilidad, Aceptabilidad, Adecuación o
+              Asequibilidad) en las pestañas superiores para ver sus indicadores detallados,
+              las gráficas asociadas y el perfil de las personas encuestadas.
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Filtros y caracterización de población:</span>
+            <span class="item-body">
+              Usa los filtros de unidad y etnia para acotar las respuestas que se muestran en
+              todos los gráficos. La caja de "Respuestas" indica el total de encuestas que
+              cumplen con los filtros seleccionados.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="intro-block">
+        <h2 class="intro-heading">Metodología</h2>
+        <div class="intro-steps">
+          <div class="item">
+            <span class="item-title">Paso 1</span>
+            <span class="item-body">
+              Las preguntas de la encuesta KoboToolbox se agrupan por pilar (Disponibilidad,
+              Accesibilidad, Aceptabilidad, Adecuación, Asequibilidad).
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Paso 2</span>
+            <span class="item-body">
+              Cada indicador toma las respuestas de su pregunta correspondiente y calcula la
+              distribución por categoría (Sí, No, Parcialmente, NS / PNR).
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Paso 3</span>
+            <span class="item-body">
+              Los porcentajes se calculan sobre el total de respuestas válidas; las respuestas
+              "No sé" o "Prefiero no responder" se reportan aparte.
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Paso 4</span>
+            <span class="item-body">
+              El resultado se visualiza como tarjeta con donut de distribución, leyenda de
+              respuestas y el objetivo del indicador para facilitar su interpretación.
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Objetivo de indicador:</span>
+            <span class="item-body">
+              Cada tarjeta documenta qué se busca medir, de modo que la interpretación sea
+              comparable entre establecimientos y a lo largo del tiempo.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="intro-block">
+        <h2 class="intro-heading">Avanzando hacia metas 95 95 95</h2>
+        <div class="intro-card">
+          <div class="item">
+            <span class="item-title">Justificar esta sección:</span>
+            <span class="item-body--accent">
+              Las metas 95-95-95 de ONUSIDA buscan que el 95% de personas con VIH conozca su
+              estatus, que el 95% de ellas reciba tratamiento ARV sostenido y que el 95%
+              alcance supresión viral. Los indicadores del MLC permiten monitorear, desde la
+              experiencia de las personas usuarias, las brechas que dificultan alcanzar
+              estas metas en cada establecimiento.
+            </span>
+          </div>
+        </div>
+        <div class="intro-cta-wrap">
+          <button type="button" class="intro-cta" id="intro-cta">
+            Explora aquí indicadores asociados a metas 95 95 95
+          </button>
+        </div>
+      </div>
+      </div><!-- /.intro-content -->
+    </div>
+
+    <div class="dashboard-body" id="dashboard-body">
+
     <!-- Total respuestas -->
     <div class="responses-box">
       <h3 id="responses-count">0</h3>
@@ -133,6 +249,8 @@
         <canvas id="unidadChart"></canvas>
       </div>
     </div>
+
+    </div><!-- /.dashboard-body -->
 
   </section>
 
@@ -467,6 +585,37 @@
       });
     }
 
+    const SUMMARY_PILLARS = ["Disponibilidad", "Accesibilidad", "Aceptabilidad", "Adecuación", "Asequibilidad"];
+
+    function shortUnidad(u) {
+      return String(u).replace(/^Centro de Salud\s+/i, "")
+                      .replace(/^Puesto de Salud\s+/i, "");
+    }
+
+    function buildSummaryTable() {
+      const tbody = document.getElementById("summary-tbody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      const unidades = [...new Set(DATA.responses.map(r => r._unidad))].sort();
+      for (const u of unidades) {
+        const rs = DATA.responses.filter(r => r._unidad === u);
+        const scores = SUMMARY_PILLARS.map(p => MLC.pillarScore(DATA.schema, rs, p));
+        const total  = scores.reduce((a, b) => a + b, 0);
+        const cells = scores.map(v => {
+          const a = (0.08 + (v / 100) * 0.55).toFixed(2);
+          return `<td class="su-cell" style="background: rgba(193, 17, 31, ${a})">${v}</td>`;
+        }).join("");
+        tbody.insertAdjacentHTML("beforeend", `
+          <tr>
+            <td class="su-unidad">${shortUnidad(u)}</td>
+            ${cells}
+            <td class="su-valor">${total}</td>
+          </tr>
+        `);
+      }
+    }
+
     function refresh() {
       const filters = {
         unidad: document.getElementById("unidad-filter").value || null,
@@ -485,12 +634,48 @@
       refresh();
     }
 
+    // --- Toggle del panel de Instrucciones (persistente en localStorage) ---
+    const INTRO_KEY = "mlc_intro_dismissed_v1";
+    function setIntroCollapsed(collapsed) {
+      const panel = document.getElementById("intro-panel");
+      const body  = document.getElementById("dashboard-body");
+      if (!panel || !body) return;
+      panel.classList.toggle("collapsed", collapsed);
+      body.classList.toggle("hidden", !collapsed);
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
+      // Estado inicial del intro: si ya fue descartado, lo mostramos colapsado
+      const introDismissed = (() => {
+        try { return localStorage.getItem(INTRO_KEY) === "true"; }
+        catch (_) { return false; }
+      })();
+      setIntroCollapsed(introDismissed);
+
+      const cta    = document.getElementById("intro-cta");
+      const toggle = document.getElementById("intro-toggle");
+      if (cta) {
+        cta.addEventListener("click", () => {
+          try { localStorage.setItem(INTRO_KEY, "true"); } catch (_) {}
+          setIntroCollapsed(true);
+          document.getElementById("dashboard-body")
+            .scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+      if (toggle) {
+        toggle.addEventListener("click", () => {
+          setIntroCollapsed(false);
+          document.getElementById("intro-panel")
+            .scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+
       DATA = await MLC.loadMock("usuarios");
       try {
         const r = await fetch("data/indicators-usuarios.json");
         INDICATORS = r.ok ? await r.json() : [];
       } catch (_) { INDICATORS = []; }
+      buildSummaryTable();
       updateTabCounts();
 
       document.querySelectorAll(".pillar-tab").forEach(tab => {

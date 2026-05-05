@@ -34,6 +34,122 @@
   <!-- Main -->
   <section class="container" style="padding: 1rem 2rem 3rem;">
 
+    <!-- Panel resumen (heatmap unidad x pilar) -->
+    <div class="summary-panel">
+      <div class="summary-panel-title">Resumen por unidad de atención</div>
+      <div class="summary-table-wrap">
+        <table class="summary-table" id="summary-table">
+          <thead>
+            <tr>
+              <th class="su-corner" rowspan="2">Unidad de atención</th>
+              <th class="su-pilar-group" colspan="5">Pilar</th>
+              <th class="su-valor-head" rowspan="2">valor</th>
+            </tr>
+            <tr>
+              <th class="su-pilar"><span>Disponibilidad</span></th>
+              <th class="su-pilar"><span>Accesibilidad</span></th>
+              <th class="su-pilar"><span>Aceptabilidad</span></th>
+              <th class="su-pilar"><span>Adecuación</span></th>
+              <th class="su-pilar"><span>Asequibilidad</span></th>
+            </tr>
+          </thead>
+          <tbody id="summary-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Instrucciones / Metodología -->
+    <div class="intro-panel" id="intro-panel">
+      <button type="button" class="intro-toggle" id="intro-toggle">Ver instrucciones</button>
+      <div class="intro-content">
+      <div class="intro-block">
+        <h2 class="intro-heading">Instrucciones</h2>
+        <div class="intro-card">
+          <div class="item">
+            <span class="item-title">¿Cómo navegar?:</span>
+            <span class="item-body--accent">
+              Revisa el desempeño general de tu unidad en los KPIs por pilar, compara contra
+              el promedio regional o unidades similares, y consulta la retroalimentación
+              comunitaria con fortalezas, áreas de mejora y acciones sugeridas.
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Filtros y caracterización de población:</span>
+            <span class="item-body">
+              Usa los filtros de Mi Unidad, Comparación y Período para acotar los datos. El
+              indicador "Mostrando X de Y encuestas" en la barra superior refleja el alcance
+              de la selección actual.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="intro-block">
+        <h2 class="intro-heading">Metodología</h2>
+        <div class="intro-steps">
+          <div class="item">
+            <span class="item-title">Paso 1</span>
+            <span class="item-body">
+              Las respuestas de las personas usuarias se recolectan por establecimiento a
+              través de la encuesta MLC en KoboToolbox.
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Paso 2</span>
+            <span class="item-body">
+              Cada respuesta se clasifica por pilar y se le asigna un puntaje (1.0 favorable,
+              0.5 parcial, 0 desfavorable; NS / PNR no entran al denominador).
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Paso 3</span>
+            <span class="item-body">
+              El puntaje del pilar es el promedio de los puntajes de sus preguntas. Tu unidad
+              se compara contra el promedio del grupo seleccionado.
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Paso 4</span>
+            <span class="item-body">
+              La evolución mensual y la distribución de respuestas por pilar permiten
+              identificar tendencias y priorizar acciones correctivas.
+            </span>
+          </div>
+          <div class="item">
+            <span class="item-title">Objetivo de indicador:</span>
+            <span class="item-body">
+              Apoyar la toma de decisiones del equipo de salud con información comunitaria,
+              comparable entre unidades y consistente en el tiempo.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="intro-block">
+        <h2 class="intro-heading">Avanzando hacia metas 95 95 95</h2>
+        <div class="intro-card">
+          <div class="item">
+            <span class="item-title">Justificar esta sección:</span>
+            <span class="item-body--accent">
+              Las metas 95-95-95 de ONUSIDA buscan que el 95% de personas con VIH conozca su
+              estatus, que el 95% de ellas reciba tratamiento ARV sostenido y que el 95%
+              alcance supresión viral. El monitoreo comunitario aporta evidencia desde la
+              experiencia de las personas usuarias para identificar brechas operativas en
+              tu establecimiento.
+            </span>
+          </div>
+        </div>
+        <div class="intro-cta-wrap">
+          <button type="button" class="intro-cta" id="intro-cta">
+            Explora aquí indicadores asociados a metas 95 95 95
+          </button>
+        </div>
+      </div>
+      </div><!-- /.intro-content -->
+    </div>
+
+    <div class="dashboard-body" id="dashboard-body">
+
     <!-- Filtros -->
     <div class="filters">
       <div class="filter-group">
@@ -160,6 +276,8 @@
         </div>
       </div>
     </div>
+
+    </div><!-- /.dashboard-body -->
 
   </section>
 
@@ -322,6 +440,36 @@
       }
     }
 
+    const SUMMARY_PILLARS = ["Disponibilidad", "Accesibilidad", "Aceptabilidad", "Adecuación", "Asequibilidad"];
+
+    function shortUnidad(u) {
+      return String(u).replace(/^Centro de Salud\s+/i, "")
+                      .replace(/^Puesto de Salud\s+/i, "");
+    }
+
+    function buildSummaryTable() {
+      const tbody = document.getElementById("summary-tbody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      const unidades = [...new Set(DATA.responses.map(r => r._unidad))].sort();
+      for (const u of unidades) {
+        const rs = DATA.responses.filter(r => r._unidad === u);
+        const scores = SUMMARY_PILLARS.map(p => MLC.pillarScore(DATA.schema, rs, p));
+        const total  = scores.reduce((a, b) => a + b, 0);
+        const cells = scores.map(v => {
+          const a = (0.08 + (v / 100) * 0.55).toFixed(2);
+          return `<td class="su-cell" style="background: rgba(193, 17, 31, ${a})">${v}</td>`;
+        }).join("");
+        tbody.insertAdjacentHTML("beforeend", `
+          <tr>
+            <td class="su-unidad">${shortUnidad(u)}</td>
+            ${cells}
+            <td class="su-valor">${total}</td>
+          </tr>
+        `);
+      }
+    }
+
     function refresh() {
       const filters = {
         unidad: document.getElementById("prestador-filter").value || null,
@@ -346,8 +494,43 @@
       refresh();
     }
 
+    // --- Toggle del panel de Instrucciones (persistente en localStorage) ---
+    const INTRO_KEY = "mlc_intro_dismissed_v1";
+    function setIntroCollapsed(collapsed) {
+      const panel = document.getElementById("intro-panel");
+      const body  = document.getElementById("dashboard-body");
+      if (!panel || !body) return;
+      panel.classList.toggle("collapsed", collapsed);
+      body.classList.toggle("hidden", !collapsed);
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
+      const introDismissed = (() => {
+        try { return localStorage.getItem(INTRO_KEY) === "true"; }
+        catch (_) { return false; }
+      })();
+      setIntroCollapsed(introDismissed);
+
+      const cta    = document.getElementById("intro-cta");
+      const toggle = document.getElementById("intro-toggle");
+      if (cta) {
+        cta.addEventListener("click", () => {
+          try { localStorage.setItem(INTRO_KEY, "true"); } catch (_) {}
+          setIntroCollapsed(true);
+          document.getElementById("dashboard-body")
+            .scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+      if (toggle) {
+        toggle.addEventListener("click", () => {
+          setIntroCollapsed(false);
+          document.getElementById("intro-panel")
+            .scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+
       DATA = await MLC.loadMock("prestadores");
+      buildSummaryTable();
       ["prestador-filter", "comparison-filter", "period-filter"]
         .forEach(id => document.getElementById(id).addEventListener("change", refresh));
       refresh();

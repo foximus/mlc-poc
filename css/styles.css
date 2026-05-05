@@ -903,6 +903,284 @@ table td.warning  { color: #c47a04; font-weight: 600; }
 table td.critical { color: var(--crimson-blaze); font-weight: 600; }
 
 /* ============================================================
+   Panel resumen (heatmap unidad x pilar)
+   ============================================================ */
+.summary-panel {
+  margin: 1.5rem 0 1rem;
+  background: var(--text-light);
+  border-radius: 8px;
+  padding: 1.25rem 1.25rem 1.5rem;
+  box-shadow: 0 2px 10px rgba(0, 48, 73, 0.08);
+  overflow: hidden;
+}
+
+.summary-panel-title {
+  font-family: var(--font-display);
+  font-weight: 900;
+  color: var(--blood-rust);
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.summary-table-wrap { overflow-x: auto; }
+
+.summary-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 1px;
+  background: #fff;
+  font-size: 0.9rem;
+}
+
+.summary-table .su-corner {
+  background: #fff;
+  border-bottom: 1px solid #ccc;
+  vertical-align: bottom;
+  padding: 0.5rem 0.75rem;
+  font-weight: 700;
+  color: var(--deep-oceanic);
+  text-align: left;
+  width: 200px;
+}
+
+.summary-table .su-pilar-group {
+  background: #BDBDBD;
+  color: #fff;
+  padding: 0.4rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  text-align: center;
+}
+
+/* Encabezados de pilar diagonales */
+.summary-table .su-pilar {
+  background: #BDBDBD;
+  height: 120px;
+  vertical-align: bottom;
+  padding: 0 0 8px 0;
+  position: relative;
+  width: 70px;
+  text-align: center;
+}
+
+.summary-table .su-pilar > span {
+  display: inline-block;
+  transform: rotate(-45deg);
+  transform-origin: 50% 100%;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #333;
+  position: relative;
+  bottom: 0.25rem;
+  padding-left: 0.5rem;
+}
+
+/* Header "valor" en rojo */
+.summary-table .su-valor-head {
+  background: var(--crimson-blaze);
+  color: var(--vanilla-cream);
+  padding: 0.5rem 1rem;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1rem;
+  text-align: center;
+  vertical-align: middle;
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+/* Filas */
+.summary-table tbody td {
+  padding: 0.45rem 0.6rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--deep-oceanic);
+  background: #fff;
+}
+
+.summary-table .su-unidad {
+  text-align: left;
+  font-weight: 700;
+  background: #F5F5F5;
+  color: var(--deep-oceanic);
+  padding-left: 0.85rem;
+}
+
+/* Celda heatmap (background-color via inline style basada en valor) */
+.summary-table .su-cell { transition: background 0.2s; }
+
+/* Celda valor (totales) */
+.summary-table .su-valor {
+  background: rgba(193, 17, 31, 0.12);
+  color: var(--blood-rust);
+  font-weight: 900;
+  font-size: 1rem;
+}
+
+/* ============================================================
+   Instrucciones / Metodología (panel introductorio del dashboard)
+   ============================================================ */
+.intro-panel {
+  background: var(--vanilla-cream);
+  padding: 2rem 0 1rem;
+  margin-bottom: 1rem;
+}
+
+.intro-block { margin-bottom: 2rem; }
+.intro-block:last-child { margin-bottom: 0; }
+
+.intro-heading {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.4rem;
+  color: var(--crimson-blaze);
+  margin-bottom: 0.9rem;
+  letter-spacing: 0.2px;
+}
+
+.intro-heading::before {
+  content: "* ";
+  color: var(--crimson-blaze);
+  font-weight: 900;
+}
+
+.intro-card {
+  background: #ECECEC;
+  border-radius: 6px;
+  padding: 1.5rem 1.75rem;
+  box-shadow: 0 1px 4px rgba(0, 48, 73, 0.05);
+}
+
+.intro-card .item { margin-bottom: 1.1rem; }
+.intro-card .item:last-child { margin-bottom: 0; }
+
+.intro-card .item-title,
+.intro-steps .item-title {
+  display: block;
+  color: var(--crimson-blaze);
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.intro-card .item-body--accent {
+  color: var(--crimson-blaze);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.intro-card .item-body {
+  color: var(--deep-oceanic);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+/* Bloque "Metodología" (sin fondo gris, solo lista de pasos) */
+.intro-steps { padding: 0 0.25rem; }
+.intro-steps .item { margin-bottom: 0.85rem; }
+.intro-steps .item-body {
+  color: var(--deep-oceanic);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* CTA final (botón sólido centrado - cierra el panel y guarda flag) */
+.intro-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 1.5rem auto 0.5rem;
+  padding: 0.85rem 1.75rem;
+  background: var(--crimson-blaze);
+  color: var(--vanilla-cream);
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.intro-cta::before {
+  content: "*";
+  font-weight: 900;
+}
+
+.intro-cta:hover  { background: var(--blood-rust); }
+.intro-cta:active { transform: translateY(1px); }
+.intro-cta:focus-visible { outline: 2px solid var(--vanilla-cream); outline-offset: 2px; }
+
+/* Wrapper para centrar el botón */
+.intro-cta-wrap {
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid rgba(193, 17, 31, 0.25);
+  padding-top: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+/* Toggle "Ver instrucciones" (solo visible cuando el panel está colapsado) */
+.intro-toggle {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--crimson-blaze);
+  color: var(--vanilla-cream);
+  border: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.intro-toggle:hover { background: var(--blood-rust); }
+.intro-toggle:active { transform: translateY(1px); }
+
+.intro-toggle::before {
+  content: "*";
+  font-weight: 900;
+}
+
+/* Estado colapsado: oculta el contenido y muestra solo el botón */
+.intro-panel.collapsed .intro-content { display: none; }
+.intro-panel.collapsed .intro-toggle  { display: inline-flex; }
+.intro-panel.collapsed { padding: 1.25rem 0 0.5rem; }
+
+/* Animación suave al expandir */
+.intro-panel:not(.collapsed) .intro-content {
+  animation: introFadeIn 0.25s ease-out;
+}
+
+@keyframes introFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Cuerpo del dashboard que se oculta cuando el intro está expandido */
+.dashboard-body.hidden { display: none; }
+
+@media (max-width: 600px) {
+  .intro-cta { flex-direction: column; align-items: flex-start; }
+  .intro-cta img { height: 56px; }
+  .intro-heading { font-size: 1.2rem; }
+}
+
+/* ============================================================
    Indicator cards (estilo image: nº | donut+leyenda | indicador+objetivo)
    ============================================================ */
 .indicator-cards {
