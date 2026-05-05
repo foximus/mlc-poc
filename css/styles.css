@@ -116,14 +116,6 @@ header {
   height: 42px;
   width: auto;
 }
-
-.logo-text {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-size: 1.4rem;
-  letter-spacing: 1px;
-}
-
 nav ul {
   list-style: none;
   display: flex;
