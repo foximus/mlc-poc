@@ -194,9 +194,6 @@
       </p>
     </div>
 
-    <!-- Gauges (4 indicadores) -->
-    <div class="gauges-container" id="gauges-row"></div>
-
     <!-- Filtros -->
     <div class="filters">
       <div class="filter-group">
@@ -324,8 +321,7 @@
 
     let DATA = null;
     let INDICATORS = [];
-    let charts = { gauges: [], etnia: null, edad: null, unidad: null, cards: [] };
-    const GAUGE_COLORS = ["#790000", "#003049", "#669BBC", "#C1111F"];
+    let charts = { etnia: null, edad: null, unidad: null, cards: [] };
     let currentPillar = "Disponibilidad";
 
     // Colores por categoría de respuesta (estilo cards del KEY VISUAL)
@@ -357,41 +353,6 @@
       if (!vals.length) return 0;
       const lo = vals.filter(v => v <= threshold).length;
       return Math.round(lo / vals.length * 100);
-    }
-
-    function renderGauges(responses) {
-      const cfg = PILLAR_CFG[currentPillar];
-      const wrap = document.getElementById("gauges-row");
-      wrap.innerHTML = "";
-      // destruir charts previos
-      charts.gauges.forEach(c => c && c.destroy());
-      charts.gauges = [];
-
-      cfg.gauges.forEach((g, i) => {
-        const value = pctYes(responses, g.name, g.yes);
-        const id = `gauge-${i}`;
-        wrap.insertAdjacentHTML("beforeend", `
-          <div class="gauge-item">
-            <div class="gauge-title">${g.label}</div>
-            <div class="gauge-chart"><canvas id="${id}"></canvas></div>
-            <p class="gauge-description"><strong>${value}%</strong> respuesta favorable</p>
-          </div>
-        `);
-        const ctx = document.getElementById(id).getContext("2d");
-        const chart = new Chart(ctx, {
-          type: "doughnut",
-          data: {
-            labels: ["Sí", "No / NS"],
-            datasets: [{
-              data: [value, 100 - value],
-              backgroundColor: [GAUGE_COLORS[i], "#e8e0c8"],
-              borderColor: "#fff", borderWidth: 3
-            }]
-          },
-          options: { plugins: { legend: { position: "bottom" } } }
-        });
-        charts.gauges.push(chart);
-      });
     }
 
     function renderIndicatorCards(responses) {
@@ -631,7 +592,6 @@
       };
       const responses = MLC.filterResponses(DATA.responses, filters);
       updatePillarHeader(responses);
-      renderGauges(responses);
       renderIndicatorCards(responses);
       renderDemographics(responses);
     }

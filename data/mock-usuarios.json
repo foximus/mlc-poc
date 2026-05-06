@@ -112,7 +112,7 @@
       "name": "p18_inasistencia_dinero",
       "label": "En los últimos 6 meses, ¿dejó de asistir a una cita por falta de dinero?",
       "type": "select_one si_no_nsr_pnr",
-      "pilar": "Accesibilidad"
+      "pilar": "Asequibilidad"
     },
     {
       "name": "p19_inasistencia_permiso",

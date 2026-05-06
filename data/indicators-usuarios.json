@@ -25,18 +25,6 @@
   },
   {
     "pilar": "Accesibilidad",
-    "name": "Inasistencia a citas por costo (últimos 6 meses)",
-    "id": "P18",
-    "pregunta": "En los últimos 6 meses, ¿dejó de asistir a una cita por falta de dinero?",
-    "respuestas": "Sí, No, No sé / No recuerda, Prefiero no responder",
-    "objetivo": "Medir la proporción de personas que no asistieron a citas por limitaciones económicas.",
-    "establecimiento": "UAI",
-    "clasificacion": "Universal",
-    "field": "p18_inasistencia_dinero",
-    "type": "select_one si_no_nsr_pnr"
-  },
-  {
-    "pilar": "Accesibilidad",
     "name": "Inasistencia a citas por falta de permiso laboral",
     "id": "P19",
     "pregunta": "En los últimos 6 meses, ¿dejó de asistir a una cita por falta de permiso laboral?",
@@ -118,6 +106,18 @@
     "clasificacion": "Universal",
     "field": "p25_detalle_pago",
     "type": "text"
+  },
+  {
+    "pilar": "Asequibilidad",
+    "name": "Inasistencia a citas por costo (últimos 6 meses)",
+    "id": "P18",
+    "pregunta": "En los últimos 6 meses, ¿dejó de asistir a una cita por falta de dinero?",
+    "respuestas": "Sí, No, No sé / No recuerda, Prefiero no responder",
+    "objetivo": "Medir la proporción de personas que no asistieron a citas por limitaciones económicas.",
+    "establecimiento": "UAI",
+    "clasificacion": "Universal",
+    "field": "p18_inasistencia_dinero",
+    "type": "select_one si_no_nsr_pnr"
   },
   {
     "pilar": "Asequibilidad",
