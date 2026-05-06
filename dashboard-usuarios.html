@@ -254,6 +254,25 @@
 
   </section>
 
+  <!-- Modal de respuestas (texto libre / select_multiple / detalle) -->
+  <div class="resp-modal" id="responses-modal" hidden>
+    <div class="resp-modal-backdrop" data-modal-close></div>
+    <div class="resp-modal-content" role="dialog" aria-modal="true" aria-labelledby="resp-modal-title">
+      <div class="resp-modal-head">
+        <h3 id="resp-modal-title">Respuestas</h3>
+        <button type="button" class="resp-modal-close" data-modal-close aria-label="Cerrar">×</button>
+      </div>
+      <div class="resp-modal-body">
+        <table class="resp-table">
+          <thead>
+            <tr><th style="width:48px">#</th><th>Unidad de atención</th><th>Respuesta</th></tr>
+          </thead>
+          <tbody id="resp-modal-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer>
     <div class="container">
@@ -324,6 +343,26 @@
     let charts = { etnia: null, edad: null, unidad: null, cards: [] };
     let currentPillar = "Disponibilidad";
 
+    // Relaciones padre/hijo entre indicadores y flags de cálculo.
+    // Las claves son IDs (P-code) del JSON de indicadores.
+    const INDICATOR_META = {
+      // Accesibilidad
+      P21: { parent: "P20", asTable: true },
+      // Asequibilidad
+      P22: { excludeFromScore: true },
+      P23: { excludeFromScore: true },
+      P25: { parent: "P24", asTable: true },
+      // Disponibilidad
+      P39: { parent: "P38", asTable: true },
+      P41: { parent: "P40" },
+      P42: { parent: "P40" },
+      // Aceptabilidad
+      P49: { parent: "P48", asTable: true, excludeFromScore: true },
+      // Adecuación
+      P53: { parent: "P52", asTable: true },
+      P55: { parent: "P54", asTable: true },
+    };
+
     // Colores por categoría de respuesta (estilo cards del KEY VISUAL)
     const RESPONSE_COLORS = {
       positiva: "#1ABCBC",   // Sí / favorable (teal)
@@ -368,16 +407,46 @@
         return;
       }
 
+      const idToPos = new Map(list.map((ind, i) => [ind.id, i + 1]));
+      const childrenOf = new Map();
+      list.forEach(ind => {
+        const m = INDICATOR_META[ind.id];
+        if (m?.parent) {
+          if (!childrenOf.has(m.parent)) childrenOf.set(m.parent, []);
+          childrenOf.get(m.parent).push(ind);
+        }
+      });
+
       list.forEach((ind, idx) => {
         const cardId = `ind-card-${idx}`;
         const num = idx + 1;
+        const meta = INDICATOR_META[ind.id] || {};
         const isCategorical = (ind.type || "").startsWith("select_one") || (ind.type || "").startsWith("select_multiple");
         const isNumeric = ind.type === "integer" || ind.type === "decimal";
+        const isChild = !!meta.parent;
+        const hasChildren = childrenOf.has(ind.id);
 
         let chartHtml = "";
         let bodyData = null;
 
-        if (isCategorical && ind.field) {
+        if (meta.asTable && ind.field) {
+          const respondedCount = responses.filter(r => {
+            const v = r[ind.field];
+            return Array.isArray(v) ? v.length > 0 : (v !== undefined && v !== null && v !== "");
+          }).length;
+          const escName = (ind.name || "").replace(/"/g, "&quot;");
+          chartHtml = `
+            <div class="indicator-card-table">
+              <p class="indicator-card-question">${ind.pregunta || ""}</p>
+              <button type="button" class="btn-modal-open"
+                data-modal-field="${ind.field}"
+                data-modal-name="${escName}"
+                data-modal-type="${ind.type || ''}">
+                Ver respuestas (${respondedCount})
+              </button>
+            </div>
+          `;
+        } else if (isCategorical && ind.field) {
           const counts = MLC.countValues(responses, ind.field);
           // entradas ordenadas: positiva, parcial, otra, negativa, ns
           const entries = Object.entries(counts).filter(([k]) => k !== "undefined" && k !== "null");
@@ -440,14 +509,38 @@
           `;
         }
 
+        let depPill = "";
+        if (isChild) {
+          const pPos = idToPos.get(meta.parent);
+          const parentInd = list.find(x => x.id === meta.parent);
+          depPill = `<div class="indicator-dep-pill">↳ Depende del #${pPos} — ${parentInd?.name || meta.parent}</div>`;
+        }
+
+        let badges = "";
+        if (meta.excludeFromScore) {
+          badges += `<span class="indicator-badge no-score" title="No entra en el cálculo de calificación">Sin cálculo</span>`;
+        }
+        if (hasChildren) {
+          const positions = childrenOf.get(ind.id).map(c => `#${idToPos.get(c.id)}`).join(", ");
+          badges += `<span class="indicator-badge has-children-badge" title="Tiene preguntas de seguimiento">↓ Seguimiento ${positions}</span>`;
+        }
+
+        const wrapperClass = `indicator-card-wrapper${isChild ? ' is-child' : ''}`;
+        const hasFooter = !!badges;
+        const cardClass = `indicator-card${hasChildren ? ' has-children' : ''}${isChild ? ' is-child' : ''}${hasFooter ? ' has-footer' : ''}`;
+
         wrap.insertAdjacentHTML("beforeend", `
-          <div class="indicator-card">
-            <div class="indicator-card-num">${num}</div>
-            ${chartHtml}
-            <div class="indicator-card-text">
-              <p><span class="label">Indicador:</span> <span class="value">${ind.name}</span></p>
-              <p><span class="label">Objetivo de indicador:</span> ${ind.objetivo || "—"}</p>
+          <div class="${wrapperClass}">
+            ${depPill}
+            <div class="${cardClass}">
+              <div class="indicator-card-num">${num}</div>
+              ${chartHtml}
+              <div class="indicator-card-text">
+                <p><span class="label">Indicador:</span> <span class="value">${ind.name}</span></p>
+                <p><span class="label">Objetivo de indicador:</span> ${ind.objetivo || "—"}</p>
+              </div>
             </div>
+            ${badges ? `<div class="indicator-card-footer">${badges}</div>` : ""}
           </div>
         `);
 
@@ -601,6 +694,62 @@
       document.getElementById("etnia-filter").value = "";
       refresh();
     }
+
+    // --- Modal de respuestas ---
+    function getCurrentFilteredResponses() {
+      const filters = {
+        unidad: document.getElementById("unidad-filter").value || null,
+        etnia: document.getElementById("etnia-filter").value || null,
+      };
+      return MLC.filterResponses(DATA.responses, filters);
+    }
+
+    function openResponsesModal(field, name, type) {
+      const modal = document.getElementById("responses-modal");
+      document.getElementById("resp-modal-title").textContent = name || "Respuestas";
+      const tbody = document.getElementById("resp-modal-tbody");
+      tbody.innerHTML = "";
+      const responses = getCurrentFilteredResponses();
+      let n = 0;
+      responses.forEach(r => {
+        const v = r[field];
+        const present = Array.isArray(v) ? v.length > 0 : (v !== undefined && v !== null && v !== "");
+        if (!present) return;
+        n++;
+        const display = Array.isArray(v)
+          ? v.map(MLC.prettyLabel).join(", ")
+          : (typeof v === "number" ? String(v) : String(v));
+        const unidad = r._unidad || "—";
+        const tr = document.createElement("tr");
+        const td1 = document.createElement("td"); td1.textContent = n;
+        const td2 = document.createElement("td"); td2.textContent = unidad;
+        const td3 = document.createElement("td"); td3.textContent = display;
+        tr.append(td1, td2, td3);
+        tbody.appendChild(tr);
+      });
+      if (n === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="resp-empty">Sin respuestas registradas para los filtros actuales.</td></tr>`;
+      }
+      modal.hidden = false;
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeResponsesModal() {
+      document.getElementById("responses-modal").hidden = true;
+      document.body.style.overflow = "";
+    }
+
+    document.addEventListener("click", (e) => {
+      const opener = e.target.closest(".btn-modal-open");
+      if (opener) {
+        openResponsesModal(opener.dataset.modalField, opener.dataset.modalName, opener.dataset.modalType);
+        return;
+      }
+      if (e.target.closest("[data-modal-close]")) closeResponsesModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !document.getElementById("responses-modal").hidden) closeResponsesModal();
+    });
 
     // --- Toggle del panel de Instrucciones (persistente en localStorage) ---
     const INTRO_KEY = "mlc_intro_dismissed_v1";
