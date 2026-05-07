@@ -717,6 +717,81 @@ footer strong { color: var(--mystic-blue); }
   background: var(--text-light);
 }
 
+/* Wrapper de filtros dinámicos: usa display:contents para que sus
+   hijos fluyan como ítems flex del .filters contenedor. */
+.filters-dyn {
+  display: contents;
+}
+
+/* Botón × para quitar un filtro extra */
+.filter-group .filter-remove {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--blood-rust);
+  width: 1.5rem;
+  height: 1.5rem;
+  line-height: 1;
+  border-radius: 50%;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.filter-group .filter-remove:hover {
+  background: var(--blood-rust);
+  color: var(--text-light);
+}
+
+/* Menú "Agregar filtro" — <details> nativo */
+.add-filter {
+  position: relative;
+}
+.add-filter > summary {
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+}
+.add-filter > summary::-webkit-details-marker { display: none; }
+.add-filter[open] > summary {
+  background: var(--deep-oceanic);
+}
+.add-filter-menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  z-index: 50;
+  min-width: 220px;
+  background: var(--text-light);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 48, 73, 0.18);
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.add-filter-item {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: var(--deep-oceanic);
+  cursor: pointer;
+  font-family: var(--font-display);
+}
+.add-filter-item:hover {
+  background: var(--vanilla-cream);
+  color: var(--blood-rust);
+}
+
 /* Indicadores numéricos */
 .indicators {
   display: grid;

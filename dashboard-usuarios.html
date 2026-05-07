@@ -194,32 +194,9 @@
       </p>
     </div>
 
-    <!-- Filtros -->
+    <!-- Filtros (renderizados dinámicamente desde FILTER_CATALOG + extras persistidos) -->
     <div class="filters">
-      <div class="filter-group">
-        <label for="unidad-filter">Unidad:</label>
-        <select id="unidad-filter">
-          <option value="">Todas las unidades</option>
-          <option value="Centro de Salud Roosevelt">Centro de Salud Roosevelt</option>
-          <option value="Centro de Salud San Juan de Dios">Centro de Salud San Juan de Dios</option>
-          <option value="Puesto de Salud Esquintla">Puesto de Salud Esquintla</option>
-          <option value="Puesto de Salud Quetzaltenango">Puesto de Salud Quetzaltenango</option>
-          <option value="Puesto de Salud Izabal">Puesto de Salud Izabal</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="etnia-filter">Etnia:</label>
-        <select id="etnia-filter">
-          <option value="">Todas</option>
-          <option value="maya">Maya</option>
-          <option value="ladino_o_mestizo">Ladino o Mestizo</option>
-          <option value="xinka">Xinka</option>
-          <option value="garifuna">Garífuna</option>
-          <option value="otro">Otro</option>
-        </select>
-      </div>
-
+      <div id="filters" class="filters-dyn"></div>
       <button class="btn btn-secondary" onclick="resetFilters()">Limpiar</button>
     </div>
 
@@ -284,57 +261,27 @@
   <script src="js/script.js"></script>
   <script src="js/dashboard-data.js"></script>
   <script>
-    // Configuración por pilar: pregunta de contexto + indicadores (gauges)
+    // Configuración por pilar: pregunta de contexto y descripción del banner.
     const PILLAR_CFG = {
       "Disponibilidad": {
         question: "¿Existen los medicamentos, pruebas e insumos de prevención?",
         desc: "Evalúa si los medicamentos, pruebas e insumos de prevención están efectivamente disponibles cuando las personas los necesitan.",
-        gauges: [
-          { label: "Personas con TAR completo",          name: "p38_entrega_arv_completa",   yes: ["si"] },
-          { label: "Carga viral en últimos 6 meses",     name: "p43_prueba_carga_viral_6m",  yes: ["si"] },
-          { label: "Prueba de CD4 en últimos 6 meses",   name: "p44_prueba_cd4_6m",          yes: ["si"] },
-          { label: "Entrega de condones / lubricantes",  name: "p40_entrega_condones_lubricantes", yes: ["si"] },
-        ],
       },
       "Accesibilidad": {
         question: "¿Pueden las personas acceder a los servicios disponibles?",
         desc: "Mide la facilidad de acceso considerando tiempos de espera, traslado y barreras económicas o laborales.",
-        gauges: [
-          { label: "Espera ≤ 30 minutos",                name: "p16_tiempo_espera",          yes: ["menos_de_30_minutos"] },
-          { label: "Traslado < 1 hora",                  name: "p17_tiempo_traslado",        yes: ["menos_de_30_minutos","entre_30_y_60_minutos"] },
-          { label: "No faltó por dinero (6m)",           name: "p18_inasistencia_dinero",    yes: ["no"] },
-          { label: "No faltó por permiso laboral (6m)",  name: "p19_inasistencia_permiso",   yes: ["no"] },
-        ],
       },
       "Aceptabilidad": {
         question: "¿Son culturalmente aceptados los servicios?",
         desc: "Evalúa cómo la comunidad percibe y acepta los servicios según sus valores y experiencia de atención.",
-        gauges: [
-          { label: "No reportó discriminación",          name: "p45_discriminacion_vih",     yes: ["no"] },
-          { label: "Trato bueno o muy bueno",            name: "p46_trato_personal",         yes: ["bueno","muy_bueno"] },
-          { label: "Confidencialidad percibida",         name: "p47_confidencialidad",       yes: ["si","parcialmente"] },
-          { label: "Personal le trató con respeto",      name: "p48_respeto",                yes: ["si"] },
-        ],
       },
       "Adecuación": {
         question: "¿Se ajustan los servicios a las necesidades de las personas?",
         desc: "Verifica si los servicios responden a la diversidad cultural, lingüística y a poblaciones clave.",
-        gauges: [
-          { label: "Información en su idioma",           name: "p50_info_idioma",            yes: ["si"] },
-          { label: "Servicio preparado para población clave", name: "p51_preparado_poblacion_clave", yes: ["si","parcialmente"] },
-          { label: "Trato adecuado culturalmente",       name: "p52_adecuacion_cultural",    yes: ["si"] },
-          { label: "Espacios adaptados",                 name: "p54_espacios_adaptados",     yes: ["si"] },
-        ],
       },
       "Asequibilidad": {
         question: "¿Son asequibles y sostenibles los servicios?",
         desc: "Evalúa la carga financiera y de tiempo que implica acceder a los servicios para las personas usuarias.",
-        gauges: [
-          { label: "Sin pago de medicamentos / pruebas (6m)", name: "p24_pago_medicamentos", yes: ["no"] },
-          { label: "Sin pérdida de ingresos hoy",             name: "p26_perdida_ingresos",  yes: ["no"] },
-          { label: "Gasto transporte ≤ Q25",                  name: "_gasto_transp_low" },
-          { label: "Gasto alimentación ≤ Q25",                name: "_gasto_alim_low" },
-        ],
       },
     };
 
@@ -344,21 +291,23 @@
     let currentPillar = "Disponibilidad";
 
     // Relaciones padre/hijo entre indicadores y flags de cálculo.
-    // Las claves son IDs (P-code) del JSON de indicadores.
+    // Las claves son IDs (P-code) del JSON de indicadores (numeración nueva).
     const INDICATOR_META = {
-      // Accesibilidad
-      P21: { parent: "P20", asTable: true },
-      // Asequibilidad
+      // Accesibilidad: P20 (texto barrera) depende de P19 (espacio accesible)
+      P20: { parent: "P19", asTable: true },
+      // Asequibilidad: P21/P22 son montos en quetzales (no van para cálculo);
+      // P24 (texto detalle medicamentos) depende de P23 (pago de medicamentos).
+      P21: { excludeFromScore: true },
       P22: { excludeFromScore: true },
-      P23: { excludeFromScore: true },
-      P25: { parent: "P24", asTable: true },
-      // Disponibilidad
+      P24: { parent: "P23", asTable: true },
+      // Disponibilidad: P39 (ARV incompletos) depende de P38 (entrega ARV completa);
+      // P41 (cant. condones) y P42 (cant. lubricantes) dependen de P40 (entrega cond/lub).
       P39: { parent: "P38", asTable: true },
       P41: { parent: "P40" },
       P42: { parent: "P40" },
-      // Aceptabilidad
+      // Aceptabilidad: P49 (tipo de personal sin respeto) depende de P48 (respeto en el trato)
       P49: { parent: "P48", asTable: true, excludeFromScore: true },
-      // Adecuación
+      // Adecuación: P53 depende de P52, P55 depende de P54
       P53: { parent: "P52", asTable: true },
       P55: { parent: "P54", asTable: true },
     };
@@ -378,20 +327,6 @@
       if (MLC.parciales.has(v))                 return "parcial";
       if (v === "no" || v === "detectable")     return "negativa";
       return "otra";
-    }
-
-    function pctYes(responses, name, yesValues) {
-      // Soporte para "indicadores derivados" (gasto bajo)
-      if (name === "_gasto_transp_low") return pctNumericBelow(responses, "p22_gasto_transporte", 25);
-      if (name === "_gasto_alim_low")   return pctNumericBelow(responses, "p23_gasto_alimentacion", 25);
-      return MLC.yesPct(responses, name, yesValues);
-    }
-
-    function pctNumericBelow(responses, name, threshold) {
-      const vals = responses.map(r => r[name]).filter(v => typeof v === "number");
-      if (!vals.length) return 0;
-      const lo = vals.filter(v => v <= threshold).length;
-      return Math.round(lo / vals.length * 100);
     }
 
     function renderIndicatorCards(responses) {
@@ -678,30 +613,191 @@
       }
     }
 
+    // ============================================================
+    // Catálogo de filtros (defaults + extras agregables por usuario)
+    // ============================================================
+    const FILTER_CATALOG = [
+      // Defaults: siempre visibles, no removibles
+      { id: "departamento", label: "Departamento", field: "_departamento", optionsFrom: "responses", placeholder: "Todos los departamentos", default: true },
+      { id: "unidad",       label: "Unidad",       field: "_unidad",       optionsFrom: "responses", placeholder: "Todas las unidades",      default: true, dependsOn: "_departamento" },
+      { id: "etnia",        label: "Etnia",        field: "_etnia",        optionsFrom: "static",    placeholder: "Todas",                   default: true,
+        staticOptions: [
+          { value: "maya",             label: "Maya" },
+          { value: "ladino_o_mestizo", label: "Ladino o Mestizo" },
+          { value: "xinka",            label: "Xinka" },
+          { value: "garifuna",         label: "Garífuna" },
+          { value: "otro",             label: "Otro" },
+        ] },
+      // Extras: agregables desde el catálogo
+      { id: "municipio",            label: "Municipio",            field: "_municipio", optionsFrom: "responses", placeholder: "Todos", dependsOn: "_departamento" },
+      { id: "tipo",                 label: "Tipo de unidad",       field: "_tipo",      optionsFrom: "responses", placeholder: "Todos" },
+      { id: "rango_edad",           label: "Rango de edad",        field: "p07",        optionsFrom: "responses", placeholder: "Todos" },
+      { id: "sexo",                 label: "Sexo",                 field: "p08",        optionsFrom: "responses", placeholder: "Todos" },
+      { id: "identidad_genero",     label: "Identidad de género",  field: "p09",        optionsFrom: "responses", placeholder: "Todas" },
+      { id: "comunidad_linguistica",label: "Comunidad lingüística",field: "p11",        optionsFrom: "responses", placeholder: "Todas" },
+      { id: "orientacion_sexual",   label: "Orientación sexual",   field: "p13",        optionsFrom: "responses", placeholder: "Todas" },
+      { id: "poblacion_clave",      label: "Población clave",      field: "p14",        optionsFrom: "responses", placeholder: "Todas" },
+    ];
+
+    const FILTERS_LS_KEY = "mlc_extra_filters_usuarios_v1";
+
+    function loadActiveExtras() {
+      try {
+        const raw = localStorage.getItem(FILTERS_LS_KEY);
+        if (!raw) return [];
+        const ids = JSON.parse(raw);
+        return Array.isArray(ids) ? ids.filter(id => FILTER_CATALOG.some(c => c.id === id && !c.default)) : [];
+      } catch (_) { return []; }
+    }
+    function saveActiveExtras(ids) {
+      try { localStorage.setItem(FILTERS_LS_KEY, JSON.stringify(ids)); } catch (_) {}
+    }
+
+    let activeExtras = []; // poblada en init
+
+    function getActiveCatalog() {
+      const defaults = FILTER_CATALOG.filter(c => c.default);
+      const extras = activeExtras
+        .map(id => FILTER_CATALOG.find(c => c.id === id))
+        .filter(Boolean);
+      return [...defaults, ...extras];
+    }
+
+    function fillSelectFromValues(sel, values, placeholder) {
+      const prev = sel.value;
+      const setVals = new Set(values);
+      sel.innerHTML = `<option value="">${placeholder}</option>` +
+        values.map(v => `<option value="${String(v).replace(/"/g, "&quot;")}">${MLC.prettyLabel ? MLC.prettyLabel(v) : v}</option>`).join("");
+      if (prev && setVals.has(prev)) sel.value = prev;
+    }
+
+    function uniqueFieldValues(responses, field) {
+      const out = new Set();
+      for (const r of responses) {
+        const v = r[field];
+        if (Array.isArray(v)) v.forEach(x => { if (x) out.add(x); });
+        else if (v !== null && v !== undefined && v !== "") out.add(v);
+      }
+      return [...out].sort((a, b) => String(a).localeCompare(String(b)));
+    }
+
+    function populateOptionsFor(entry) {
+      const sel = document.querySelector(`select[data-field="${entry.field}"]`);
+      if (!sel) return;
+      if (entry.optionsFrom === "static") {
+        const prev = sel.value;
+        sel.innerHTML = `<option value="">${entry.placeholder}</option>` +
+          entry.staticOptions.map(o => `<option value="${o.value}">${o.label}</option>`).join("");
+        if (prev && entry.staticOptions.some(o => o.value === prev)) sel.value = prev;
+        return;
+      }
+      // optionsFrom === "responses"
+      let pool = DATA.responses;
+      if (entry.dependsOn) {
+        const parentSel = document.querySelector(`select[data-field="${entry.dependsOn}"]`);
+        const parentVal = parentSel && parentSel.value;
+        if (parentVal) pool = pool.filter(r => r[entry.dependsOn] === parentVal);
+      }
+      const values = uniqueFieldValues(pool, entry.field);
+      fillSelectFromValues(sel, values, entry.placeholder);
+    }
+
+    function populateAllOptions() {
+      getActiveCatalog().forEach(populateOptionsFor);
+    }
+
+    function getCurrentFilters() {
+      const out = {};
+      document.querySelectorAll("#filters select[data-field]").forEach(sel => {
+        if (sel.value) out[sel.dataset.field] = sel.value;
+      });
+      return out;
+    }
+
+    function renderFilters() {
+      const wrap = document.getElementById("filters");
+      const active = getActiveCatalog();
+      const remaining = FILTER_CATALOG.filter(c => !c.default && !activeExtras.includes(c.id));
+
+      const groups = active.map(entry => {
+        const removeBtn = entry.default
+          ? ""
+          : `<button type="button" class="filter-remove" data-remove-id="${entry.id}" aria-label="Quitar filtro ${entry.label}" title="Quitar filtro">×</button>`;
+        return `
+          <div class="filter-group" data-filter-id="${entry.id}">
+            <label for="f-${entry.id}">${entry.label}:</label>
+            <select id="f-${entry.id}" data-field="${entry.field}">
+              <option value="">${entry.placeholder}</option>
+            </select>
+            ${removeBtn}
+          </div>
+        `;
+      }).join("");
+
+      const addMenu = remaining.length === 0
+        ? ""
+        : `<details class="add-filter">
+             <summary class="btn btn-secondary">+ Agregar filtro</summary>
+             <div class="add-filter-menu">
+               ${remaining.map(c => `<button type="button" class="add-filter-item" data-add-id="${c.id}">${c.label}</button>`).join("")}
+             </div>
+           </details>`;
+
+      wrap.innerHTML = groups + addMenu;
+
+      // Llenar opciones y enlazar eventos
+      populateAllOptions();
+      wrap.querySelectorAll("select[data-field]").forEach(sel => {
+        sel.addEventListener("change", onFilterChange);
+      });
+      wrap.querySelectorAll("[data-remove-id]").forEach(btn => {
+        btn.addEventListener("click", () => removeFilter(btn.dataset.removeId));
+      });
+      wrap.querySelectorAll("[data-add-id]").forEach(btn => {
+        btn.addEventListener("click", () => addFilter(btn.dataset.addId));
+      });
+    }
+
+    function onFilterChange(e) {
+      // Si cambia un campo del que dependen otros (cascada), refrescar sus opciones.
+      const changedField = e.target.dataset.field;
+      getActiveCatalog().forEach(entry => {
+        if (entry.dependsOn === changedField) populateOptionsFor(entry);
+      });
+      refresh();
+    }
+
+    function addFilter(id) {
+      if (activeExtras.includes(id)) return;
+      activeExtras.push(id);
+      saveActiveExtras(activeExtras);
+      renderFilters();
+      refresh();
+    }
+
+    function removeFilter(id) {
+      activeExtras = activeExtras.filter(x => x !== id);
+      saveActiveExtras(activeExtras);
+      renderFilters();
+      refresh();
+    }
+
     function refresh() {
-      const filters = {
-        unidad: document.getElementById("unidad-filter").value || null,
-        etnia: document.getElementById("etnia-filter").value || null,
-      };
-      const responses = MLC.filterResponses(DATA.responses, filters);
+      const responses = MLC.filterResponses(DATA.responses, getCurrentFilters());
       updatePillarHeader(responses);
       renderIndicatorCards(responses);
       renderDemographics(responses);
     }
 
     function resetFilters() {
-      document.getElementById("unidad-filter").value = "";
-      document.getElementById("etnia-filter").value = "";
+      document.querySelectorAll("#filters select[data-field]").forEach(sel => sel.value = "");
+      populateAllOptions();
       refresh();
     }
 
     // --- Modal de respuestas ---
     function getCurrentFilteredResponses() {
-      const filters = {
-        unidad: document.getElementById("unidad-filter").value || null,
-        etnia: document.getElementById("etnia-filter").value || null,
-      };
-      return MLC.filterResponses(DATA.responses, filters);
+      return MLC.filterResponses(DATA.responses, getCurrentFilters());
     }
 
     function openResponsesModal(field, name, type) {
@@ -792,6 +888,9 @@
         const r = await fetch("data/indicators-usuarios.json");
         INDICATORS = r.ok ? await r.json() : [];
       } catch (_) { INDICATORS = []; }
+
+      activeExtras = loadActiveExtras();
+      renderFilters();
       buildSummaryTable();
       updateTabCounts();
 
@@ -803,9 +902,6 @@
           refresh();
         });
       });
-
-      ["unidad-filter","etnia-filter"]
-        .forEach(id => document.getElementById(id).addEventListener("change", refresh));
 
       refresh();
     });
