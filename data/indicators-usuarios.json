@@ -8,8 +8,8 @@
     "objetivo": "Medir el tiempo de espera de las personas usuarias para ser atendidas en el establecimiento de salud.",
     "establecimiento": "UAI",
     "clasificacion": "Universal",
-    "field": "p16_tiempo_espera",
-    "type": "select_one tiempo_espera"
+    "field": "p16",
+    "type": "select_one p16_list"
   },
   {
     "pilar": "Accesibilidad",
@@ -20,104 +20,104 @@
     "objetivo": "Medir el tiempo de traslado desde el hogar hasta el establecimiento de salud.",
     "establecimiento": "UAI",
     "clasificacion": "Universal",
-    "field": "p17_tiempo_traslado",
-    "type": "select_one tiempo_espera"
+    "field": "p17",
+    "type": "select_one p17_list"
   },
   {
     "pilar": "Accesibilidad",
     "name": "Inasistencia a citas por falta de permiso laboral",
-    "id": "P19",
+    "id": "P18",
     "pregunta": "En los últimos 6 meses, ¿dejó de asistir a una cita por falta de permiso laboral?",
     "respuestas": "Sí, No, No sé / No recuerda, Prefiero no responder",
     "objetivo": "Medir la proporción de personas que no asistieron a citas por barreras laborales o falta de permiso en el trabajo.",
     "establecimiento": "UAI",
     "clasificacion": "Universal",
-    "field": "p19_inasistencia_permiso",
-    "type": "select_one si_no_nsr_pnr"
+    "field": "p18",
+    "type": "select_one p18_list"
   },
   {
     "pilar": "Accesibilidad",
     "name": "Percepción de accesibilidad de los espacios por centro de salud",
-    "id": "P20",
+    "id": "P19",
     "pregunta": "¿Considera que el espacio es accesible para personas con discapacidad?",
     "respuestas": "Sí, No, No sé, Prefiero no responder",
     "objetivo": "Identificar la percepción de accesibilidad de los espacios para las personas con discapacidad.",
     "establecimiento": "UAI",
     "clasificacion": "Universal",
-    "field": "p20_espacio_accesible",
-    "type": "select_one si_no_ns_pnr"
+    "field": "p19",
+    "type": "select_one p19_list"
   },
   {
     "pilar": "Accesibilidad",
     "name": "Distribución de las necesidades de accesibilidad existentes en los establecimientos de salud",
-    "id": "P21",
+    "id": "P20",
     "pregunta": "Describa brevemente la barrera de accesibilidad identificada",
     "respuestas": "Abierta, describir necesidad",
     "objetivo": "Identificar las necesidades de accesibilidad existentes en los establecimientos de salud.",
     "establecimiento": "UAI",
     "clasificacion": "Universal",
-    "field": "p21_barrera_accesibilidad",
+    "field": "p20",
     "type": "text"
   },
   {
     "pilar": "Asequibilidad",
     "name": "Promedio de gasto en transporte",
-    "id": "P22",
+    "id": "P21",
     "pregunta": "¿Cuánto gastó hoy en transporte para llegar al centro?",
     "respuestas": "Abierta, monto en quetzales",
     "objetivo": "Medir el gasto directo en transporte que asumen las personas usuarias para asistir al establecimiento de salud.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p22_gasto_transporte",
+    "field": "p21",
     "type": "decimal"
   },
   {
     "pilar": "Asequibilidad",
     "name": "Promedio de gasto en alimentación para asistir al establecimiento de salud",
-    "id": "P23",
+    "id": "P22",
     "pregunta": "¿Cuánto gastó hoy en comida ó  bebida durante su visita?",
     "respuestas": "Abierta, monto en quetzales",
     "objetivo": "Medir el gasto directo en alimentación o bebida asociado a la asistencia al establecimiento de salud.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p23_gasto_alimentacion",
+    "field": "p22",
     "type": "decimal"
   },
   {
     "pilar": "Asequibilidad",
     "name": "Pago de medicamentos o pruebas fuera del sistema público",
-    "id": "P24",
+    "id": "P23",
     "pregunta": "En los últimos 6 meses, ¿ha tenido que pagar medicamentos o pruebas fuera de la Unidad de Atención?",
     "respuestas": "Sí, No, No sé / No recuerda, Prefiero no responder",
     "objetivo": "Medir la proporción de personas que han tenido que pagar medicamentos o pruebas fuera del sistema público en los últimos seis meses.",
     "establecimiento": "UAI",
     "clasificacion": "Universal",
-    "field": "p24_pago_medicamentos",
-    "type": "select_one si_no_nsr_pnr"
+    "field": "p23",
+    "type": "select_one p23_list"
   },
   {
     "pilar": "Asequibilidad",
     "name": "Distribución de los medicamentos o pruebas que los usuarios pagan por centro de salud",
-    "id": "P25",
+    "id": "P24",
     "pregunta": "Indique,  qué medicamentos o pruebas pagó",
     "respuestas": "Abierta, amplíe su respuesta",
     "objetivo": "Identificar los medicamentos o pruebas que los usuarios pagan por centro de salud.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p25_detalle_pago",
+    "field": "p24",
     "type": "text"
   },
   {
     "pilar": "Asequibilidad",
     "name": "Inasistencia a citas por costo (últimos 6 meses)",
-    "id": "P18",
+    "id": "P25",
     "pregunta": "En los últimos 6 meses, ¿dejó de asistir a una cita por falta de dinero?",
     "respuestas": "Sí, No, No sé / No recuerda, Prefiero no responder",
     "objetivo": "Medir la proporción de personas que no asistieron a citas por limitaciones económicas.",
     "establecimiento": "UAI",
     "clasificacion": "Universal",
-    "field": "p18_inasistencia_dinero",
-    "type": "select_one si_no_nsr_pnr"
+    "field": "p25",
+    "type": "select_one p25_list"
   },
   {
     "pilar": "Asequibilidad",
@@ -128,8 +128,8 @@
     "objetivo": "Medir la proporción de personas que pierden ingresos o dejan de trabajar por asistir a su consulta.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p26_perdida_ingresos",
-    "type": "select_one si_no_ns_pnr"
+    "field": "p26",
+    "type": "select_one p26_list"
   },
   {
     "pilar": "Cascada",
@@ -140,8 +140,8 @@
     "objetivo": "Medir la proporción de personas que interrumpieron su tratamiento ARV por más de una semana en los últimos seis meses.",
     "establecimiento": "UAI",
     "clasificacion": "Específica VIH",
-    "field": "p27_interrupcion_arv",
-    "type": "select_one si_no_nsr_pnr"
+    "field": "p27",
+    "type": "select_one p27_list"
   },
   {
     "pilar": "Cascada",
@@ -152,8 +152,8 @@
     "objetivo": "Medir la proporción de personas que iniciaron tratamiento el mismo día del diagnóstico.",
     "establecimiento": "UAI",
     "clasificacion": "Específica VIH",
-    "field": "p28_inicio_mismo_dia",
-    "type": "select_one si_no_nsr_pnr"
+    "field": "p28",
+    "type": "select_one p28_list"
   },
   {
     "pilar": "Cascada",
@@ -164,7 +164,7 @@
     "objetivo": "Identificar la distribución del número de días que tardó en iniciar el tratamiento.",
     "establecimiento": "UAI",
     "clasificacion": "Específica VIH",
-    "field": "p29_tiempo_inicio_tratamiento",
+    "field": "p29",
     "type": "integer"
   },
   {
@@ -176,8 +176,8 @@
     "objetivo": "Medir la proporción de personas usuarias que reportan un resultado indetectable en su última prueba de carga viral.",
     "establecimiento": "UAI",
     "clasificacion": "Específica VIH",
-    "field": "p30_resultado_carga_viral",
-    "type": "select_one resultado_carga_viral"
+    "field": "p30",
+    "type": "select_one p30_list"
   },
   {
     "pilar": "Disponibilidad",
@@ -188,8 +188,8 @@
     "objetivo": "Identificar la distribución del ofrecimiento de pruebas de atención en establecimientos de salud.",
     "establecimiento": "VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Prevención y tamizaje",
-    "field": "p31_ofrecieron_prueba_vih",
-    "type": "select_one si_no_ns_pnr"
+    "field": "p31",
+    "type": "select_one p31_list"
   },
   {
     "pilar": "Disponibilidad",
@@ -200,8 +200,8 @@
     "objetivo": "Identificar la distribución del ofrecimiento de condones en establecimientos de salud.",
     "establecimiento": "VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Prevención general",
-    "field": "p32_ofrecieron_condones",
-    "type": "select_one si_no_ns_pnr"
+    "field": "p32",
+    "type": "select_one p32_list"
   },
   {
     "pilar": "Disponibilidad",
@@ -212,8 +212,8 @@
     "objetivo": "Identificar la distribución del ofrecimiento de lubricantes en establecimientos de salud.",
     "establecimiento": "VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Prevención general",
-    "field": "p33_ofrecieron_lubricantes",
-    "type": "select_one si_no_ns_pnr"
+    "field": "p33",
+    "type": "select_one p33_list"
   },
   {
     "pilar": "Disponibilidad",
@@ -224,8 +224,8 @@
     "objetivo": "Identificar la distribución de consultas por infección de transmisión sexual en establecimientos de salud.",
     "establecimiento": "VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "ITS",
-    "field": "p34_consulta_its",
-    "type": "select_one si_no_nsr_pnr"
+    "field": "p34",
+    "type": "select_one p34_list"
   },
   {
     "pilar": "Disponibilidad",
@@ -236,8 +236,8 @@
     "objetivo": "Identificar la distribución del otorgamiento de tratamiento en establecimientos de salud.",
     "establecimiento": "VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "ITS",
-    "field": "p35_tratamiento_its",
-    "type": "select_one si_no_ns_pnr"
+    "field": "p35",
+    "type": "select_one p35_list"
   },
   {
     "pilar": "Disponibilidad",
@@ -248,8 +248,8 @@
     "objetivo": "Identificar la distribución de la entrega de receta cuando no se proporcionó tratamiento en establecimientos de salud.",
     "establecimiento": "VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "ITS",
-    "field": "p36_receta_its",
-    "type": "select_one si_no_ns_pnr"
+    "field": "p36",
+    "type": "select_one p36_list"
   },
   {
     "pilar": "Disponibilidad",
@@ -260,8 +260,8 @@
     "objetivo": "Medir la proporción de usuarios informados sobre PrEP en los establecimientos de salud.",
     "establecimiento": "VICITS, CAP, CAIMI, Centro de salud, hospital",
     "clasificacion": "Prevención focalizada",
-    "field": "p37_info_prep",
-    "type": "select_one si_parcial_no_ns_pnr"
+    "field": "p37",
+    "type": "select_one p37_list"
   },
   {
     "pilar": "Disponibilidad",
@@ -272,8 +272,8 @@
     "objetivo": "Medir la proporción de personas que reciben su tratamiento ARV completo en los últimos 6 meses.",
     "establecimiento": "UAI",
     "clasificacion": "Específica VIH",
-    "field": "p38_entrega_arv_completa",
-    "type": "select_one si_no_nsr_pnr"
+    "field": "p38",
+    "type": "select_one p38_list"
   },
   {
     "pilar": "Disponibilidad",
@@ -284,7 +284,7 @@
     "objetivo": "Identificar los medicamentos que se entregan de forma incompleta por centro de salud.",
     "establecimiento": "UAI",
     "clasificacion": "Específica VIH",
-    "field": "p39_arv_incompletos",
+    "field": "p39",
     "type": "text"
   },
   {
@@ -296,8 +296,8 @@
     "objetivo": "Medir la proporción de personas que reciben condones y lubricantes en su última visita.",
     "establecimiento": "UAI, VICITS",
     "clasificacion": "Específica VIH o prevención focalizada",
-    "field": "p40_entrega_condones_lubricantes",
-    "type": "select_one si_no_nsr_pnr"
+    "field": "p40",
+    "type": "select_one p40_list"
   },
   {
     "pilar": "Disponibilidad",
@@ -308,8 +308,8 @@
     "objetivo": "Medir la cantidad de condones entregados por visita en servicios focalizados.",
     "establecimiento": "UAI, VICITS",
     "clasificacion": "Específica VIH o prevención focalizada",
-    "field": "p41_cantidad_condones",
-    "type": "integer"
+    "field": "p41",
+    "type": "decimal"
   },
   {
     "pilar": "Disponibilidad",
@@ -320,8 +320,8 @@
     "objetivo": "Medir la cantidad de lubricantes entregados por visita en servicios focalizados.",
     "establecimiento": "UAI, VICITS",
     "clasificacion": "Específica VIH o prevención focalizada",
-    "field": "p42_cantidad_lubricantes",
-    "type": "integer"
+    "field": "p42",
+    "type": "decimal"
   },
   {
     "pilar": "Disponibilidad",
@@ -332,8 +332,8 @@
     "objetivo": "Medir la proporción de personas con prueba de carga viral realizada en los últimos 6 meses.",
     "establecimiento": "UAI",
     "clasificacion": "Específica VIH",
-    "field": "p43_prueba_carga_viral_6m",
-    "type": "select_one si_no_nsr_pnr"
+    "field": "p43",
+    "type": "select_one p43_list"
   },
   {
     "pilar": "Disponibilidad",
@@ -344,8 +344,8 @@
     "objetivo": "Medir la proporción de personas con prueba de CD4 realizada en los últimos 6 meses.",
     "establecimiento": "UAI",
     "clasificacion": "Específica VIH",
-    "field": "p44_prueba_cd4_6m",
-    "type": "select_one si_no_nsr_pnr"
+    "field": "p44",
+    "type": "select_one p44_list"
   },
   {
     "pilar": "Aceptabilidad",
@@ -356,8 +356,8 @@
     "objetivo": "Medir la proporción de personas que reportan discriminación por VIH en el establecimiento de salud.",
     "establecimiento": "UAI, VICITS",
     "clasificacion": "Específica VIH o prevención focalizada",
-    "field": "p45_discriminacion_vih",
-    "type": "select_one si_no_nsr_pnr"
+    "field": "p45",
+    "type": "select_one p45_list"
   },
   {
     "pilar": "Aceptabilidad",
@@ -368,8 +368,8 @@
     "objetivo": "Medir la percepción del trato recibido.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p46_trato_personal",
-    "type": "select_one trato_calidad"
+    "field": "p46",
+    "type": "select_one p46_list"
   },
   {
     "pilar": "Aceptabilidad",
@@ -380,8 +380,8 @@
     "objetivo": "Medir la percepción de las personas usuarias sobre la confidencialidad en el manejo de su información médica.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p47_confidencialidad",
-    "type": "select_one si_parcial_no_ns_pnr"
+    "field": "p47",
+    "type": "select_one p47_list"
   },
   {
     "pilar": "Aceptabilidad",
@@ -392,8 +392,8 @@
     "objetivo": "Medir la proporción de personas que perciben trato respetuoso en el establecimiento de salud.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p48_respeto",
-    "type": "select_one si_no_ns_pnr"
+    "field": "p48",
+    "type": "select_one p48_list"
   },
   {
     "pilar": "Aceptabilidad",
@@ -404,8 +404,8 @@
     "objetivo": "Identificar el tipo de personal que no atiende con respeto en los establecimientos de salud.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p49_personal_sin_respeto",
-    "type": "select_multiple tipo_personal"
+    "field": "p49",
+    "type": "select_one p49_list"
   },
   {
     "pilar": "Adecuación",
@@ -416,8 +416,8 @@
     "objetivo": "Medir la proporción de personas que reciben información sobre VIH en su idioma materno o en un idioma que comprenden.",
     "establecimiento": "UAI, VICITS",
     "clasificacion": "Específica VIH o prevención focalizada",
-    "field": "p50_info_idioma",
-    "type": "select_one si_no_nsr_pnr"
+    "field": "p50",
+    "type": "select_one p50_list"
   },
   {
     "pilar": "Adecuación",
@@ -428,8 +428,8 @@
     "objetivo": "Medir la percepción de las personas usuarias sobre la preparación del establecimiento para atender a poblaciones clave sin discriminación y con pertinencia.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p51_preparado_poblacion_clave",
-    "type": "select_one si_parcial_no_ns_pnr"
+    "field": "p51",
+    "type": "select_one p51_list"
   },
   {
     "pilar": "Adecuación",
@@ -440,8 +440,8 @@
     "objetivo": "Medir la percepción de las personas usuarias sobre la adecuación cultural del trato recibido.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p52_adecuacion_cultural",
-    "type": "select_one si_no_ns_pnr"
+    "field": "p52",
+    "type": "select_one p52_list"
   },
   {
     "pilar": "Adecuación",
@@ -452,7 +452,7 @@
     "objetivo": "Profundizar razones de inadecuación cultural reportadas por las personas usuarias.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p53_detalle_adecuacion_cultural",
+    "field": "p53",
     "type": "text"
   },
   {
@@ -464,8 +464,8 @@
     "objetivo": "Medir la percepción sobre la existencia de servicios o espacios adaptados a necesidades específicas de las personas usuarias.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p54_espacios_adaptados",
-    "type": "select_one si_no_ns_pnr"
+    "field": "p54",
+    "type": "select_one p54_list"
   },
   {
     "pilar": "Adecuación",
@@ -476,7 +476,7 @@
     "objetivo": "Profundizar razones de inadecuación de espacios reportadas por las personas usuarias.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p55_detalle_espacios_adaptados",
+    "field": "p55",
     "type": "text"
   },
   {
@@ -488,7 +488,7 @@
     "objetivo": "Identificar áreas del centro de salud que tengan recomendaciones de los usuarios.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p56_recomendacion",
+    "field": "p56",
     "type": "text"
   },
   {
@@ -500,7 +500,7 @@
     "objetivo": "Recoger comentarios adicionales de los usuarios.",
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
-    "field": "p57_comentario_final",
+    "field": "p57",
     "type": "text"
   }
 ]
