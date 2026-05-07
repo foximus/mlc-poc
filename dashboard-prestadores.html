@@ -153,26 +153,9 @@
 
     <div class="dashboard-body" id="dashboard-body">
 
-    <!-- Filtros -->
+    <!-- Filtros (dinámicos desde FILTER_CATALOG + estáticos para Comparar/Período) -->
     <div class="filters">
-      <div class="filter-group">
-        <label for="departamento-filter">Departamento:</label>
-        <select id="departamento-filter">
-          <option value="">Todos los departamentos</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="prestador-filter">Mi Unidad:</label>
-        <select id="prestador-filter">
-          <option value="">Todas las unidades</option>
-          <option value="Centro de Salud Roosevelt">Centro de Salud Roosevelt</option>
-          <option value="Centro de Salud San Juan de Dios">Centro de Salud San Juan de Dios</option>
-          <option value="Puesto de Salud Esquintla">Puesto de Salud Esquintla</option>
-          <option value="Puesto de Salud Quetzaltenango">Puesto de Salud Quetzaltenango</option>
-          <option value="Puesto de Salud Izabal">Puesto de Salud Izabal</option>
-        </select>
-      </div>
+      <div id="filters" class="filters-dyn"></div>
 
       <div class="filter-group">
         <label for="comparison-filter">Comparar con:</label>
@@ -486,11 +469,165 @@
       }
     }
 
+    // ============================================================
+    // Catálogo de filtros (defaults + extras agregables por usuario)
+    // ============================================================
+    const FILTER_CATALOG = [
+      // Defaults: siempre visibles, no removibles
+      { id: "departamento", label: "Departamento", field: "_departamento", optionsFrom: "responses", placeholder: "Todos los departamentos", default: true },
+      { id: "unidad",       label: "Mi Unidad",    field: "_unidad",       optionsFrom: "static",    placeholder: "Todas las unidades",      default: true,
+        staticOptions: [
+          { value: "Centro de Salud Roosevelt",        label: "Centro de Salud Roosevelt" },
+          { value: "Centro de Salud San Juan de Dios", label: "Centro de Salud San Juan de Dios" },
+          { value: "Puesto de Salud Esquintla",        label: "Puesto de Salud Esquintla" },
+          { value: "Puesto de Salud Quetzaltenango",   label: "Puesto de Salud Quetzaltenango" },
+          { value: "Puesto de Salud Izabal",           label: "Puesto de Salud Izabal" },
+        ] },
+      // Extras: agregables desde el catálogo
+      { id: "municipio",            label: "Municipio",                  field: "_municipio", optionsFrom: "responses", placeholder: "Todos", dependsOn: "_departamento" },
+      { id: "tipo",                 label: "Tipo de unidad",             field: "_tipo",      optionsFrom: "responses", placeholder: "Todos" },
+      { id: "areas",                label: "Áreas del establecimiento",  field: "P03",        optionsFrom: "responses", placeholder: "Todas" },
+      { id: "cargo",                label: "Cargo del entrevistado",     field: "P04",        optionsFrom: "responses", placeholder: "Todos" },
+    ];
+
+    const FILTERS_LS_KEY = "mlc_extra_filters_prestadores_v1";
+
+    function loadActiveExtras() {
+      try {
+        const raw = localStorage.getItem(FILTERS_LS_KEY);
+        if (!raw) return [];
+        const ids = JSON.parse(raw);
+        return Array.isArray(ids) ? ids.filter(id => FILTER_CATALOG.some(c => c.id === id && !c.default)) : [];
+      } catch (_) { return []; }
+    }
+    function saveActiveExtras(ids) {
+      try { localStorage.setItem(FILTERS_LS_KEY, JSON.stringify(ids)); } catch (_) {}
+    }
+
+    let activeExtras = [];
+
+    function getActiveCatalog() {
+      const defaults = FILTER_CATALOG.filter(c => c.default);
+      const extras = activeExtras
+        .map(id => FILTER_CATALOG.find(c => c.id === id))
+        .filter(Boolean);
+      return [...defaults, ...extras];
+    }
+
+    function fillSelectFromValues(sel, values, placeholder) {
+      const prev = sel.value;
+      const setVals = new Set(values);
+      sel.innerHTML = `<option value="">${placeholder}</option>` +
+        values.map(v => `<option value="${String(v).replace(/"/g, "&quot;")}">${MLC.prettyLabel ? MLC.prettyLabel(v) : v}</option>`).join("");
+      if (prev && setVals.has(prev)) sel.value = prev;
+    }
+
+    function uniqueFieldValues(responses, field) {
+      const out = new Set();
+      for (const r of responses) {
+        const v = r[field];
+        if (Array.isArray(v)) v.forEach(x => { if (x) out.add(x); });
+        else if (v !== null && v !== undefined && v !== "") out.add(v);
+      }
+      return [...out].sort((a, b) => String(a).localeCompare(String(b)));
+    }
+
+    function populateOptionsFor(entry) {
+      const sel = document.querySelector(`select[data-field="${entry.field}"]`);
+      if (!sel) return;
+      if (entry.optionsFrom === "static") {
+        const prev = sel.value;
+        sel.innerHTML = `<option value="">${entry.placeholder}</option>` +
+          entry.staticOptions.map(o => `<option value="${o.value.replace(/"/g, "&quot;")}">${o.label}</option>`).join("");
+        if (prev && entry.staticOptions.some(o => o.value === prev)) sel.value = prev;
+        return;
+      }
+      let pool = DATA.responses;
+      if (entry.dependsOn) {
+        const parentSel = document.querySelector(`select[data-field="${entry.dependsOn}"]`);
+        const parentVal = parentSel && parentSel.value;
+        if (parentVal) pool = pool.filter(r => r[entry.dependsOn] === parentVal);
+      }
+      const values = uniqueFieldValues(pool, entry.field);
+      fillSelectFromValues(sel, values, entry.placeholder);
+    }
+
+    function populateAllOptions() {
+      getActiveCatalog().forEach(populateOptionsFor);
+    }
+
     function getCurrentFilters() {
-      return {
-        departamento: document.getElementById("departamento-filter").value || null,
-        unidad:       document.getElementById("prestador-filter").value     || null,
-      };
+      const out = {};
+      document.querySelectorAll("#filters select[data-field]").forEach(sel => {
+        if (sel.value) out[sel.dataset.field] = sel.value;
+      });
+      return out;
+    }
+
+    function renderFilters() {
+      const wrap = document.getElementById("filters");
+      const active = getActiveCatalog();
+      const remaining = FILTER_CATALOG.filter(c => !c.default && !activeExtras.includes(c.id));
+
+      const groups = active.map(entry => {
+        const removeBtn = entry.default
+          ? ""
+          : `<button type="button" class="filter-remove" data-remove-id="${entry.id}" aria-label="Quitar filtro ${entry.label}" title="Quitar filtro">×</button>`;
+        return `
+          <div class="filter-group" data-filter-id="${entry.id}">
+            <label for="f-${entry.id}">${entry.label}:</label>
+            <select id="f-${entry.id}" data-field="${entry.field}">
+              <option value="">${entry.placeholder}</option>
+            </select>
+            ${removeBtn}
+          </div>
+        `;
+      }).join("");
+
+      const addMenu = remaining.length === 0
+        ? ""
+        : `<details class="add-filter">
+             <summary class="btn btn-secondary">+ Agregar filtro</summary>
+             <div class="add-filter-menu">
+               ${remaining.map(c => `<button type="button" class="add-filter-item" data-add-id="${c.id}">${c.label}</button>`).join("")}
+             </div>
+           </details>`;
+
+      wrap.innerHTML = groups + addMenu;
+
+      populateAllOptions();
+      wrap.querySelectorAll("select[data-field]").forEach(sel => {
+        sel.addEventListener("change", onFilterChange);
+      });
+      wrap.querySelectorAll("[data-remove-id]").forEach(btn => {
+        btn.addEventListener("click", () => removeFilter(btn.dataset.removeId));
+      });
+      wrap.querySelectorAll("[data-add-id]").forEach(btn => {
+        btn.addEventListener("click", () => addFilter(btn.dataset.addId));
+      });
+    }
+
+    function onFilterChange(e) {
+      const changedField = e.target.dataset.field;
+      getActiveCatalog().forEach(entry => {
+        if (entry.dependsOn === changedField) populateOptionsFor(entry);
+      });
+      refresh();
+    }
+
+    function addFilter(id) {
+      if (activeExtras.includes(id)) return;
+      activeExtras.push(id);
+      saveActiveExtras(activeExtras);
+      renderFilters();
+      refresh();
+    }
+
+    function removeFilter(id) {
+      activeExtras = activeExtras.filter(x => x !== id);
+      saveActiveExtras(activeExtras);
+      renderFilters();
+      refresh();
     }
 
     function refresh() {
@@ -509,20 +646,11 @@
     }
 
     function resetFilters() {
-      document.getElementById("departamento-filter").value = "";
-      document.getElementById("prestador-filter").value = "";
+      document.querySelectorAll("#filters select[data-field]").forEach(sel => sel.value = "");
       document.getElementById("comparison-filter").value = "regional";
       document.getElementById("period-filter").value = "";
+      populateAllOptions();
       refresh();
-    }
-
-    function populateDepartamentoOptions() {
-      const sel = document.getElementById("departamento-filter");
-      const prev = sel.value;
-      const depts = [...new Set(DATA.responses.map(r => r._departamento).filter(Boolean))].sort();
-      sel.innerHTML = `<option value="">Todos los departamentos</option>` +
-        depts.map(v => `<option value="${v.replace(/"/g, "&quot;")}">${v}</option>`).join("");
-      if (prev && depts.includes(prev)) sel.value = prev;
     }
 
     // --- Toggle del panel de Instrucciones (persistente en localStorage) ---
@@ -561,9 +689,11 @@
       }
 
       DATA = await MLC.loadMock("prestadores");
-      populateDepartamentoOptions();
+
+      activeExtras = loadActiveExtras();
+      renderFilters();
       buildSummaryTable();
-      ["departamento-filter", "prestador-filter", "comparison-filter", "period-filter"]
+      ["comparison-filter", "period-filter"]
         .forEach(id => document.getElementById(id).addEventListener("change", refresh));
       refresh();
     });

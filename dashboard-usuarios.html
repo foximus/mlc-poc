@@ -194,34 +194,9 @@
       </p>
     </div>
 
-    <!-- Filtros -->
+    <!-- Filtros (renderizados dinámicamente desde FILTER_CATALOG + extras persistidos) -->
     <div class="filters">
-      <div class="filter-group">
-        <label for="departamento-filter">Departamento:</label>
-        <select id="departamento-filter">
-          <option value="">Todos los departamentos</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="unidad-filter">Unidad:</label>
-        <select id="unidad-filter">
-          <option value="">Todas las unidades</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="etnia-filter">Etnia:</label>
-        <select id="etnia-filter">
-          <option value="">Todas</option>
-          <option value="maya">Maya</option>
-          <option value="ladino_o_mestizo">Ladino o Mestizo</option>
-          <option value="xinka">Xinka</option>
-          <option value="garifuna">Garífuna</option>
-          <option value="otro">Otro</option>
-        </select>
-      </div>
-
+      <div id="filters" class="filters-dyn"></div>
       <button class="btn btn-secondary" onclick="resetFilters()">Limpiar</button>
     </div>
 
@@ -638,12 +613,173 @@
       }
     }
 
+    // ============================================================
+    // Catálogo de filtros (defaults + extras agregables por usuario)
+    // ============================================================
+    const FILTER_CATALOG = [
+      // Defaults: siempre visibles, no removibles
+      { id: "departamento", label: "Departamento", field: "_departamento", optionsFrom: "responses", placeholder: "Todos los departamentos", default: true },
+      { id: "unidad",       label: "Unidad",       field: "_unidad",       optionsFrom: "responses", placeholder: "Todas las unidades",      default: true, dependsOn: "_departamento" },
+      { id: "etnia",        label: "Etnia",        field: "_etnia",        optionsFrom: "static",    placeholder: "Todas",                   default: true,
+        staticOptions: [
+          { value: "maya",             label: "Maya" },
+          { value: "ladino_o_mestizo", label: "Ladino o Mestizo" },
+          { value: "xinka",            label: "Xinka" },
+          { value: "garifuna",         label: "Garífuna" },
+          { value: "otro",             label: "Otro" },
+        ] },
+      // Extras: agregables desde el catálogo
+      { id: "municipio",            label: "Municipio",            field: "_municipio", optionsFrom: "responses", placeholder: "Todos", dependsOn: "_departamento" },
+      { id: "tipo",                 label: "Tipo de unidad",       field: "_tipo",      optionsFrom: "responses", placeholder: "Todos" },
+      { id: "rango_edad",           label: "Rango de edad",        field: "p07",        optionsFrom: "responses", placeholder: "Todos" },
+      { id: "sexo",                 label: "Sexo",                 field: "p08",        optionsFrom: "responses", placeholder: "Todos" },
+      { id: "identidad_genero",     label: "Identidad de género",  field: "p09",        optionsFrom: "responses", placeholder: "Todas" },
+      { id: "comunidad_linguistica",label: "Comunidad lingüística",field: "p11",        optionsFrom: "responses", placeholder: "Todas" },
+      { id: "orientacion_sexual",   label: "Orientación sexual",   field: "p13",        optionsFrom: "responses", placeholder: "Todas" },
+      { id: "poblacion_clave",      label: "Población clave",      field: "p14",        optionsFrom: "responses", placeholder: "Todas" },
+    ];
+
+    const FILTERS_LS_KEY = "mlc_extra_filters_usuarios_v1";
+
+    function loadActiveExtras() {
+      try {
+        const raw = localStorage.getItem(FILTERS_LS_KEY);
+        if (!raw) return [];
+        const ids = JSON.parse(raw);
+        return Array.isArray(ids) ? ids.filter(id => FILTER_CATALOG.some(c => c.id === id && !c.default)) : [];
+      } catch (_) { return []; }
+    }
+    function saveActiveExtras(ids) {
+      try { localStorage.setItem(FILTERS_LS_KEY, JSON.stringify(ids)); } catch (_) {}
+    }
+
+    let activeExtras = []; // poblada en init
+
+    function getActiveCatalog() {
+      const defaults = FILTER_CATALOG.filter(c => c.default);
+      const extras = activeExtras
+        .map(id => FILTER_CATALOG.find(c => c.id === id))
+        .filter(Boolean);
+      return [...defaults, ...extras];
+    }
+
+    function fillSelectFromValues(sel, values, placeholder) {
+      const prev = sel.value;
+      const setVals = new Set(values);
+      sel.innerHTML = `<option value="">${placeholder}</option>` +
+        values.map(v => `<option value="${String(v).replace(/"/g, "&quot;")}">${MLC.prettyLabel ? MLC.prettyLabel(v) : v}</option>`).join("");
+      if (prev && setVals.has(prev)) sel.value = prev;
+    }
+
+    function uniqueFieldValues(responses, field) {
+      const out = new Set();
+      for (const r of responses) {
+        const v = r[field];
+        if (Array.isArray(v)) v.forEach(x => { if (x) out.add(x); });
+        else if (v !== null && v !== undefined && v !== "") out.add(v);
+      }
+      return [...out].sort((a, b) => String(a).localeCompare(String(b)));
+    }
+
+    function populateOptionsFor(entry) {
+      const sel = document.querySelector(`select[data-field="${entry.field}"]`);
+      if (!sel) return;
+      if (entry.optionsFrom === "static") {
+        const prev = sel.value;
+        sel.innerHTML = `<option value="">${entry.placeholder}</option>` +
+          entry.staticOptions.map(o => `<option value="${o.value}">${o.label}</option>`).join("");
+        if (prev && entry.staticOptions.some(o => o.value === prev)) sel.value = prev;
+        return;
+      }
+      // optionsFrom === "responses"
+      let pool = DATA.responses;
+      if (entry.dependsOn) {
+        const parentSel = document.querySelector(`select[data-field="${entry.dependsOn}"]`);
+        const parentVal = parentSel && parentSel.value;
+        if (parentVal) pool = pool.filter(r => r[entry.dependsOn] === parentVal);
+      }
+      const values = uniqueFieldValues(pool, entry.field);
+      fillSelectFromValues(sel, values, entry.placeholder);
+    }
+
+    function populateAllOptions() {
+      getActiveCatalog().forEach(populateOptionsFor);
+    }
+
     function getCurrentFilters() {
-      return {
-        departamento: document.getElementById("departamento-filter").value || null,
-        unidad:       document.getElementById("unidad-filter").value       || null,
-        etnia:        document.getElementById("etnia-filter").value        || null,
-      };
+      const out = {};
+      document.querySelectorAll("#filters select[data-field]").forEach(sel => {
+        if (sel.value) out[sel.dataset.field] = sel.value;
+      });
+      return out;
+    }
+
+    function renderFilters() {
+      const wrap = document.getElementById("filters");
+      const active = getActiveCatalog();
+      const remaining = FILTER_CATALOG.filter(c => !c.default && !activeExtras.includes(c.id));
+
+      const groups = active.map(entry => {
+        const removeBtn = entry.default
+          ? ""
+          : `<button type="button" class="filter-remove" data-remove-id="${entry.id}" aria-label="Quitar filtro ${entry.label}" title="Quitar filtro">×</button>`;
+        return `
+          <div class="filter-group" data-filter-id="${entry.id}">
+            <label for="f-${entry.id}">${entry.label}:</label>
+            <select id="f-${entry.id}" data-field="${entry.field}">
+              <option value="">${entry.placeholder}</option>
+            </select>
+            ${removeBtn}
+          </div>
+        `;
+      }).join("");
+
+      const addMenu = remaining.length === 0
+        ? ""
+        : `<details class="add-filter">
+             <summary class="btn btn-secondary">+ Agregar filtro</summary>
+             <div class="add-filter-menu">
+               ${remaining.map(c => `<button type="button" class="add-filter-item" data-add-id="${c.id}">${c.label}</button>`).join("")}
+             </div>
+           </details>`;
+
+      wrap.innerHTML = groups + addMenu;
+
+      // Llenar opciones y enlazar eventos
+      populateAllOptions();
+      wrap.querySelectorAll("select[data-field]").forEach(sel => {
+        sel.addEventListener("change", onFilterChange);
+      });
+      wrap.querySelectorAll("[data-remove-id]").forEach(btn => {
+        btn.addEventListener("click", () => removeFilter(btn.dataset.removeId));
+      });
+      wrap.querySelectorAll("[data-add-id]").forEach(btn => {
+        btn.addEventListener("click", () => addFilter(btn.dataset.addId));
+      });
+    }
+
+    function onFilterChange(e) {
+      // Si cambia un campo del que dependen otros (cascada), refrescar sus opciones.
+      const changedField = e.target.dataset.field;
+      getActiveCatalog().forEach(entry => {
+        if (entry.dependsOn === changedField) populateOptionsFor(entry);
+      });
+      refresh();
+    }
+
+    function addFilter(id) {
+      if (activeExtras.includes(id)) return;
+      activeExtras.push(id);
+      saveActiveExtras(activeExtras);
+      renderFilters();
+      refresh();
+    }
+
+    function removeFilter(id) {
+      activeExtras = activeExtras.filter(x => x !== id);
+      saveActiveExtras(activeExtras);
+      renderFilters();
+      refresh();
     }
 
     function refresh() {
@@ -651,38 +787,12 @@
       updatePillarHeader(responses);
       renderIndicatorCards(responses);
       renderDemographics(responses);
-      // Cuando cambia el departamento, recortamos las unidades disponibles.
-      populateUnidadOptions();
     }
 
     function resetFilters() {
-      document.getElementById("departamento-filter").value = "";
-      document.getElementById("unidad-filter").value = "";
-      document.getElementById("etnia-filter").value = "";
+      document.querySelectorAll("#filters select[data-field]").forEach(sel => sel.value = "");
+      populateAllOptions();
       refresh();
-    }
-
-    // Llena un <select> conservando la selección actual si sigue siendo válida.
-    function fillSelect(selectId, values, placeholder) {
-      const sel = document.getElementById(selectId);
-      const prev = sel.value;
-      sel.innerHTML = `<option value="">${placeholder}</option>` +
-        values.map(v => `<option value="${v.replace(/"/g, "&quot;")}">${v}</option>`).join("");
-      if (prev && values.includes(prev)) sel.value = prev;
-    }
-
-    function populateDepartamentoOptions() {
-      const depts = [...new Set(DATA.responses.map(r => r._departamento).filter(Boolean))].sort();
-      fillSelect("departamento-filter", depts, "Todos los departamentos");
-    }
-
-    function populateUnidadOptions() {
-      const dept = document.getElementById("departamento-filter").value;
-      const pool = dept
-        ? DATA.responses.filter(r => r._departamento === dept)
-        : DATA.responses;
-      const unidades = [...new Set(pool.map(r => r._unidad).filter(Boolean))].sort();
-      fillSelect("unidad-filter", unidades, "Todas las unidades");
     }
 
     // --- Modal de respuestas ---
@@ -778,8 +888,9 @@
         const r = await fetch("data/indicators-usuarios.json");
         INDICATORS = r.ok ? await r.json() : [];
       } catch (_) { INDICATORS = []; }
-      populateDepartamentoOptions();
-      populateUnidadOptions();
+
+      activeExtras = loadActiveExtras();
+      renderFilters();
       buildSummaryTable();
       updateTabCounts();
 
@@ -791,9 +902,6 @@
           refresh();
         });
       });
-
-      ["departamento-filter","unidad-filter","etnia-filter"]
-        .forEach(id => document.getElementById(id).addEventListener("change", refresh));
 
       refresh();
     });

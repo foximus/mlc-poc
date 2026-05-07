@@ -39,12 +39,26 @@ const MLC = {
     return res.json();
   },
 
-  /** Filtra respuestas según los filtros del UI (objeto opcional). */
+  /**
+   * Filtra respuestas según un diccionario {fieldName: value}.
+   * - El valor "" / null / undefined se ignora (= sin filtro en ese campo).
+   * - Si el campo en la respuesta es array (select_multiple), matchea por inclusión.
+   * - Caso contrario, igualdad estricta.
+   */
   filterResponses(responses, filters = {}) {
+    const entries = Object.entries(filters).filter(
+      ([, v]) => v !== null && v !== undefined && v !== ""
+    );
+    if (!entries.length) return responses.slice();
     return responses.filter(r => {
-      if (filters.unidad       && r._unidad       !== filters.unidad)       return false;
-      if (filters.departamento && r._departamento !== filters.departamento) return false;
-      if (filters.etnia        && r._etnia        !== filters.etnia)        return false;
+      for (const [field, value] of entries) {
+        const v = r[field];
+        if (Array.isArray(v)) {
+          if (!v.includes(value)) return false;
+        } else if (v !== value) {
+          return false;
+        }
+      }
       return true;
     });
   },
