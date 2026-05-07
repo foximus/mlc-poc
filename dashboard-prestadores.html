@@ -156,6 +156,13 @@
     <!-- Filtros -->
     <div class="filters">
       <div class="filter-group">
+        <label for="departamento-filter">Departamento:</label>
+        <select id="departamento-filter">
+          <option value="">Todos los departamentos</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
         <label for="prestador-filter">Mi Unidad:</label>
         <select id="prestador-filter">
           <option value="">Todas las unidades</option>
@@ -479,11 +486,15 @@
       }
     }
 
-    function refresh() {
-      const filters = {
-        unidad: document.getElementById("prestador-filter").value || null,
+    function getCurrentFilters() {
+      return {
+        departamento: document.getElementById("departamento-filter").value || null,
+        unidad:       document.getElementById("prestador-filter").value     || null,
       };
-      const misRespuestas = MLC.filterResponses(DATA.responses, filters);
+    }
+
+    function refresh() {
+      const misRespuestas = MLC.filterResponses(DATA.responses, getCurrentFilters());
       const todas = DATA.responses;
 
       document.getElementById("responses-count").textContent = misRespuestas.length;
@@ -498,10 +509,20 @@
     }
 
     function resetFilters() {
+      document.getElementById("departamento-filter").value = "";
       document.getElementById("prestador-filter").value = "";
       document.getElementById("comparison-filter").value = "regional";
       document.getElementById("period-filter").value = "";
       refresh();
+    }
+
+    function populateDepartamentoOptions() {
+      const sel = document.getElementById("departamento-filter");
+      const prev = sel.value;
+      const depts = [...new Set(DATA.responses.map(r => r._departamento).filter(Boolean))].sort();
+      sel.innerHTML = `<option value="">Todos los departamentos</option>` +
+        depts.map(v => `<option value="${v.replace(/"/g, "&quot;")}">${v}</option>`).join("");
+      if (prev && depts.includes(prev)) sel.value = prev;
     }
 
     // --- Toggle del panel de Instrucciones (persistente en localStorage) ---
@@ -540,8 +561,9 @@
       }
 
       DATA = await MLC.loadMock("prestadores");
+      populateDepartamentoOptions();
       buildSummaryTable();
-      ["prestador-filter", "comparison-filter", "period-filter"]
+      ["departamento-filter", "prestador-filter", "comparison-filter", "period-filter"]
         .forEach(id => document.getElementById(id).addEventListener("change", refresh));
       refresh();
     });

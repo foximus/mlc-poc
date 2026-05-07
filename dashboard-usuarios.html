@@ -197,14 +197,16 @@
     <!-- Filtros -->
     <div class="filters">
       <div class="filter-group">
+        <label for="departamento-filter">Departamento:</label>
+        <select id="departamento-filter">
+          <option value="">Todos los departamentos</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
         <label for="unidad-filter">Unidad:</label>
         <select id="unidad-filter">
           <option value="">Todas las unidades</option>
-          <option value="Centro de Salud Roosevelt">Centro de Salud Roosevelt</option>
-          <option value="Centro de Salud San Juan de Dios">Centro de Salud San Juan de Dios</option>
-          <option value="Puesto de Salud Esquintla">Puesto de Salud Esquintla</option>
-          <option value="Puesto de Salud Quetzaltenango">Puesto de Salud Quetzaltenango</option>
-          <option value="Puesto de Salud Izabal">Puesto de Salud Izabal</option>
         </select>
       </div>
 
@@ -636,30 +638,56 @@
       }
     }
 
-    function refresh() {
-      const filters = {
-        unidad: document.getElementById("unidad-filter").value || null,
-        etnia: document.getElementById("etnia-filter").value || null,
+    function getCurrentFilters() {
+      return {
+        departamento: document.getElementById("departamento-filter").value || null,
+        unidad:       document.getElementById("unidad-filter").value       || null,
+        etnia:        document.getElementById("etnia-filter").value        || null,
       };
-      const responses = MLC.filterResponses(DATA.responses, filters);
+    }
+
+    function refresh() {
+      const responses = MLC.filterResponses(DATA.responses, getCurrentFilters());
       updatePillarHeader(responses);
       renderIndicatorCards(responses);
       renderDemographics(responses);
+      // Cuando cambia el departamento, recortamos las unidades disponibles.
+      populateUnidadOptions();
     }
 
     function resetFilters() {
+      document.getElementById("departamento-filter").value = "";
       document.getElementById("unidad-filter").value = "";
       document.getElementById("etnia-filter").value = "";
       refresh();
     }
 
+    // Llena un <select> conservando la selección actual si sigue siendo válida.
+    function fillSelect(selectId, values, placeholder) {
+      const sel = document.getElementById(selectId);
+      const prev = sel.value;
+      sel.innerHTML = `<option value="">${placeholder}</option>` +
+        values.map(v => `<option value="${v.replace(/"/g, "&quot;")}">${v}</option>`).join("");
+      if (prev && values.includes(prev)) sel.value = prev;
+    }
+
+    function populateDepartamentoOptions() {
+      const depts = [...new Set(DATA.responses.map(r => r._departamento).filter(Boolean))].sort();
+      fillSelect("departamento-filter", depts, "Todos los departamentos");
+    }
+
+    function populateUnidadOptions() {
+      const dept = document.getElementById("departamento-filter").value;
+      const pool = dept
+        ? DATA.responses.filter(r => r._departamento === dept)
+        : DATA.responses;
+      const unidades = [...new Set(pool.map(r => r._unidad).filter(Boolean))].sort();
+      fillSelect("unidad-filter", unidades, "Todas las unidades");
+    }
+
     // --- Modal de respuestas ---
     function getCurrentFilteredResponses() {
-      const filters = {
-        unidad: document.getElementById("unidad-filter").value || null,
-        etnia: document.getElementById("etnia-filter").value || null,
-      };
-      return MLC.filterResponses(DATA.responses, filters);
+      return MLC.filterResponses(DATA.responses, getCurrentFilters());
     }
 
     function openResponsesModal(field, name, type) {
@@ -750,6 +778,8 @@
         const r = await fetch("data/indicators-usuarios.json");
         INDICATORS = r.ok ? await r.json() : [];
       } catch (_) { INDICATORS = []; }
+      populateDepartamentoOptions();
+      populateUnidadOptions();
       buildSummaryTable();
       updateTabCounts();
 
@@ -762,7 +792,7 @@
         });
       });
 
-      ["unidad-filter","etnia-filter"]
+      ["departamento-filter","unidad-filter","etnia-filter"]
         .forEach(id => document.getElementById(id).addEventListener("change", refresh));
 
       refresh();

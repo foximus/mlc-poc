@@ -42,8 +42,9 @@ const MLC = {
   /** Filtra respuestas según los filtros del UI (objeto opcional). */
   filterResponses(responses, filters = {}) {
     return responses.filter(r => {
-      if (filters.unidad && r._unidad !== filters.unidad) return false;
-      if (filters.etnia && r._etnia !== filters.etnia) return false;
+      if (filters.unidad       && r._unidad       !== filters.unidad)       return false;
+      if (filters.departamento && r._departamento !== filters.departamento) return false;
+      if (filters.etnia        && r._etnia        !== filters.etnia)        return false;
       return true;
     });
   },

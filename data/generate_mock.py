@@ -29,15 +29,73 @@ ROOT = Path(__file__).resolve().parent.parent
 INFO = ROOT / "info"
 OUT = ROOT / "data"
 
-UNIDADES = [
-    "Centro de Salud Roosevelt",
-    "Centro de Salud San Juan de Dios",
-    "Puesto de Salud Esquintla",
-    "Puesto de Salud Quetzaltenango",
-    "Puesto de Salud Izabal",
+ETNIAS = ["maya", "ladino_o_mestizo", "xinka", "garifuna", "otro"]
+
+
+# Pool fijo de unidades para el dashboard de Prestadores (mantenidas tal cual
+# se mostraban en la maqueta original — coinciden con el filtro hardcodeado).
+PRESTADOR_UNIDADES = [
+    {"nombre": "Centro de Salud Roosevelt",          "departamento": "GUATEMALA",      "municipio": "GUATEMALA",       "tipo": "Centro de salud"},
+    {"nombre": "Centro de Salud San Juan de Dios",   "departamento": "GUATEMALA",      "municipio": "GUATEMALA",       "tipo": "Centro de salud"},
+    {"nombre": "Puesto de Salud Esquintla",          "departamento": "ESCUINTLA",      "municipio": "ESCUINTLA",       "tipo": "Puesto de salud"},
+    {"nombre": "Puesto de Salud Quetzaltenango",     "departamento": "QUETZALTENANGO", "municipio": "QUETZALTENANGO",  "tipo": "Puesto de salud"},
+    {"nombre": "Puesto de Salud Izabal",             "departamento": "IZABAL",         "municipio": "PUERTO BARRIOS",  "tipo": "Puesto de salud"},
 ]
 
-ETNIAS = ["maya", "ladino_o_mestizo", "xinka", "garifuna", "otro"]
+
+# ---------------------------------------------------------------------------
+# Catálogo de unidades (hoja UNIDADES de indicadores.xlsx)
+# ---------------------------------------------------------------------------
+def load_unidades() -> list[dict]:
+    """Devuelve [{departamento, municipio, nombre, tipo, codigo}] desde la hoja UNIDADES."""
+    wb = openpyxl.load_workbook(INFO / "indicadores.xlsx", data_only=True)
+    ws = wb["UNIDADES"]
+    rows = []
+    for r in ws.iter_rows(values_only=True):
+        if all(v is None for v in r):
+            break
+        rows.append(r)
+    if not rows:
+        return []
+    out = []
+    for r in rows[1:]:
+        nombre = r[2]
+        if not nombre:
+            continue
+        out.append({
+            "departamento": str(r[0] or "").strip(),
+            "municipio":    str(r[1] or "").strip(),
+            "nombre":       str(nombre).strip(),
+            "tipo":         str(r[3] or "").strip(),
+            "codigo":       str(r[4] or "").strip(),
+        })
+    # Normaliza inconsistencias mayúsculas/minúsculas en departamento
+    for u in out:
+        u["departamento"] = u["departamento"].upper()
+    return out
+
+
+def pick_sample_unidades(unidades: list[dict], n: int = 12) -> list[dict]:
+    """Selecciona n unidades de forma diversa: distintos departamentos y tipos."""
+    rng = random.Random(42)
+    by_dept: dict[str, list[dict]] = {}
+    for u in unidades:
+        if not u["departamento"] or not u["municipio"]:
+            continue
+        by_dept.setdefault(u["departamento"], []).append(u)
+    depts = list(by_dept.keys())
+    rng.shuffle(depts)
+    sample = []
+    while len(sample) < n and any(by_dept.values()):
+        for d in depts:
+            if not by_dept[d]:
+                continue
+            u = rng.choice(by_dept[d])
+            sample.append(u)
+            by_dept[d] = [x for x in by_dept[d] if x["nombre"] != u["nombre"]]
+            if len(sample) >= n:
+                break
+    return sample[:n]
 
 
 # ---------------------------------------------------------------------------
@@ -231,27 +289,35 @@ def gen_response(q: dict, choices: dict[str, list[dict]]):
 # ---------------------------------------------------------------------------
 # Generadores específicos por encuesta
 # ---------------------------------------------------------------------------
-def gen_prestador_response(idx: int, questions, choices):
+def gen_prestador_response(idx: int, questions, choices, unidades_pool: list[dict]):
     answers = {q["name"]: gen_response(q, choices) for q in questions}
     answers["P01"] = random_date(180)
-    answers["P02"] = random.choice(UNIDADES)
+    u = random.choice(unidades_pool)
+    answers["P02"] = u["nombre"]
     return {
         "_id": f"P{idx:03d}",
-        "_unidad": answers["P02"],
+        "_unidad":        u["nombre"],
+        "_departamento":  u["departamento"],
+        "_municipio":     u["municipio"],
+        "_tipo":          u["tipo"],
         "_fecha": answers["P01"],
         **answers,
     }
 
 
-def gen_usuario_response(idx: int, questions, choices):
+def gen_usuario_response(idx: int, questions, choices, unidades_pool: list[dict]):
     answers = {q["name"]: gen_response(q, choices) for q in questions}
     answers["p01"] = random_date(180)
-    # p03 = nombre de establecimiento (texto libre); usamos un nombre real para los gráficos.
-    answers["p03"] = random.choice(UNIDADES)
+    u = random.choice(unidades_pool)
+    # p03 = nombre de establecimiento (texto libre); poblado desde UNIDADES.
+    answers["p03"] = u["nombre"]
     answers["p10"] = random.choice(ETNIAS)
     return {
         "_id": f"U{idx:03d}",
-        "_unidad": answers["p03"],
+        "_unidad":        u["nombre"],
+        "_departamento":  u["departamento"],
+        "_municipio":     u["municipio"],
+        "_tipo":          u["tipo"],
         "_fecha": answers["p01"],
         "_etnia": answers["p10"],
         **answers,
@@ -273,11 +339,21 @@ def schema_record(q: dict) -> dict:
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
 
+    # --- Catálogo maestro de unidades ---
+    unidades = load_unidades()
+    (OUT / "unidades.json").write_text(
+        json.dumps(unidades, ensure_ascii=False, indent=2), encoding="utf-8",
+    )
+    pool = pick_sample_unidades(unidades, n=12)
+    print(f"[ok] data/unidades.json — {len(unidades)} unidades catalogadas (pool mock: {len(pool)})")
+
     # --- Prestadores ---
     p_q, p_c = load_kobo(INFO / "kobo_prestadores.xlsx")
     p_pilar = load_pilar_map("Prestadores de servicios ", "ID pregunta")
     p_q = attach_pilar(p_q, p_pilar)
-    prestadores = [gen_prestador_response(i + 1, p_q, p_c) for i in range(50)]
+    # Prestadores usa un pool fijo de 5 unidades (centros y puestos de salud)
+    # para preservar el resumen por unidad y el filtro original.
+    prestadores = [gen_prestador_response(i + 1, p_q, p_c, PRESTADOR_UNIDADES) for i in range(50)]
     schema_p = [schema_record(q) for q in p_q]
     (OUT / "mock-prestadores.json").write_text(
         json.dumps({"schema": schema_p, "responses": prestadores}, ensure_ascii=False, indent=2),
@@ -290,7 +366,7 @@ def main():
     u_q, u_c = load_kobo(INFO / "kobo_usuarios.xlsx")
     u_pilar = load_pilar_map("Usuario", "ID Pregunta Nuevo")
     u_q = attach_pilar(u_q, u_pilar)
-    usuarios = [gen_usuario_response(i + 1, u_q, u_c) for i in range(50)]
+    usuarios = [gen_usuario_response(i + 1, u_q, u_c, pool) for i in range(50)]
     schema_u = [schema_record(q) for q in u_q]
     (OUT / "mock-usuarios.json").write_text(
         json.dumps({"schema": schema_u, "responses": usuarios}, ensure_ascii=False, indent=2),
