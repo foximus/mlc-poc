@@ -674,11 +674,12 @@
     }
 
     function updateTabCounts() {
-      const tipoSel = getCurrentFilters("filters")._tipo;
+      // Cada pestaña muestra la nota (promedio) del pilar para los filtros activos.
+      const responses = MLC.filterResponses(DATA.responses, getCurrentFilters("filters"));
       document.querySelectorAll(".pillar-tab").forEach(tab => {
         const p = tab.getAttribute("data-pillar");
-        const n = INDICATORS.filter(ind => ind.pilar === p && indicatorMatchesTipo(ind, tipoSel)).length;
-        tab.querySelector("[data-count]").textContent = n;
+        const score = MLC.pillarScore(DATA.schema, responses, p);
+        tab.querySelector("[data-count]").textContent = score;
       });
     }
 
