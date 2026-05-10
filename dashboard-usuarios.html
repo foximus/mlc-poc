@@ -335,6 +335,28 @@
       return "otra";
     }
 
+    // Reglas de equivalencia entre el `_tipo` del catálogo y los valores en `establecimiento`.
+    function tipoMatchesEstablecimiento(tipo, est) {
+      if (!tipo) return true;
+      const norm = s => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+      const t = norm(tipo);
+      const e = norm(est);
+      if (!e) return false;
+      if (t === e) return true;
+      // CAP coincide con "Centro de Atención Permanente (CAP)"
+      if (e === "cap" && t.includes("(cap)")) return true;
+      // "hospital" en establecimiento cubre cualquier "Hospital ..."
+      if (e === "hospital" && t.startsWith("hospital")) return true;
+      return false;
+    }
+
+    function indicatorMatchesTipo(ind, tipo) {
+      if (!tipo) return true;
+      const estabs = (ind.establecimiento || "").split(",").map(s => s.trim()).filter(Boolean);
+      if (!estabs.length) return true;
+      return estabs.some(e => tipoMatchesEstablecimiento(tipo, e));
+    }
+
     function renderIndicatorCards(responses) {
       const wrap = document.getElementById("indicator-cards");
       wrap.innerHTML = "";
@@ -342,9 +364,10 @@
       charts.cards.forEach(c => c && c.destroy());
       charts.cards = [];
 
-      const list = INDICATORS.filter(ind => ind.pilar === currentPillar);
+      const tipoSel = getCurrentFilters("filters")._tipo;
+      const list = INDICATORS.filter(ind => ind.pilar === currentPillar && indicatorMatchesTipo(ind, tipoSel));
       if (!list.length) {
-        wrap.innerHTML = `<p class="indicator-card-empty">No hay indicadores definidos para este pilar.</p>`;
+        wrap.innerHTML = `<p class="indicator-card-empty">No hay indicadores definidos para este pilar${tipoSel ? ` y tipo "${tipoSel}"` : ""}.</p>`;
         return;
       }
 
@@ -580,10 +603,10 @@
     }
 
     function updateTabCounts() {
-      // Contar preguntas asociadas a cada pilar (referencial al estilo de la maqueta)
+      const tipoSel = getCurrentFilters("filters")._tipo;
       document.querySelectorAll(".pillar-tab").forEach(tab => {
         const p = tab.getAttribute("data-pillar");
-        const n = DATA.schema.filter(q => q.pilar === p).length;
+        const n = INDICATORS.filter(ind => ind.pilar === p && indicatorMatchesTipo(ind, tipoSel)).length;
         tab.querySelector("[data-count]").textContent = n;
       });
     }
@@ -871,6 +894,7 @@
     function refresh() {
       const responses = MLC.filterResponses(DATA.responses, getCurrentFilters());
       updatePillarHeader(responses);
+      updateTabCounts();
       renderIndicatorCards(responses);
       renderDemographics(responses);
     }
