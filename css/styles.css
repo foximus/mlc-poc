@@ -690,6 +690,25 @@ footer strong { color: var(--mystic-blue); }
 /* ============================================================
    Dashboard interno - Pillars / Indicadores
    ============================================================ */
+.summary-intro {
+  margin-bottom: 1.25rem;
+  padding: 0 0.25rem;
+}
+.summary-intro h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: var(--deep-oceanic);
+  margin: 0 0 0.5rem;
+}
+.summary-intro p {
+  color: var(--deep-oceanic);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  max-width: 900px;
+  margin: 0;
+}
+
 .filters {
   display: flex;
   gap: 1rem;

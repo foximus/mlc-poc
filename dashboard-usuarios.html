@@ -37,6 +37,16 @@
   <!-- Main -->
   <section class="container" style="padding: 1rem 2rem 3rem;">
 
+    <!-- Texto introductorio del Resumen -->
+    <div class="summary-intro">
+      <h2>Evaluación del Desempeño por Establecimiento de Salud</h2>
+      <p>
+        Utilice los filtros superiores para segmentar la información por ubicación y tipo de centro.
+        Esta sección presenta un ranking detallado basado en los pilares de calidad del servicio,
+        permitiéndole identificar fortalezas y áreas de mejora en cada unidad de atención.
+      </p>
+    </div>
+
     <!-- Filtros independientes del Resumen -->
     <div class="filters">
       <div id="summary-filters" class="filters-dyn"></div>
@@ -64,6 +74,31 @@
           </thead>
           <tbody id="summary-tbody"></tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Pilares (siempre visibles, encima de las instrucciones) -->
+    <h2 class="section-title">Selecciona un pilar para ver indicadores</h2>
+    <div class="pillars-container">
+      <div class="pillar-tab active" data-pillar="Disponibilidad">
+        <span class="pillar-number" data-count>—</span>
+        <span class="pillar-name">Disponibilidad</span>
+      </div>
+      <div class="pillar-tab" data-pillar="Accesibilidad">
+        <span class="pillar-number" data-count>—</span>
+        <span class="pillar-name">Accesibilidad</span>
+      </div>
+      <div class="pillar-tab" data-pillar="Aceptabilidad">
+        <span class="pillar-number" data-count>—</span>
+        <span class="pillar-name">Aceptabilidad</span>
+      </div>
+      <div class="pillar-tab" data-pillar="Adecuación">
+        <span class="pillar-number" data-count>—</span>
+        <span class="pillar-name">Adecuación</span>
+      </div>
+      <div class="pillar-tab" data-pillar="Asequibilidad">
+        <span class="pillar-number" data-count>—</span>
+        <span class="pillar-name">Asequibilidad</span>
       </div>
     </div>
 
@@ -159,32 +194,6 @@
 
     <div class="dashboard-body" id="dashboard-body">
 
-    <!-- Pilares -->
-    <h2 class="section-title">Selecciona un pilar para ver indicadores</h2>
-
-    <div class="pillars-container">
-      <div class="pillar-tab active" data-pillar="Disponibilidad">
-        <span class="pillar-number" data-count>—</span>
-        <span class="pillar-name">Disponibilidad</span>
-      </div>
-      <div class="pillar-tab" data-pillar="Accesibilidad">
-        <span class="pillar-number" data-count>—</span>
-        <span class="pillar-name">Accesibilidad</span>
-      </div>
-      <div class="pillar-tab" data-pillar="Aceptabilidad">
-        <span class="pillar-number" data-count>—</span>
-        <span class="pillar-name">Aceptabilidad</span>
-      </div>
-      <div class="pillar-tab" data-pillar="Adecuación">
-        <span class="pillar-number" data-count>—</span>
-        <span class="pillar-name">Adecuación</span>
-      </div>
-      <div class="pillar-tab" data-pillar="Asequibilidad">
-        <span class="pillar-number" data-count>—</span>
-        <span class="pillar-name">Asequibilidad</span>
-      </div>
-    </div>
-
     <!-- Banner del pilar -->
     <div class="pillar-banner" id="pillar-banner">
       <h2 id="pillar-banner-title">Disponibilidad</h2>
@@ -226,6 +235,18 @@
       <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
         <h3 class="section-subtitle" style="font-size: 1rem;">Por rango de edad</h3>
         <canvas id="edadChart"></canvas>
+      </div>
+      <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
+        <h3 class="section-subtitle" style="font-size: 1rem;">Por sexo</h3>
+        <canvas id="sexoChart"></canvas>
+      </div>
+      <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
+        <h3 class="section-subtitle" style="font-size: 1rem;">Por identidad de género</h3>
+        <canvas id="generoChart"></canvas>
+      </div>
+      <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
+        <h3 class="section-subtitle" style="font-size: 1rem;">Por departamento</h3>
+        <canvas id="departamentoChart"></canvas>
       </div>
       <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
         <h3 class="section-subtitle" style="font-size: 1rem;">Por unidad de atención</h3>
@@ -570,6 +591,56 @@
           }]
         },
         options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+
+      // Sexo
+      const sexoCounts = MLC.countValues(responses, "p08");
+      if (charts.sexo) charts.sexo.destroy();
+      charts.sexo = new Chart(document.getElementById("sexoChart"), {
+        type: "doughnut",
+        data: {
+          labels: Object.keys(sexoCounts).map(MLC.prettyLabel),
+          datasets: [{
+            data: Object.values(sexoCounts),
+            backgroundColor: ["#C1111F", "#003049", "#669BBC", "#FDF0D5"]
+          }]
+        },
+        options: { plugins: { legend: { position: "bottom" } } }
+      });
+
+      // Identidad de género
+      const generoCounts = MLC.countValues(responses, "p09");
+      if (charts.genero) charts.genero.destroy();
+      charts.genero = new Chart(document.getElementById("generoChart"), {
+        type: "doughnut",
+        data: {
+          labels: Object.keys(generoCounts).map(MLC.prettyLabel),
+          datasets: [{
+            data: Object.values(generoCounts),
+            backgroundColor: ["#790000", "#003049", "#669BBC", "#C1111F", "#FDF0D5", "#9c4a4a"]
+          }]
+        },
+        options: { plugins: { legend: { position: "bottom" } } }
+      });
+
+      // Departamento (ubicación)
+      const depCounts = MLC.countValues(responses, "_departamento");
+      if (charts.departamento) charts.departamento.destroy();
+      charts.departamento = new Chart(document.getElementById("departamentoChart"), {
+        type: "bar",
+        data: {
+          labels: Object.keys(depCounts),
+          datasets: [{
+            label: "Respuestas",
+            data: Object.values(depCounts),
+            backgroundColor: "#669BBC"
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          plugins: { legend: { display: false } },
+          scales: { x: { beginAtZero: true } }
+        }
       });
 
       // Unidad
@@ -1014,6 +1085,9 @@
           document.querySelectorAll(".pillar-tab").forEach(t => t.classList.remove("active"));
           tab.classList.add("active");
           currentPillar = tab.getAttribute("data-pillar");
+          // Al elegir un pilar, colapsar el panel de instrucciones para ver el contenido.
+          try { localStorage.setItem(INTRO_KEY, "true"); } catch (_) {}
+          setIntroCollapsed(true);
           refresh();
         });
       });
