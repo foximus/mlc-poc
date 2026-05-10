@@ -454,7 +454,7 @@
       for (const u of unidades) {
         const rs = DATA.responses.filter(r => r._unidad === u);
         const scores = SUMMARY_PILLARS.map(p => MLC.pillarScore(DATA.schema, rs, p));
-        const total  = scores.reduce((a, b) => a + b, 0);
+        const total  = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
         const cells = scores.map(v => {
           const a = (0.08 + (v / 100) * 0.55).toFixed(2);
           return `<td class="su-cell" style="background: rgba(193, 17, 31, ${a})">${v}</td>`;
