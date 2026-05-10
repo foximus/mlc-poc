@@ -37,6 +37,12 @@
   <!-- Main -->
   <section class="container" style="padding: 1rem 2rem 3rem;">
 
+    <!-- Filtros independientes del Resumen -->
+    <div class="filters">
+      <div id="summary-filters" class="filters-dyn"></div>
+      <button class="btn btn-secondary" onclick="resetSummaryFilters()">Limpiar</button>
+    </div>
+
     <!-- Panel resumen (heatmap unidad x pilar) -->
     <div class="summary-panel">
       <div class="summary-panel-title">Resumen por unidad de atención</div>
@@ -450,9 +456,23 @@
       const tbody = document.getElementById("summary-tbody");
       if (!tbody) return;
       tbody.innerHTML = "";
-      const unidades = [...new Set(DATA.responses.map(r => r._unidad))].sort();
+      const filters = getCurrentFilters("summary-filters");
+      const responses = MLC.filterResponses(DATA.responses, filters);
+
+      const hasFilter = Object.values(filters).some(v => v);
+      let unidades;
+      if (hasFilter) {
+        let pool = UNIDADES_CATALOG;
+        for (const f of CATALOG_FIELDS) {
+          if (filters[f]) pool = pool.filter(r => r[f] === filters[f]);
+        }
+        unidades = [...new Set(pool.map(r => r._unidad))].sort();
+      } else {
+        unidades = [...new Set(responses.map(r => r._unidad))].sort();
+      }
+
       for (const u of unidades) {
-        const rs = DATA.responses.filter(r => r._unidad === u);
+        const rs = responses.filter(r => r._unidad === u);
         const scores = SUMMARY_PILLARS.map(p => MLC.pillarScore(DATA.schema, rs, p));
         const total  = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
         const cells = scores.map(v => {
@@ -473,19 +493,12 @@
     // Catálogo de filtros (defaults + extras agregables por usuario)
     // ============================================================
     const FILTER_CATALOG = [
-      // Defaults: siempre visibles, no removibles
-      { id: "departamento", label: "Departamento", field: "_departamento", optionsFrom: "responses", placeholder: "Todos los departamentos", default: true },
-      { id: "unidad",       label: "Mi Unidad",    field: "_unidad",       optionsFrom: "static",    placeholder: "Todas las unidades",      default: true,
-        staticOptions: [
-          { value: "Centro de Salud Roosevelt",        label: "Centro de Salud Roosevelt" },
-          { value: "Centro de Salud San Juan de Dios", label: "Centro de Salud San Juan de Dios" },
-          { value: "Puesto de Salud Esquintla",        label: "Puesto de Salud Esquintla" },
-          { value: "Puesto de Salud Quetzaltenango",   label: "Puesto de Salud Quetzaltenango" },
-          { value: "Puesto de Salud Izabal",           label: "Puesto de Salud Izabal" },
-        ] },
+      // Defaults: siempre visibles, no removibles. Opciones desde catálogo UNIDADES (xlsx).
+      { id: "departamento", label: "Departamento",                field: "_departamento", optionsFrom: "catalog", placeholder: "Todos los departamentos", default: true },
+      { id: "municipio",    label: "Municipio",                   field: "_municipio",    optionsFrom: "catalog", placeholder: "Todos los municipios",    default: true },
+      { id: "tipo",         label: "Tipo de centro de salud",     field: "_tipo",         optionsFrom: "catalog", placeholder: "Todos los tipos",         default: true },
+      { id: "unidad",       label: "Nombre del centro",           field: "_unidad",       optionsFrom: "catalog", placeholder: "Todos los centros",       default: true },
       // Extras: agregables desde el catálogo
-      { id: "municipio",            label: "Municipio",                  field: "_municipio", optionsFrom: "responses", placeholder: "Todos", dependsOn: "_departamento" },
-      { id: "tipo",                 label: "Tipo de unidad",             field: "_tipo",      optionsFrom: "responses", placeholder: "Todos" },
       { id: "areas",                label: "Áreas del establecimiento",  field: "P03",        optionsFrom: "responses", placeholder: "Todas" },
       { id: "cargo",                label: "Cargo del entrevistado",     field: "P04",        optionsFrom: "responses", placeholder: "Todos" },
     ];
@@ -532,8 +545,11 @@
       return [...out].sort((a, b) => String(a).localeCompare(String(b)));
     }
 
-    function populateOptionsFor(entry) {
-      const sel = document.querySelector(`select[data-field="${entry.field}"]`);
+    const CATALOG_FIELDS = ["_departamento", "_municipio", "_tipo", "_unidad"];
+    let UNIDADES_CATALOG = [];
+
+    function populateOptionsFor(entry, scopeId = "filters") {
+      const sel = document.querySelector(`#${scopeId} select[data-field="${entry.field}"]`);
       if (!sel) return;
       if (entry.optionsFrom === "static") {
         const prev = sel.value;
@@ -542,9 +558,22 @@
         if (prev && entry.staticOptions.some(o => o.value === prev)) sel.value = prev;
         return;
       }
+      if (entry.optionsFrom === "catalog") {
+        let pool = UNIDADES_CATALOG;
+        const myIdx = CATALOG_FIELDS.indexOf(entry.field);
+        for (let i = 0; i < myIdx; i++) {
+          const parentField = CATALOG_FIELDS[i];
+          const parentSel = document.querySelector(`#${scopeId} select[data-field="${parentField}"]`);
+          const parentVal = parentSel && parentSel.value;
+          if (parentVal) pool = pool.filter(r => r[parentField] === parentVal);
+        }
+        const values = uniqueFieldValues(pool, entry.field);
+        fillSelectFromValues(sel, values, entry.placeholder);
+        return;
+      }
       let pool = DATA.responses;
       if (entry.dependsOn) {
-        const parentSel = document.querySelector(`select[data-field="${entry.dependsOn}"]`);
+        const parentSel = document.querySelector(`#${scopeId} select[data-field="${entry.dependsOn}"]`);
         const parentVal = parentSel && parentSel.value;
         if (parentVal) pool = pool.filter(r => r[entry.dependsOn] === parentVal);
       }
@@ -553,15 +582,55 @@
     }
 
     function populateAllOptions() {
-      getActiveCatalog().forEach(populateOptionsFor);
+      getActiveCatalog().forEach(e => populateOptionsFor(e, "filters"));
     }
 
-    function getCurrentFilters() {
+    function getCurrentFilters(scopeId = "filters") {
       const out = {};
-      document.querySelectorAll("#filters select[data-field]").forEach(sel => {
+      document.querySelectorAll(`#${scopeId} select[data-field]`).forEach(sel => {
         if (sel.value) out[sel.dataset.field] = sel.value;
       });
       return out;
+    }
+
+    // ===== Filtros independientes del Resumen por unidad =====
+    function renderSummaryFilters() {
+      const wrap = document.getElementById("summary-filters");
+      if (!wrap) return;
+      const defaults = FILTER_CATALOG.filter(c => c.default);
+      wrap.innerHTML = defaults.map(entry => `
+        <div class="filter-group" data-filter-id="${entry.id}">
+          <label for="sf-${entry.id}">${entry.label}:</label>
+          <select id="sf-${entry.id}" data-field="${entry.field}">
+            <option value="">${entry.placeholder}</option>
+          </select>
+        </div>
+      `).join("");
+      defaults.forEach(e => populateOptionsFor(e, "summary-filters"));
+      wrap.querySelectorAll("select[data-field]").forEach(sel => {
+        sel.addEventListener("change", onSummaryFilterChange);
+      });
+    }
+
+    function onSummaryFilterChange(e) {
+      const changedField = e.target.dataset.field;
+      const catalogIdx = CATALOG_FIELDS.indexOf(changedField);
+      if (catalogIdx >= 0) {
+        for (let i = catalogIdx + 1; i < CATALOG_FIELDS.length; i++) {
+          const child = FILTER_CATALOG.find(c => c.field === CATALOG_FIELDS[i] && c.optionsFrom === "catalog" && c.default);
+          if (child) populateOptionsFor(child, "summary-filters");
+        }
+      }
+      FILTER_CATALOG.filter(c => c.default).forEach(entry => {
+        if (entry.dependsOn === changedField) populateOptionsFor(entry, "summary-filters");
+      });
+      buildSummaryTable();
+    }
+
+    function resetSummaryFilters() {
+      document.querySelectorAll("#summary-filters select[data-field]").forEach(sel => sel.value = "");
+      FILTER_CATALOG.filter(c => c.default).forEach(e => populateOptionsFor(e, "summary-filters"));
+      buildSummaryTable();
     }
 
     function renderFilters() {
@@ -609,8 +678,15 @@
 
     function onFilterChange(e) {
       const changedField = e.target.dataset.field;
+      const catalogIdx = CATALOG_FIELDS.indexOf(changedField);
+      if (catalogIdx >= 0) {
+        for (let i = catalogIdx + 1; i < CATALOG_FIELDS.length; i++) {
+          const child = getActiveCatalog().find(c => c.field === CATALOG_FIELDS[i] && c.optionsFrom === "catalog");
+          if (child) populateOptionsFor(child, "filters");
+        }
+      }
       getActiveCatalog().forEach(entry => {
-        if (entry.dependsOn === changedField) populateOptionsFor(entry);
+        if (entry.dependsOn === changedField) populateOptionsFor(entry, "filters");
       });
       refresh();
     }
@@ -689,9 +765,14 @@
       }
 
       DATA = await MLC.loadMock("prestadores");
+      try {
+        const c = await fetch("data/unidades-catalog.json");
+        UNIDADES_CATALOG = c.ok ? await c.json() : [];
+      } catch (_) { UNIDADES_CATALOG = []; }
 
       activeExtras = loadActiveExtras();
       renderFilters();
+      renderSummaryFilters();
       buildSummaryTable();
       ["comparison-filter", "period-filter"]
         .forEach(id => document.getElementById(id).addEventListener("change", refresh));

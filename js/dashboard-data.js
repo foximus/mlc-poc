@@ -113,10 +113,14 @@ const MLC = {
     return total === 0 ? 0 : Math.round((yes / total) * 100);
   },
 
-  /** Etiqueta legible para una opción (snake_case → Capitalizado) */
+  /** Etiqueta legible para una opción (snake_case → Capitalizado).
+   *  Si el string ya viene formateado (contiene mayúsculas y minúsculas o tildes),
+   *  se devuelve tal cual para no romper nombres como "Petén" o "Suchitepéquez". */
   prettyLabel(s) {
     if (!s) return s;
-    return String(s).replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+    const str = String(s);
+    if (/[A-ZÁÉÍÓÚÑ]/.test(str) && /[a-záéíóúñ]/.test(str)) return str;
+    return str.replace(/_/g, " ").replace(/(^|\s)(\p{L})/gu, (_, sp, c) => sp + c.toUpperCase());
   },
 
   /** Promedio numérico ignorando null/no_se */

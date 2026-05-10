@@ -694,6 +694,7 @@ footer strong { color: var(--mystic-blue); }
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
+  align-items: flex-end;
   flex-wrap: wrap;
   background: var(--text-light);
   padding: 1.25rem 1.5rem;
@@ -703,8 +704,11 @@ footer strong { color: var(--mystic-blue); }
 
 .filter-group {
   display: flex;
-  gap: 0.5rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: stretch;
+  min-width: 0;
+  position: relative;
 }
 
 .filter-group label {
@@ -724,24 +728,31 @@ footer strong { color: var(--mystic-blue); }
   font-family: var(--font-display);
   color: var(--deep-oceanic);
   background: var(--text-light);
+  width: 100%;
+  min-width: 0;
 }
 
-/* Wrapper de filtros dinámicos: usa display:contents para que sus
-   hijos fluyan como ítems flex del .filters contenedor. */
+/* Wrapper de filtros dinámicos: grid con columnas de ancho uniforme. */
 .filters-dyn {
-  display: contents;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.75rem 1rem;
 }
 
 /* Botón × para quitar un filtro extra */
 .filter-group .filter-remove {
+  position: absolute;
+  top: 0;
+  right: 0;
   background: transparent;
   border: 1px solid var(--border-light);
   color: var(--blood-rust);
-  width: 1.5rem;
-  height: 1.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
   line-height: 1;
   border-radius: 50%;
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   padding: 0;
