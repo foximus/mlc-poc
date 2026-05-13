@@ -390,6 +390,15 @@ p { color: var(--deep-oceanic); }
 .role-card--center .role-icon { margin-left: auto; margin-right: 0; }
 .role-card--center p { margin-left: auto; margin-right: 0; }
 
+.role-card--left {
+  text-align: left;
+  padding-left: 1.5rem;
+  padding-right: 3rem;
+}
+
+.role-card--left .role-icon { margin-left: 0; margin-right: auto; }
+.role-card--left p { margin-left: 0; margin-right: auto; }
+
 .role-card:hover {
   background: rgba(102, 155, 188, 0.12);
 }
@@ -1525,6 +1534,102 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   background: var(--vanilla-cream);
   color: var(--blood-rust);
   border: 1px solid var(--blood-rust);
+}
+
+/* Secciones colapsables del dashboard */
+.dash-section {
+  background: var(--text-light);
+  border-radius: 8px;
+  margin: 1.5rem 0;
+  box-shadow: 0 2px 10px rgba(0, 48, 73, 0.08);
+  overflow: hidden;
+  border-top: 4px solid var(--blood-rust);
+}
+.dash-section > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1.1rem 1.5rem;
+  background: var(--deep-oceanic);
+  color: var(--text-light);
+  font-family: var(--font-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 1.05rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.dash-section > summary::-webkit-details-marker { display: none; }
+.dash-section > summary::marker { content: ""; }
+.dash-section > summary::before {
+  content: "\25B8";
+  display: inline-block;
+  transition: transform 0.2s ease;
+  font-size: 0.9rem;
+  flex: 0 0 auto;
+}
+.dash-section[open] > summary::before { transform: rotate(90deg); }
+.dash-section-objective {
+  padding: 0.85rem 1.5rem;
+  background: var(--vanilla-cream);
+  border-bottom: 1px solid rgba(0, 48, 73, 0.08);
+  color: var(--deep-oceanic);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.dash-section-objective strong {
+  color: var(--blood-rust);
+  margin-right: 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.78rem;
+}
+.dash-section-scale {
+  padding: 0.6rem 1.5rem;
+  background: #fff7ec;
+  border-bottom: 1px solid rgba(0, 48, 73, 0.08);
+  color: var(--deep-oceanic);
+  font-size: 0.82rem;
+}
+.dash-section-body {
+  padding: 1.5rem;
+}
+.dash-section-body > .indicator-cards { margin: 0; }
+
+/* Tarjeta compacta tipo "stat" (promedio/porcentaje) usada en indicadores numéricos */
+.indicator-stat-canvas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 130px;
+  height: 130px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--mystic-blue), var(--deep-oceanic));
+  color: var(--text-light);
+  padding: 0.65rem;
+  box-sizing: border-box;
+  text-align: center;
+}
+.indicator-stat-value {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 2.1rem;
+  line-height: 1;
+}
+.indicator-stat-unit {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  opacity: 0.95;
+  line-height: 1.2;
+}
+.indicator-stat-aux {
+  font-size: 0.7rem;
+  opacity: 0.85;
+  line-height: 1.2;
 }
 
 /* Botón "Ver respuestas" para indicadores con tabla modal */
