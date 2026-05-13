@@ -53,36 +53,8 @@
       </p>
     </div>
 
-    <!-- Filtros independientes del Resumen 
-    <div class="filters">
-      <div id="summary-filters" class="filters-dyn"></div>
-      <button class="btn btn-secondary" onclick="resetSummaryFilters()">Limpiar</button>
-    </div>
+   
 
-     Panel resumen (heatmap unidad x pilar) 
-    <div class="summary-panel">
-      <div class="summary-panel-title">Resumen por unidad de atención</div>
-      <div class="summary-table-wrap">
-        <table class="summary-table" id="summary-table">
-          <thead>
-            <tr>
-              <th class="su-corner" rowspan="2">Unidad de atención</th>
-              <th class="su-pilar-group" colspan="5">Pilar</th>
-              <th class="su-valor-head" rowspan="2">valor</th>
-            </tr>
-            <tr>
-              <th class="su-pilar"><span>Disponibilidad</span></th>
-              <th class="su-pilar"><span>Accesibilidad</span></th>
-              <th class="su-pilar"><span>Aceptabilidad</span></th>
-              <th class="su-pilar"><span>Adecuación</span></th>
-              <th class="su-pilar"><span>Asequibilidad</span></th>
-            </tr>
-          </thead>
-          <tbody id="summary-tbody"></tbody>
-        </table>
-      </div>
-    </div>
--->
     <!-- Instrucciones / Metodología -->
     <div class="intro-panel" id="intro-panel">
       <button type="button" class="intro-toggle" id="intro-toggle">Ver instrucciones</button>
@@ -151,22 +123,10 @@
       </div>
 
       <div class="intro-block">
-        <h2 class="intro-heading">Avanzando hacia metas 95 95 95</h2>
-        <div class="intro-card">
-          <div class="item">
-            <span class="item-title">Justificar esta sección:</span>
-            <span class="item-body--accent">
-              Las metas 95-95-95 de ONUSIDA buscan que el 95% de personas con VIH conozca su
-              estatus, que el 95% de ellas reciba tratamiento ARV sostenido y que el 95%
-              alcance supresión viral. El monitoreo comunitario aporta evidencia desde la
-              experiencia de las personas usuarias para identificar brechas operativas en
-              tu establecimiento.
-            </span>
-          </div>
-        </div>
+      
         <div class="intro-cta-wrap">
           <button type="button" class="intro-cta" id="intro-cta">
-            Explora aquí indicadores asociados a metas 95 95 95
+            Explorar el panel de prestadores
           </button>
         </div>
       </div>
@@ -177,27 +137,35 @@
 
     <!-- Filtros (dinámicos desde FILTER_CATALOG + estáticos para Comparar/Período) -->
     <div class="filters">
-      <div id="filters" class="filters-dyn"></div>
+      <!-- Fila 1: Departamento, Municipio, Tipo de Centro -->
+      <div id="filters-row1" class="filters-row filters-row-1"></div>
 
-      <div class="filter-group">
-        <label for="comparison-filter">Comparar con:</label>
-        <select id="comparison-filter">
-          <option value="regional">Promedio Regional</option>
-          <option value="similar">Unidades Similares</option>
-          <option value="all">Todas las Unidades</option>
-        </select>
+      <!-- Fila 2: Nombre del Centro, Comparar con, Período -->
+      <div class="filters-row filters-row-2">
+        <div id="filters-row2-dyn" class="filters-row-dyn"></div>
+        <div class="filter-group">
+          <label for="comparison-filter">Comparar con:</label>
+          <select id="comparison-filter">
+            <option value="regional">Promedio Regional</option>
+            <option value="similar">Unidades Similares</option>
+            <option value="all">Todas las Unidades</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="period-filter">Período:</label>
+          <select id="period-filter">
+            <option value="">Últimos 12 meses</option>
+            <option value="3m">Últimos 3 meses</option>
+            <option value="6m">Últimos 6 meses</option>
+          </select>
+        </div>
       </div>
 
-      <div class="filter-group">
-        <label for="period-filter">Período:</label>
-        <select id="period-filter">
-          <option value="">Últimos 12 meses</option>
-          <option value="3m">Últimos 3 meses</option>
-          <option value="6m">Últimos 6 meses</option>
-        </select>
+      <!-- Fila 3: Botones -->
+      <div class="filters-row filters-row-3">
+        <button class="btn btn-secondary" onclick="resetFilters()">Limpiar</button>
+        <div id="filters-add"></div>
       </div>
-
-      <button class="btn btn-secondary" onclick="resetFilters()">Limpiar</button>
     </div>
 
     <!-- Total respuestas (compacto, debajo de filtros) -->
@@ -1067,11 +1035,19 @@
     }
 
     function renderFilters() {
-      const wrap = document.getElementById("filters");
+      const row1 = document.getElementById("filters-row1");
+      const row2Dyn = document.getElementById("filters-row2-dyn");
+      const filterAdd = document.getElementById("filters-add");
+      
       const active = getActiveCatalog();
       const remaining = FILTER_CATALOG.filter(c => !c.default && !activeExtras.includes(c.id));
 
-      const groups = active.map(entry => {
+      // Separar filtros por fila (primeros 3 en fila 1, resto en fila 2)
+      const row1Filters = active.filter((_, idx) => idx < 3);
+      const row2Filters = active.filter((_, idx) => idx >= 3);
+
+      // Renderizar filtros fila 1
+      const row1HTML = row1Filters.map(entry => {
         const removeBtn = entry.default
           ? ""
           : `<button type="button" class="filter-remove" data-remove-id="${entry.id}" aria-label="Quitar filtro ${entry.label}" title="Quitar filtro">×</button>`;
@@ -1086,6 +1062,23 @@
         `;
       }).join("");
 
+      // Renderizar filtros fila 2
+      const row2HTML = row2Filters.map(entry => {
+        const removeBtn = entry.default
+          ? ""
+          : `<button type="button" class="filter-remove" data-remove-id="${entry.id}" aria-label="Quitar filtro ${entry.label}" title="Quitar filtro">×</button>`;
+        return `
+          <div class="filter-group" data-filter-id="${entry.id}">
+            <label for="f-${entry.id}">${entry.label}:</label>
+            <select id="f-${entry.id}" data-field="${entry.field}">
+              <option value="">${entry.placeholder}</option>
+            </select>
+            ${removeBtn}
+          </div>
+        `;
+      }).join("");
+
+      // Botón "Agregar filtro"
       const addMenu = remaining.length === 0
         ? ""
         : `<details class="add-filter">
@@ -1095,16 +1088,18 @@
              </div>
            </details>`;
 
-      wrap.innerHTML = groups + addMenu;
+      row1.innerHTML = row1HTML;
+      row2Dyn.innerHTML = row2HTML;
+      filterAdd.innerHTML = addMenu;
 
       populateAllOptions();
-      wrap.querySelectorAll("select[data-field]").forEach(sel => {
+      document.querySelectorAll("select[data-field]").forEach(sel => {
         sel.addEventListener("change", onFilterChange);
       });
-      wrap.querySelectorAll("[data-remove-id]").forEach(btn => {
+      document.querySelectorAll("[data-remove-id]").forEach(btn => {
         btn.addEventListener("click", () => removeFilter(btn.dataset.removeId));
       });
-      wrap.querySelectorAll("[data-add-id]").forEach(btn => {
+      document.querySelectorAll("[data-add-id]").forEach(btn => {
         btn.addEventListener("click", () => addFilter(btn.dataset.addId));
       });
     }
