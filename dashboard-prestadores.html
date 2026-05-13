@@ -37,6 +37,22 @@
   <!-- Main -->
   <section class="container" style="padding: 1rem 2rem 3rem;">
 
+    <!-- Texto introductorio del módulo -->
+    <div class="summary-intro">
+      <h2>Monitoreo de Prestadores de Servicios de Salud</h2>
+      <p>
+        El presente módulo del Monitoreo Liderado por la Comunidad (MLC) visualiza y analiza
+        los resultados de la encuesta aplicada a prestadores de servicios de salud en
+        establecimientos priorizados, permitiendo identificar aspectos relacionados con
+        disponibilidad de servicios, capacidad diagnóstica, vinculación y retención,
+        tratamiento, monitoreo clínico y condiciones institucionales que influyen en la
+        experiencia de atención. Permite el seguimiento de las metas 95-95-95 de ONUSIDA
+        e incluye filtros dinámicos por tipo de establecimiento, departamento, municipio y
+        nombre del centro, aplicables de forma independiente o combinada en todo el
+        dashboard.
+      </p>
+    </div>
+
     <!-- Filtros independientes del Resumen -->
     <div class="filters">
       <div id="summary-filters" class="filters-dyn"></div>
@@ -191,96 +207,190 @@
       <span class="rb-aux" id="responses-info"></span>
     </div>
 
-    <!-- Desempeño general -->
-    <h2 class="section-title">Desempeño general de tu unidad</h2>
-
-    <div class="indicators" id="kpi-row">
-      <!-- inyectado por JS -->
-    </div>
-
-    <!-- Pilares (banners) -->
-    <h2 class="section-title">Pilares del MLC</h2>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin-bottom: 2rem;">
-      <img src="assets/img/pillar-disponibilidad.png" alt="Disponibilidad" style="width:100%; height:auto; border-radius:6px;">
-      <img src="assets/img/pillar-accesibilidad.png" alt="Accesibilidad" style="width:100%; height:auto; border-radius:6px;">
-      <img src="assets/img/pillar-aceptabilidad.png" alt="Aceptabilidad" style="width:100%; height:auto; border-radius:6px;">
-      <img src="assets/img/pillar-adecuacion.png" alt="Adecuación" style="width:100%; height:auto; border-radius:6px;">
-      <img src="assets/img/pillar-asequibilidad.png" alt="Asequibilidad" style="width:100%; height:auto; border-radius:6px;">
-    </div>
-
-    <!-- Comparativas -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0;">
-      <div style="background:#fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
-        <h3 class="section-subtitle" style="font-size: 1.1rem;">Tu unidad vs. promedio regional</h3>
-        <canvas id="comparativaChart"></canvas>
+    <!-- ============================================================ -->
+    <!-- Sección 1 — Resumen General                                  -->
+    <!-- ============================================================ -->
+    <details class="dash-section" open id="sec-1">
+      <summary>Sección 1 — Resumen General</summary>
+      <div class="dash-section-objective">
+        <strong>Objetivo:</strong> Mostrar una lectura rápida del desempeño institucional.
       </div>
+      <div class="dash-section-body">
 
-      <div style="background:#fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
-        <h3 class="section-subtitle" style="font-size: 1.1rem;">Evolución de desempeño (12 meses)</h3>
-        <canvas id="evolucionChart"></canvas>
-      </div>
-    </div>
+        <!-- Desempeño general -->
+        <h2 class="section-title">Desempeño general de tu unidad</h2>
 
-    <!-- Distribución de respuestas por pilar -->
-    <h2 class="section-title">Distribución de respuestas por pilar</h2>
-    <div style="background:#fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--crimson-blaze);">
-      <canvas id="stackedChart"></canvas>
-    </div>
-
-    <!-- Retroalimentación -->
-    <h2 class="section-title" style="margin-top:2rem;">Retroalimentación comunitaria</h2>
-
-    <div class="table-container">
-      <table>
-        <thead>
-          <tr>
-            <th>Dimensión</th>
-            <th>Fortalezas</th>
-            <th>Áreas de mejora</th>
-            <th>Acciones sugeridas</th>
-          </tr>
-        </thead>
-        <tbody id="feedback-body"></tbody>
-      </table>
-    </div>
-
-    <!-- Plan de acción -->
-    <h2 class="section-title">Plan de mejora sugerido</h2>
-
-    <div class="cards-grid">
-      <div class="card">
-        <div class="card-header"><h3>Corto plazo (1-3 meses)</h3></div>
-        <div class="card-body">
-          <ul class="feature-list">
-            <li>Optimizar tiempos de espera</li>
-            <li>Mejorar comunicación y señalización</li>
-            <li>Reforzar capacitación del personal</li>
-          </ul>
+        <div class="indicators" id="kpi-row">
+          <!-- inyectado por JS -->
         </div>
-      </div>
 
-      <div class="card">
-        <div class="card-header" style="background: var(--deep-oceanic);"><h3>Mediano plazo (3-6 meses)</h3></div>
-        <div class="card-body">
-          <ul class="feature-list">
-            <li>Mejorar disponibilidad de medicamentos</li>
-            <li>Convenios con transporte local</li>
-            <li>Mantenimiento preventivo de instalaciones</li>
-          </ul>
+        <!-- Pilares (banners) -->
+        <h2 class="section-title">Pilares del MLC</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin-bottom: 2rem;">
+          <img src="assets/img/pillar-disponibilidad.png" alt="Disponibilidad" style="width:100%; height:auto; border-radius:6px;">
+          <img src="assets/img/pillar-accesibilidad.png" alt="Accesibilidad" style="width:100%; height:auto; border-radius:6px;">
+          <img src="assets/img/pillar-aceptabilidad.png" alt="Aceptabilidad" style="width:100%; height:auto; border-radius:6px;">
+          <img src="assets/img/pillar-adecuacion.png" alt="Adecuación" style="width:100%; height:auto; border-radius:6px;">
+          <img src="assets/img/pillar-asequibilidad.png" alt="Asequibilidad" style="width:100%; height:auto; border-radius:6px;">
         </div>
-      </div>
 
-      <div class="card">
-        <div class="card-header" style="background: var(--mystic-blue); color: var(--deep-oceanic);"><h3>Largo plazo (6-12 meses)</h3></div>
-        <div class="card-body">
-          <ul class="feature-list">
-            <li>Modelos de financiamiento alternativos</li>
-            <li>Expansión de servicios</li>
-            <li>Sistema de monitoreo continuo</li>
-          </ul>
+        <!-- Comparativas -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 2rem 0;">
+          <div style="background:#fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
+            <h3 class="section-subtitle" style="font-size: 1.1rem;">Tu unidad vs. promedio regional (Radar de pilares)</h3>
+            <canvas id="comparativaChart"></canvas>
+          </div>
+
+          <div style="background:#fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
+            <h3 class="section-subtitle" style="font-size: 1.1rem;">Evolución de desempeño (12 meses)</h3>
+            <canvas id="evolucionChart"></canvas>
+          </div>
         </div>
+
+        <!-- Distribución de respuestas por pilar -->
+        <h2 class="section-title">Distribución de respuestas por pilar</h2>
+        <div style="background:#fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--crimson-blaze);">
+          <canvas id="stackedChart"></canvas>
+        </div>
+
+        <!-- Retroalimentación -->
+        <h2 class="section-title" style="margin-top:2rem;">Retroalimentación comunitaria (Tarjetas resumen)</h2>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Dimensión</th>
+                <th>Fortalezas</th>
+                <th>Áreas de mejora</th>
+                <th>Acciones sugeridas</th>
+              </tr>
+            </thead>
+            <tbody id="feedback-body"></tbody>
+          </table>
+        </div>
+
+        <!-- Plan de acción -->
+        <h2 class="section-title">Plan de mejora sugerido</h2>
+
+        <div class="cards-grid">
+          <div class="card">
+            <div class="card-header"><h3>Corto plazo (1-3 meses)</h3></div>
+            <div class="card-body">
+              <ul class="feature-list">
+                <li>Optimizar tiempos de espera</li>
+                <li>Mejorar comunicación y señalización</li>
+                <li>Reforzar capacitación del personal</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header" style="background: var(--deep-oceanic);"><h3>Mediano plazo (3-6 meses)</h3></div>
+            <div class="card-body">
+              <ul class="feature-list">
+                <li>Mejorar disponibilidad de medicamentos</li>
+                <li>Convenios con transporte local</li>
+                <li>Mantenimiento preventivo de instalaciones</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header" style="background: var(--mystic-blue); color: var(--deep-oceanic);"><h3>Largo plazo (6-12 meses)</h3></div>
+            <div class="card-body">
+              <ul class="feature-list">
+                <li>Modelos de financiamiento alternativos</li>
+                <li>Expansión de servicios</li>
+                <li>Sistema de monitoreo continuo</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
       </div>
-    </div>
+    </details>
+
+    <!-- ============================================================ -->
+    <!-- Sección 2 — Caracterización del Establecimiento              -->
+    <!-- ============================================================ -->
+    <details class="dash-section" id="sec-2">
+      <summary>Sección 2 — Caracterización del Establecimiento</summary>
+      <div class="dash-section-objective">
+        <strong>Objetivo:</strong> Entender el perfil operativo del establecimiento.
+      </div>
+      <div class="dash-section-body">
+        <div class="indicator-cards" id="sec-2-cards"></div>
+      </div>
+    </details>
+
+    <!-- ============================================================ -->
+    <!-- Sección 3 — Prevención y Diagnóstico                         -->
+    <!-- ============================================================ -->
+    <details class="dash-section" id="sec-3">
+      <summary>Sección 3 — Prevención y Diagnóstico</summary>
+      <div class="dash-section-objective">
+        <strong>Objetivo:</strong> Evaluar acceso preventivo y capacidad diagnóstica.
+      </div>
+      <div class="dash-section-body">
+        <div class="indicator-cards" id="sec-3-cards"></div>
+      </div>
+    </details>
+
+    <!-- ============================================================ -->
+    <!-- Sección 4 — Vinculación y Retención                          -->
+    <!-- ============================================================ -->
+    <details class="dash-section" id="sec-4">
+      <summary>Sección 4 — Vinculación y Retención</summary>
+      <div class="dash-section-objective">
+        <strong>Objetivo:</strong> Visualizar pérdidas y continuidad en la atención.
+      </div>
+      <div class="dash-section-body">
+        <div class="indicator-cards" id="sec-4-cards"></div>
+      </div>
+    </details>
+
+    <!-- ============================================================ -->
+    <!-- Sección 5 — Tratamiento y Adherencia                         -->
+    <!-- ============================================================ -->
+    <details class="dash-section" id="sec-5">
+      <summary>Sección 5 — Tratamiento y Adherencia</summary>
+      <div class="dash-section-objective">
+        <strong>Objetivo:</strong> Evaluar continuidad terapéutica y adherencia.
+      </div>
+      <div class="dash-section-body">
+        <div class="indicator-cards" id="sec-5-cards"></div>
+      </div>
+    </details>
+
+    <!-- ============================================================ -->
+    <!-- Sección 6 — Supresión Viral y Monitoreo Clínico              -->
+    <!-- ============================================================ -->
+    <details class="dash-section" id="sec-6">
+      <summary>Sección 6 — Supresión Viral y Monitoreo Clínico</summary>
+      <div class="dash-section-objective">
+        <strong>Objetivo:</strong> Evaluar desempeño clínico y monitoreo terapéutico.
+      </div>
+      <div class="dash-section-body">
+        <div class="indicator-cards" id="sec-6-cards"></div>
+      </div>
+    </details>
+
+    <!-- ============================================================ -->
+    <!-- Sección 7 — Condiciones Institucionales y Experiencia        -->
+    <!-- ============================================================ -->
+    <details class="dash-section" id="sec-7">
+      <summary>Sección 7 — Condiciones Institucionales y Experiencia de Usuario</summary>
+      <div class="dash-section-objective">
+        <strong>Objetivo:</strong> Evalúe las condiciones de privacidad, señalización, seguridad y comodidad del establecimiento de salud.
+      </div>
+      <div class="dash-section-scale">
+        <strong>Escala única:</strong> 1 = Muy deficiente · 2 = Deficiente · 3 = Regular · 4 = Adecuado · 5 = Óptimo
+      </div>
+      <div class="dash-section-body">
+        <div class="indicator-cards" id="sec-7-cards"></div>
+      </div>
+    </details>
 
     </div><!-- /.dashboard-body -->
 
@@ -301,7 +411,434 @@
     const PILAR_LABEL = { "Cascada de atención": "Cascada / Asequibilidad" };
 
     let DATA = null;
-    let charts = { comparativa: null, evolucion: null, stacked: null };
+    let INDICATORS_META = [];
+    let charts = { comparativa: null, evolucion: null, stacked: null, indicators: [] };
+
+    // Paleta para gráficos de respuestas categóricas
+    const PALETTE = ["#790000", "#003049", "#669BBC", "#C1111F", "#FDF0D5", "#9c4a4a", "#1a8754", "#b08bbb"];
+
+    // ============================================================
+    // Especificación de secciones 2-7 (orden, tipo de visualización
+    // y campo de la respuesta). El campo se mapea al schema/mock
+    // (los IDs presentados en la UI se renumeran consecutivamente).
+    // ============================================================
+    const PRESTADORES_SECTIONS = [
+      {
+        id: 2,
+        items: [
+          { num: "P05", field: "P05", viz: "pie",       label: "Poblaciones clave atendidas" },
+          { num: "P06", field: "P06", viz: "card-avg",  label: "Personas con VIH atendidas",     unit: "personas atendidas" },
+          { num: "P07", field: "P07", viz: "pie",       label: "Datos desagregados OSIG" },
+          { num: "P08", field: "P08", viz: "pie",       label: "Protocolos y guías VIH" },
+          { num: "P09", field: "P09", viz: "pie",       label: "Conocimiento estrategia trans" },
+          { num: "P10", field: "P51", viz: "card-avg",  label: "Capacitaciones sobre protocolo trans", unit: "capacitaciones (últimos 6 meses)" },
+        ],
+      },
+      {
+        id: 3,
+        items: [
+          { num: "P11", field: "P10", viz: "stack-bar", label: "Métodos anticonceptivos" },
+          { num: "P12", field: "P11", viz: "stack-bar", label: "Condones masculinos" },
+          { num: "P13", field: "P12", viz: "stack-bar", label: "Condones femeninos" },
+          { num: "P14", field: "P13", viz: "stack-bar", label: "Lubricantes" },
+          { num: "P15", field: "P14", viz: "stack-bar", label: "Disponibilidad pruebas rápidas" },
+          { num: "P16", field: "P15", viz: "card-avg",  label: "Promedio semanal de pruebas",   unit: "pruebas / semana (últimos 3 meses)" },
+          { num: "P17", field: "P16", viz: "card-avg",  label: "Tiempo entrega resultado",      unit: "días (toma → resultado)" },
+          { num: "P18", field: "P17", viz: "card-avg",  label: "Tiempo confirmación diagnóstico", unit: "días (reactivo → confirmado)" },
+        ],
+      },
+      {
+        id: 4,
+        items: [
+          { num: "P19", field: "P18", viz: "pie",       label: "Protocolo de vinculación" },
+          { num: "P20", field: "P19", viz: "histogram", label: "Vinculación ≤7 días" },
+          { num: "P21", field: "P20", viz: "pie",       label: "Navegador de casos" },
+          { num: "P22", field: "P21", viz: "pie",       label: "Seguimiento a no vinculados" },
+          { num: "P23", field: "P22", viz: "card-avg",  label: "Brecha de vinculación",         unit: "personas no vinculadas (últimos 3 meses)" },
+          { num: "P24", field: "P23", viz: "pie",       label: "Sistema de registro" },
+          { num: "P25", field: "P24", viz: "card-avg",  label: "Retención a 12 meses",          unit: "% retención" },
+          { num: "P26", field: "P25", viz: "histogram", label: "Definición pérdida seguimiento" },
+          { num: "P27", field: "P26", viz: "pie",       label: "Búsqueda activa" },
+          { num: "P28", field: "P27", viz: "histogram", label: "Auditoría de datos" },
+          { num: "P29", field: "P28", viz: "pie",       label: "Recordatorio de citas" },
+        ],
+      },
+      {
+        id: 5,
+        items: [
+          { num: "P30", field: "P29", viz: "card-avg",  label: "Tiempo promedio consulta",      unit: "minutos por consulta" },
+          { num: "P31", field: "P30", viz: "pie",       label: "Disponibilidad TAR" },
+          { num: "P32", field: "P31", viz: "histogram", label: "Entrega multimensual TAR" },
+          { num: "P33", field: "P32", viz: "histogram", label: "Evaluación adherencia" },
+          { num: "P34", field: "P33", viz: "histogram", label: "Consejería adherencia" },
+        ],
+      },
+      {
+        id: 6,
+        items: [
+          { num: "P35", field: "P34", viz: "histogram", label: "Registro supresión viral" },
+          { num: "P36", field: "P35", viz: "card-avg",  label: "Tasa supresión viral",          unit: "% pacientes con CV suprimida" },
+          { num: "P37", field: "P36", viz: "card-pct",  label: "Cobertura carga viral",         unit: "% con frecuencia normada", positiveValues: ["siempre"] },
+          { num: "P38", field: "P37", viz: "card-avg-from-label", label: "Tiempo entrega carga viral", unit: "días (muestra → resultado)" },
+          { num: "P39", field: "P38", viz: "pie",       label: "Análisis institucional cascada" },
+          { num: "P40", field: "P39", viz: "pie",       label: "Reuniones falla virológica" },
+          { num: "P41", field: "P40", viz: "pie",       label: "Acceso pruebas laboratorio" },
+          { num: "P42", field: "P41", viz: "card-avg",  label: "Volumen de pruebas",            unit: "pruebas (volumen total)" },
+        ],
+      },
+      {
+        id: 7,
+        items: [
+          { num: "P43", field: "P42", viz: "stack-bar", label: "Señalización interna" },
+          { num: "P44", field: "P43", viz: "stack-bar", label: "Señalización servicios" },
+          { num: "P45", field: "P44", viz: "stack-bar", label: "Privacidad acústica" },
+          { num: "P46", field: "P45", viz: "stack-bar", label: "Seguridad registros clínicos" },
+          { num: "P47", field: "P46", viz: "stack-bar", label: "Privacidad visual" },
+          { num: "P48", field: "P47", viz: "stack-bar", label: "Seguridad instalaciones" },
+          { num: "P49", field: "P48", viz: "stack-bar", label: "Capacidad área espera" },
+          { num: "P50", field: "P49", viz: "stack-bar", label: "Condiciones mobiliario" },
+        ],
+      },
+    ];
+
+    function indicatorMeta(field) {
+      return INDICATORS_META.find(i => i.field === field) || {};
+    }
+
+    // Para campos numéricos abiertos (texto), parsea el primer número que aparezca
+    function parseNumericField(responses, field) {
+      const vals = [];
+      for (const r of responses) {
+        const raw = r[field];
+        if (raw === null || raw === undefined || raw === "") continue;
+        if (typeof raw === "number") { vals.push(raw); continue; }
+        const m = String(raw).match(/-?\d+(?:[.,]\d+)?/);
+        if (m) {
+          const n = parseFloat(m[0].replace(",", "."));
+          if (!Number.isNaN(n)) vals.push(n);
+        }
+      }
+      return vals;
+    }
+
+    function countByField(responses, field) {
+      const out = {};
+      for (const r of responses) {
+        const v = r[field];
+        if (v === null || v === undefined || v === "") continue;
+        if (Array.isArray(v)) v.forEach(x => out[x] = (out[x] || 0) + 1);
+        else out[v] = (out[v] || 0) + 1;
+      }
+      return out;
+    }
+
+    // ============================================================
+    // Renderers — devuelven HTML del cuerpo del card e (opcional)
+    // un objeto para crear el chart después de insertar en el DOM
+    // ============================================================
+    function buildPieCard(item, responses, canvasId) {
+      const counts = countByField(responses, item.field);
+      const labels = Object.keys(counts).map(MLC.prettyLabel);
+      const values = Object.values(counts);
+      const total  = values.reduce((a, b) => a + b, 0);
+      const pcts   = values.map(v => total ? Math.round(v / total * 100) : 0);
+      const colors = labels.map((_, i) => PALETTE[i % PALETTE.length]);
+      const meta   = indicatorMeta(item.field);
+
+      const legend = labels.map((l, i) => `
+        <div class="indicator-card-legend-item">
+          <span class="swatch" style="background:${colors[i]}"></span>
+          <span>${l}: <strong>${pcts[i]}%</strong></span>
+        </div>
+      `).join("");
+
+      const html = `
+        <div class="indicator-card-chart">
+          <div class="indicator-card-canvas"><canvas id="${canvasId}"></canvas></div>
+          <div>
+            <p class="indicator-card-question">${meta.pregunta || item.label}</p>
+            <div class="indicator-card-legend">
+              <span class="indicator-card-legend-title">Respuestas · ${total}</span>
+              ${legend || '<div class="indicator-card-empty">Sin respuestas</div>'}
+            </div>
+          </div>
+        </div>
+      `;
+
+      const chartCfg = total ? {
+        canvasId,
+        config: {
+          type: "doughnut",
+          data: {
+            labels,
+            datasets: [{ data: pcts, backgroundColor: colors, borderColor: "#fff", borderWidth: 2 }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "55%",
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (c) => `${c.label}: ${c.parsed}%`,
+                },
+              },
+            },
+          },
+        },
+      } : null;
+
+      return { html, chartCfg };
+    }
+
+    function buildHistogramCard(item, responses, canvasId) {
+      const counts = countByField(responses, item.field);
+      const labels = Object.keys(counts).map(MLC.prettyLabel);
+      const values = Object.values(counts);
+      const total  = values.reduce((a, b) => a + b, 0);
+      const meta   = indicatorMeta(item.field);
+      const colors = labels.map((_, i) => PALETTE[i % PALETTE.length]);
+
+      const html = `
+        <div class="indicator-card-chart">
+          <div class="indicator-card-canvas"><canvas id="${canvasId}"></canvas></div>
+          <div>
+            <p class="indicator-card-question">${meta.pregunta || item.label}</p>
+            <div class="indicator-card-legend">
+              <span class="indicator-card-legend-title">Histograma · ${total} respuestas</span>
+              ${labels.map((l, i) => `
+                <div class="indicator-card-legend-item">
+                  <span class="swatch" style="background:${colors[i]}"></span>
+                  <span>${l}: <strong>${values[i]}</strong></span>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+
+      const chartCfg = total ? {
+        canvasId,
+        config: {
+          type: "bar",
+          data: { labels, datasets: [{ data: values, backgroundColor: colors }] },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { ticks: { display: false } },
+              y: { beginAtZero: true, ticks: { precision: 0 } },
+            },
+          },
+        },
+      } : null;
+
+      return { html, chartCfg };
+    }
+
+    function buildStackBarCard(item, responses, canvasId) {
+      const counts = countByField(responses, item.field);
+      const labels = Object.keys(counts).map(MLC.prettyLabel);
+      const values = Object.values(counts);
+      const total  = values.reduce((a, b) => a + b, 0);
+      const meta   = indicatorMeta(item.field);
+      const colors = labels.map((_, i) => PALETTE[i % PALETTE.length]);
+
+      const datasets = labels.map((l, i) => ({
+        label: l,
+        data: [values[i]],
+        backgroundColor: colors[i],
+      }));
+
+      const html = `
+        <div class="indicator-card-chart">
+          <div class="indicator-card-canvas"><canvas id="${canvasId}"></canvas></div>
+          <div>
+            <p class="indicator-card-question">${meta.pregunta || item.label}</p>
+            <div class="indicator-card-legend">
+              <span class="indicator-card-legend-title">Barras apiladas · ${total} respuestas</span>
+              ${labels.map((l, i) => `
+                <div class="indicator-card-legend-item">
+                  <span class="swatch" style="background:${colors[i]}"></span>
+                  <span>${l}: <strong>${values[i]}</strong> (${total ? Math.round(values[i] / total * 100) : 0}%)</span>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+
+      const chartCfg = total ? {
+        canvasId,
+        config: {
+          type: "bar",
+          data: { labels: [item.num], datasets },
+          options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { stacked: true, beginAtZero: true, ticks: { precision: 0 } },
+              y: { stacked: true, ticks: { display: false } },
+            },
+          },
+        },
+      } : null;
+
+      return { html, chartCfg };
+    }
+
+    function buildCardAvg(item, responses) {
+      const meta = indicatorMeta(item.field);
+      const vals = parseNumericField(responses, item.field);
+      const avg  = vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length) : null;
+      const avgStr = avg === null ? "—" : (Number.isInteger(avg) ? String(avg) : avg.toFixed(1));
+      const min  = vals.length ? Math.min(...vals) : null;
+      const max  = vals.length ? Math.max(...vals) : null;
+      const aux  = vals.length ? `Mín ${min} · Máx ${max}` : "Sin respuestas numéricas";
+
+      const html = `
+        <div class="indicator-card-chart">
+          <div class="indicator-stat-canvas">
+            <div class="indicator-stat-value">${avgStr}</div>
+            <div class="indicator-stat-unit">${item.unit || "promedio"}</div>
+          </div>
+          <div>
+            <p class="indicator-card-question">${meta.pregunta || item.label}</p>
+            <div class="indicator-card-legend">
+              <span class="indicator-card-legend-title">Tarjeta · promedio (${vals.length})</span>
+              <div>${aux}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      return { html, chartCfg: null };
+    }
+
+    function buildCardPct(item, responses) {
+      const meta = indicatorMeta(item.field);
+      const positives = new Set((item.positiveValues || []));
+      let yes = 0, total = 0;
+      for (const r of responses) {
+        const v = r[item.field];
+        if (v === null || v === undefined || v === "" || MLC.noSabe.has(v)) continue;
+        total += 1;
+        if (positives.has(v)) yes += 1;
+      }
+      const pct = total ? Math.round((yes / total) * 100) : 0;
+      const html = `
+        <div class="indicator-card-chart">
+          <div class="indicator-stat-canvas">
+            <div class="indicator-stat-value">${total ? pct + "%" : "—"}</div>
+            <div class="indicator-stat-unit">${item.unit || "porcentaje"}</div>
+          </div>
+          <div>
+            <p class="indicator-card-question">${meta.pregunta || item.label}</p>
+            <div class="indicator-card-legend">
+              <span class="indicator-card-legend-title">Cobertura</span>
+              <div>${yes} de ${total} respuestas cumplen el criterio</div>
+            </div>
+          </div>
+        </div>
+      `;
+      return { html, chartCfg: null };
+    }
+
+    // Variante usada cuando el field es select_one pero queremos un promedio
+    // de los códigos numéricos del label de la respuesta (ej. "abierto_d_as").
+    // Fallback al conteo si no hay números detectables.
+    function buildCardAvgFromLabel(item, responses) {
+      const meta = indicatorMeta(item.field);
+      const nums = [];
+      for (const r of responses) {
+        const v = r[item.field];
+        if (v === null || v === undefined || v === "") continue;
+        const m = String(v).match(/\d+(?:[.,]\d+)?/);
+        if (m) {
+          const n = parseFloat(m[0].replace(",", "."));
+          if (!Number.isNaN(n)) nums.push(n);
+        }
+      }
+      if (!nums.length) {
+        return buildCardPct({ ...item, positiveValues: [] }, responses);
+      }
+      const avg = nums.reduce((a, b) => a + b, 0) / nums.length;
+      const html = `
+        <div class="indicator-card-chart">
+          <div class="indicator-stat-canvas">
+            <div class="indicator-stat-value">${avg.toFixed(1)}</div>
+            <div class="indicator-stat-unit">${item.unit || "promedio"}</div>
+          </div>
+          <div>
+            <p class="indicator-card-question">${meta.pregunta || item.label}</p>
+            <div class="indicator-card-legend">
+              <span class="indicator-card-legend-title">Tarjeta · promedio (${nums.length})</span>
+              <div>Mín ${Math.min(...nums)} · Máx ${Math.max(...nums)}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      return { html, chartCfg: null };
+    }
+
+    function buildIndicatorCard(item, responses, posIndex) {
+      const canvasId = `pcard-${item.num}`;
+      let r;
+      switch (item.viz) {
+        case "pie":                  r = buildPieCard(item, responses, canvasId); break;
+        case "histogram":            r = buildHistogramCard(item, responses, canvasId); break;
+        case "stack-bar":            r = buildStackBarCard(item, responses, canvasId); break;
+        case "card-avg":             r = buildCardAvg(item, responses); break;
+        case "card-pct":             r = buildCardPct(item, responses); break;
+        case "card-avg-from-label":  r = buildCardAvgFromLabel(item, responses); break;
+        default:                     r = { html: '<div class="indicator-card-empty">Visualización no soportada</div>', chartCfg: null };
+      }
+      const meta = indicatorMeta(item.field);
+      const wrapper = `
+        <div class="indicator-card-wrapper">
+          <div class="indicator-card">
+            <div class="indicator-card-num">${posIndex}</div>
+            ${r.html}
+            <div class="indicator-card-text">
+              <p><span class="label">Indicador:</span> <span class="value">${item.label}</span></p>
+              <p><span class="label">Objetivo de indicador:</span> ${meta.objetivo || "—"}</p>
+            </div>
+          </div>
+        </div>
+      `;
+      return { wrapper, chartCfg: r.chartCfg };
+    }
+
+    function renderPrestadoresSections(responses) {
+      // Limpia charts previos de indicadores
+      charts.indicators.forEach(c => { try { c.destroy(); } catch (_) {} });
+      charts.indicators = [];
+
+      let pos = 0;
+      for (const section of PRESTADORES_SECTIONS) {
+        const wrap = document.getElementById(`sec-${section.id}-cards`);
+        if (!wrap) continue;
+        wrap.innerHTML = "";
+
+        const charters = [];
+        for (const item of section.items) {
+          pos += 1;
+          const { wrapper, chartCfg } = buildIndicatorCard(item, responses, pos);
+          wrap.insertAdjacentHTML("beforeend", wrapper);
+          if (chartCfg) charters.push(chartCfg);
+        }
+
+        for (const c of charters) {
+          const el = document.getElementById(c.canvasId);
+          if (!el) continue;
+          const ch = new Chart(el.getContext("2d"), c.config);
+          charts.indicators.push(ch);
+        }
+      }
+    }
 
     function pillarColor(p) {
       return {
@@ -719,6 +1256,7 @@
       buildEvolucion(misRespuestas);
       buildStacked(misRespuestas);
       buildFeedback(misRespuestas);
+      renderPrestadoresSections(misRespuestas);
     }
 
     function resetFilters() {
@@ -769,6 +1307,10 @@
         const c = await fetch("data/unidades-catalog.json");
         UNIDADES_CATALOG = c.ok ? await c.json() : [];
       } catch (_) { UNIDADES_CATALOG = []; }
+      try {
+        const ir = await fetch("data/indicators-prestadores.json");
+        INDICATORS_META = ir.ok ? await ir.json() : [];
+      } catch (_) { INDICATORS_META = []; }
 
       activeExtras = loadActiveExtras();
       renderFilters();
