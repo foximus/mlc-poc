@@ -181,7 +181,7 @@
   },
   {
     "pilar": "Disponibilidad",
-    "name": "Distribución del ofrecimiento de pruebas por centro de salud",
+    "name": "Distribución de la oferta de pruebas por establecimiento de salud",
     "id": "P31",
     "pregunta": "¿Le ofrecieron la prueba de VIH?",
     "respuestas": "Sí, No, No sé, Prefiero no responder",
@@ -193,7 +193,7 @@
   },
   {
     "pilar": "Disponibilidad",
-    "name": "Distribución del ofrecimiento de condones por centro de salud",
+    "name": "Distribución de la oferta de condones por establecimiento de salud",
     "id": "P32",
     "pregunta": "¿Le ofrecieron condones?",
     "respuestas": "Sí, No, No sé, Prefiero no responder",
@@ -205,7 +205,7 @@
   },
   {
     "pilar": "Disponibilidad",
-    "name": "Distribución del ofrecimiento de lubricantes por centro de salud",
+    "name": "Distribución de la oferta de lubricantes por establecimiento de salud",
     "id": "P33",
     "pregunta": "¿Le ofrecieron lubricantes?",
     "respuestas": "Sí, No, No sé, Prefiero no responder",
@@ -217,7 +217,7 @@
   },
   {
     "pilar": "Disponibilidad",
-    "name": "Distribución de consultas por infección de transmisión sexual por centro de salud",
+    "name": "Distribución de consultas por infección de transmisión sexual por establecimiento de salud",
     "id": "P34",
     "pregunta": "¿Ha consultado por alguna infección de transmisión sexual?",
     "respuestas": "Sí, No, No sé, Prefiero no responder",
@@ -229,7 +229,7 @@
   },
   {
     "pilar": "Disponibilidad",
-    "name": "Distribución del otorgamiento de tratamiento para la infección de transmisión sexual",
+    "name": "Distribución de la oferta de tratamiento para la infección de transmisión sexual",
     "id": "P35",
     "pregunta": "¿Le dieron tratamiento para la infección de transmisión sexual?",
     "respuestas": "Sí, No, No sé, Prefiero no responder",
@@ -241,7 +241,7 @@
   },
   {
     "pilar": "Disponibilidad",
-    "name": "Distribución de la entrega de receta cuando no se proporcionó tratamiento",
+    "name": "Entrega de receta cuando no se proporcionó tratamiento",
     "id": "P36",
     "pregunta": "Si la respuesta es No, ¿le dieron receta para comprarlo?",
     "respuestas": "Sí, No, No sé, Prefiero no responder",
@@ -253,7 +253,7 @@
   },
   {
     "pilar": "Disponibilidad",
-    "name": "Distribución del otorgamiento de información sobre profilaxis por centro de salud",
+    "name": "Personas que recibieron información sobre profilaxis por establecimiento de salud",
     "id": "P37",
     "pregunta": "¿Le dieron información sobre profilaxis pre exposición?",
     "respuestas": "Sí, No, No sé, Prefiero no responder",
@@ -277,7 +277,7 @@
   },
   {
     "pilar": "Disponibilidad",
-    "name": "Distribución de medicamentos entregados de forma incompleta por centro de salud",
+    "name": "Nombre de medicamentos entregados de forma incompleta por establecimiento de salud",
     "id": "P39",
     "pregunta": "Si la respuesta es No ¿Qué ARV le han entregado de forma incompleta?",
     "respuestas": "Listado de nombres del medicamento con presentación",
@@ -385,7 +385,7 @@
   },
   {
     "pilar": "Aceptabilidad",
-    "name": "Percepción de respeto en el trato",
+    "name": "Percepción de respeto en el trato hacia el usuario",
     "id": "P48",
     "pregunta": "¿Considera que el personal en este establecimiento de salud le trató con respeto?",
     "respuestas": "Sí, No, No sé, Prefiero no responder",
@@ -397,7 +397,7 @@
   },
   {
     "pilar": "Aceptabilidad",
-    "name": "Distribución del tipo de personal que no brinda trato respetuoso",
+    "name": "Clasificación del tipo de personal que no brindó trato respetuoso",
     "id": "P49",
     "pregunta": "¿Qué tipo de personal no le atendió con respeto?",
     "respuestas": "Médico, Administrativo, Consejería, Trabajo social, Navegador o par, No sé, Prefiero no responder",
