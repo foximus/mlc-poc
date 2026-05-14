@@ -16320,16 +16320,154 @@
     "_unidad": "Otro Primero de Julio"
   },
   {
-    "_departamento": "Escuintla",
-    "_municipio": "Santa Lucía Milpas Altas",
-    "_tipo": "UAI",
-    "_unidad": "UAI"
-  },
-  {
     "_departamento": "Sacatepéquez",
     "_municipio": "Santa Lucía Milpas Altas",
     "_tipo": "UAI",
-    "_unidad": "UAI"
+    "_unidad": "Hospicio San José"
+  },
+  {
+    "_departamento": "Izabal",
+    "_municipio": "Puerto Barrios",
+    "_tipo": "UAI",
+    "_unidad": "Hospital de la Amistad Japón, Puerto Barrios"
+  },
+  {
+    "_departamento": "Guatemala",
+    "_municipio": "Guatemala",
+    "_tipo": "UAI",
+    "_unidad": "Hospital General San Juan de Dios, Clínica Familiar Luis Ángel García"
+  },
+  {
+    "_departamento": "Guatemala",
+    "_municipio": "Guatemala",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Militar"
+  },
+  {
+    "_departamento": "Quetzaltenango",
+    "_municipio": "Coatepeque",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Nacional de Coatepeque Doctor Juan José Ortega"
+  },
+  {
+    "_departamento": "Escuintla",
+    "_municipio": "Escuintla",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Nacional de Escuintla"
+  },
+  {
+    "_departamento": "Jalapa",
+    "_municipio": "Jalapa",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Nacional de Jalapa"
+  },
+  {
+    "_departamento": "San Marcos",
+    "_municipio": "Malacatán",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Nacional de Malacatán, Profesor Eberto José Velasco"
+  },
+  {
+    "_departamento": "Retalhuleu",
+    "_municipio": "Retalhuleu",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Nacional de Retalhuleu"
+  },
+  {
+    "_departamento": "Izabal",
+    "_municipio": "Puerto Barrios",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Nacional Infantil Elisa Martínez Puerto Barrios"
+  },
+  {
+    "_departamento": "Sacatepéquez",
+    "_municipio": "Antigua Guatemala",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Nacional Pedro de Bethancourt"
+  },
+  {
+    "_departamento": "Quetzaltenango",
+    "_municipio": "Quetzaltenango",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Nacional Rodolfo Robles de Quetzaltenango"
+  },
+  {
+    "_departamento": "Alta Verapaz",
+    "_municipio": "Cobán",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Regional de Cobán, Alta Verapaz"
+  },
+  {
+    "_departamento": "Santa Rosa",
+    "_municipio": "Cuilapa",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Regional de Cuilapa, Santa Rosa"
+  },
+  {
+    "_departamento": "Huehuetenango",
+    "_municipio": "Huehuetenango",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Regional de Huehuetenango, Dr. Jorge Vides Molina"
+  },
+  {
+    "_departamento": "Quetzaltenango",
+    "_municipio": "Quetzaltenango",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Regional de Occidente, Quetzaltenango"
+  },
+  {
+    "_departamento": "Petén",
+    "_municipio": "Melchor de Mencos",
+    "_tipo": "UAI",
+    "_unidad": "Hospital de Melchor de Mencos"
+  },
+  {
+    "_departamento": "Petén",
+    "_municipio": "San Benito",
+    "_tipo": "UAI",
+    "_unidad": "Hospital de San Benito Petén"
+  },
+  {
+    "_departamento": "Quiché",
+    "_municipio": "Santa Cruz del Quiché",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Regional de Santa Cruz del Quiché"
+  },
+  {
+    "_departamento": "Zacapa",
+    "_municipio": "Zacapa",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Regional de Zacapa"
+  },
+  {
+    "_departamento": "Guatemala",
+    "_municipio": "Guatemala",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Roosevelt, Unidad de Atención Integral, Dr. Carlos Rodolfo Mejía Villatoro"
+  },
+  {
+    "_departamento": "Guatemala",
+    "_municipio": "Guatemala",
+    "_tipo": "UAI",
+    "_unidad": "Instituto Guatemalteco de Seguridad Social, Servicio de Infectología"
+  },
+  {
+    "_departamento": "Guatemala",
+    "_municipio": "Guatemala",
+    "_tipo": "UAI",
+    "_unidad": "Instituto Guatemalteco de Seguridad Social, Unidad de Consulta Externa de Enfermedades"
+  },
+  {
+    "_departamento": "Baja Verapaz",
+    "_municipio": "Salamá",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Nacional de Salamá"
+  },
+  {
+    "_departamento": "Chiquimula",
+    "_municipio": "Chiquimula",
+    "_tipo": "UAI",
+    "_unidad": "Hospital Nacional de Chiquimula"
   },
   {
     "_departamento": "Guatemala",
@@ -16360,12 +16498,6 @@
     "_municipio": "Puerto Barrios",
     "_tipo": "Hospital",
     "_unidad": "Hospital San Manuel"
-  },
-  {
-    "_departamento": "Izabal",
-    "_municipio": "Puerto Barrios",
-    "_tipo": "UAI",
-    "_unidad": "UAI Colonia San Manuel, Cruce A Santo Tomás de Castilla"
   },
   {
     "_departamento": "Chimaltenango",
@@ -16447,12 +16579,6 @@
   },
   {
     "_departamento": "Guatemala",
-    "_municipio": "Guatemala",
-    "_tipo": "UAI",
-    "_unidad": "UAI"
-  },
-  {
-    "_departamento": "Guatemala",
     "_municipio": "",
     "_tipo": "Hospital Infantil",
     "_unidad": "Hospital Infantil"
@@ -16462,18 +16588,6 @@
     "_municipio": "Puerto Barrios",
     "_tipo": "Hospital Infantil",
     "_unidad": "Hospital Infantil Puerto Barrios"
-  },
-  {
-    "_departamento": "Guatemala",
-    "_municipio": "Guatemala",
-    "_tipo": "UAI",
-    "_unidad": "UAI Santa Rosita"
-  },
-  {
-    "_departamento": "Guatemala",
-    "_municipio": "Guatemala",
-    "_tipo": "UAI",
-    "_unidad": "UAI Acatán, Santa Rosita"
   },
   {
     "_departamento": "Chiquimula",
@@ -16494,40 +16608,16 @@
     "_unidad": "Hospital Nacional"
   },
   {
-    "_departamento": "Quetzaltenango",
-    "_municipio": "Coatepeque",
-    "_tipo": "UAI",
-    "_unidad": "UAI Barrio Colombita"
-  },
-  {
     "_departamento": "Escuintla",
     "_municipio": "Escuintla",
     "_tipo": "Hospital Nacional",
     "_unidad": "Hospital Nacional"
   },
   {
-    "_departamento": "Escuintla",
-    "_municipio": "Escuintla",
-    "_tipo": "UAI",
-    "_unidad": "UAI"
-  },
-  {
-    "_departamento": "Jalapa",
-    "_municipio": "Jalapa",
-    "_tipo": "UAI",
-    "_unidad": "UAI"
-  },
-  {
     "_departamento": "Jutiapa",
     "_municipio": "Jutiapa",
     "_tipo": "Hospital Nacional",
     "_unidad": "Hospital Nacional Jutiapa"
-  },
-  {
-    "_departamento": "San Marcos",
-    "_municipio": "Malacatán",
-    "_tipo": "UAI",
-    "_unidad": "UAI Comunidad Agraria La Montañita"
   },
   {
     "_departamento": "Suchitepéquez",
@@ -16548,12 +16638,6 @@
     "_unidad": "Hospital Nacional"
   },
   {
-    "_departamento": "Retalhuleu",
-    "_municipio": "Retalhuleu",
-    "_tipo": "UAI",
-    "_unidad": "UAI"
-  },
-  {
     "_departamento": "Huehuetenango",
     "_municipio": "San Pedro Necta",
     "_tipo": "Hospital Nacional",
@@ -16566,28 +16650,10 @@
     "_unidad": "Hospital Nacional Coban"
   },
   {
-    "_departamento": "Izabal",
-    "_municipio": "Puerto Barrios",
-    "_tipo": "UAI",
-    "_unidad": "UAI"
-  },
-  {
     "_departamento": "Jalapa",
     "_municipio": "Jalapa",
     "_tipo": "Hospital Nacional",
     "_unidad": "Hospital Nacional Jalapa"
-  },
-  {
-    "_departamento": "Sacatepéquez",
-    "_municipio": "Antigua Guatemala",
-    "_tipo": "UAI",
-    "_unidad": "UAI Aldea San Felipe de Jesús"
-  },
-  {
-    "_departamento": "Quetzaltenango",
-    "_municipio": "Quetzaltenango",
-    "_tipo": "UAI",
-    "_unidad": "UAI"
   },
   {
     "_departamento": "Quiché",
@@ -16608,52 +16674,16 @@
     "_unidad": "Hospital Regional Huehuetenango"
   },
   {
-    "_departamento": "Alta Verapaz",
-    "_municipio": "Cobán",
-    "_tipo": "UAI",
-    "_unidad": "UAI"
-  },
-  {
     "_departamento": "Santa Rosa",
     "_municipio": "Cuilapa",
     "_tipo": "Hospital Regional",
     "_unidad": "Hospital Regional Cuilapa"
   },
   {
-    "_departamento": "Santa Rosa",
-    "_municipio": "Cuilapa",
-    "_tipo": "UAI",
-    "_unidad": "UAI"
-  },
-  {
-    "_departamento": "Huehuetenango",
-    "_municipio": "Huehuetenango",
-    "_tipo": "UAI",
-    "_unidad": "UAI Las Lagunas"
-  },
-  {
     "_departamento": "Quetzaltenango",
     "_municipio": "Quetzaltenango",
     "_tipo": "Hospital Regional",
     "_unidad": "Hospital Regional Quetzaltenango"
-  },
-  {
-    "_departamento": "Quetzaltenango",
-    "_municipio": "Quetzaltenango",
-    "_tipo": "UAI",
-    "_unidad": "UAI Colonia San Isidro"
-  },
-  {
-    "_departamento": "Petén",
-    "_municipio": "San Benito",
-    "_tipo": "UAI",
-    "_unidad": "UAI"
-  },
-  {
-    "_departamento": "Quiché",
-    "_municipio": "Santa Cruz del Quiché",
-    "_tipo": "UAI",
-    "_unidad": "UAI"
   },
   {
     "_departamento": "Escuintla",
@@ -16668,22 +16698,10 @@
     "_unidad": "Hospital Regional Zacapa"
   },
   {
-    "_departamento": "Zacapa",
-    "_municipio": "Zacapa",
-    "_tipo": "UAI",
-    "_unidad": "UAI Barrio Cementerio Nuevo"
-  },
-  {
     "_departamento": "Petén",
     "_municipio": "San Benito",
     "_tipo": "Hospital Regional",
     "_unidad": "Hospital Regional San Benito"
-  },
-  {
-    "_departamento": "Guatemala",
-    "_municipio": "",
-    "_tipo": "UAI",
-    "_unidad": "UAI"
   },
   {
     "_departamento": "Guatemala",
