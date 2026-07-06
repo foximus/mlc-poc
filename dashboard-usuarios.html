@@ -717,7 +717,7 @@
         const scores = SUMMARY_PILLARS.map(p => MLC.pillarScore(DATA.schema, rs, p));
         const total  = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
         const cells = scores.map(v => {
-          const a = (0.08 + (v / 100) * 0.55).toFixed(2);
+          const a = (0.08 + ((100 - v) / 100) * 0.55).toFixed(2);
           return `<td class="su-cell" style="background: rgba(193, 17, 31, ${a})">${v}</td>`;
         }).join("");
         tbody.insertAdjacentHTML("beforeend", `
