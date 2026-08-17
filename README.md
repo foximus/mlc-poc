@@ -20,7 +20,13 @@ MLC POC/
 │   └── styles.css                # Estilos globales del proyecto
 ├── js/
 │   └── script.js                 # Script JavaScript global
-├── data/                         # Carpeta para datos (futuros)
+├── data/                         # Datos de las encuestas y catálogos
+│   ├── kobo/                     # Exports CSV originales de KoboToolbox
+│   ├── build_from_kobo.py        # CSV de Kobo → JSON de los dashboards
+│   ├── mock-usuarios.json        # Respuestas de usuarios (schema + responses)
+│   ├── mock-prestadores.json     # Respuestas de prestadores
+│   ├── indicators-*.json         # Ficha de indicadores por pilar
+│   └── unidades-catalog.json     # Catálogo oficial de establecimientos
 └── README.md                     # Este archivo
 ```
 
@@ -148,12 +154,29 @@ El proyecto utiliza 5 dimensiones de calidad:
 
 ## 🎯 Datos Utilizados
 
-Los datos mostrados en los dashboards son **datos simulados de ejemplo** para demostrar la funcionalidad. En una versión de producción, estos datos provendrían de:
+Los dashboards se alimentan de las **respuestas reales** de las dos encuestas MLC
+levantadas en KoboToolbox (julio–agosto 2026):
 
-- Encuestas comunitarias
-- Registros de unidades de salud
-- Sistemas de información de salud
-- Monitoreo participativo
+| Formulario | Export original | JSON del dashboard |
+|---|---|---|
+| Prestadores de servicios de salud | `data/kobo/kobo-prestadores.csv` | `data/mock-prestadores.json` |
+| Usuarios de servicios de salud | `data/kobo/kobo-usuarios.csv` | `data/mock-usuarios.json` |
+
+### Cómo actualizar los datos
+
+1. Exportar de KoboToolbox en formato **CSV · labels · separador `;`**.
+2. Reemplazar los archivos en `data/kobo/` conservando los nombres.
+3. Ejecutar:
+
+   ```bash
+   python data/build_from_kobo.py       # regenera los JSON de respuestas
+   python data/generate_indicators.py   # re-mapea la ficha de indicadores
+   ```
+
+El script canoniza el nombre del establecimiento contra `data/unidades-catalog.json`
+(para que los filtros en cascada lo encuentren), traduce las etiquetas del
+formulario a los códigos que usa `js/dashboard-data.js` y omite el
+*Código Construido* de la persona encuestada por tratarse de un pseudoidentificador.
 
 ---
 

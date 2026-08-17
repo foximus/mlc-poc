@@ -9,7 +9,7 @@
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
     "field": "P05",
-    "type": "select_one list_P05"
+    "type": "select_multiple list_P05"
   },
   {
     "pilar": "Disponibilidad",
@@ -225,7 +225,7 @@
     "establecimiento": "UAI, VICITS",
     "clasificacion": "Específica de atención VIH",
     "field": "P23",
-    "type": "select_one list_P23"
+    "type": "select_multiple list_P23"
   },
   {
     "pilar": "Cascada de atención",
@@ -393,7 +393,7 @@
     "establecimiento": "UAI, VICITS",
     "clasificacion": "Específica de atención VIH",
     "field": "P37",
-    "type": "select_one list_P37"
+    "type": "integer"
   },
   {
     "pilar": "Cascada de atención",

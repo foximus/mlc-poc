@@ -853,6 +853,17 @@
                       .replace(/^Puesto de Salud\s+/i, "");
     }
 
+    /** Lista única de establecimientos como {unidad, municipio}, ordenada. */
+    function uniqueUnidades(rows) {
+      const map = new Map();
+      for (const r of rows) {
+        map.set(`${r._unidad}||${r._municipio}`, { unidad: r._unidad, municipio: r._municipio });
+      }
+      return [...map.values()].sort(
+        (a, b) => a.unidad.localeCompare(b.unidad) || a.municipio.localeCompare(b.municipio)
+      );
+    }
+
     function buildSummaryTable() {
       const tbody = document.getElementById("summary-tbody");
       if (!tbody) return;
@@ -867,22 +878,26 @@
         for (const f of CATALOG_FIELDS) {
           if (filters[f]) pool = pool.filter(r => r[f] === filters[f]);
         }
-        unidades = [...new Set(pool.map(r => r._unidad))].sort();
+        unidades = uniqueUnidades(pool);
       } else {
-        unidades = [...new Set(responses.map(r => r._unidad))].sort();
+        unidades = uniqueUnidades(responses);
       }
+      // Hay nombres de unidad que se repiten entre municipios (p. ej. "VICITS"):
+      // se muestra el municipio para poder distinguirlos.
+      const repetidos = unidades.reduce((m, u) => (m[u.unidad] = (m[u.unidad] || 0) + 1, m), {});
 
       for (const u of unidades) {
-        const rs = responses.filter(r => r._unidad === u);
+        const rs = responses.filter(r => r._unidad === u.unidad && r._municipio === u.municipio);
         const scores = SUMMARY_PILLARS.map(p => MLC.pillarScore(DATA.schema, rs, p));
         const total  = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+        const nombre = shortUnidad(u.unidad) + (repetidos[u.unidad] > 1 ? ` (${u.municipio})` : "");
         const cells = scores.map(v => {
           const a = (0.08 + (v / 100) * 0.55).toFixed(2);
           return `<td class="su-cell" style="background: rgba(193, 17, 31, ${a})">${v}</td>`;
         }).join("");
         tbody.insertAdjacentHTML("beforeend", `
           <tr>
-            <td class="su-unidad">${shortUnidad(u)}</td>
+            <td class="su-unidad">${nombre}</td>
             ${cells}
             <td class="su-valor">${total}</td>
           </tr>
