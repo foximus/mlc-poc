@@ -405,7 +405,7 @@
     "establecimiento": "UAI, VICITS, CAP, CAIMI, Puesto de salud, Centro de salud, hospital",
     "clasificacion": "Universal",
     "field": "p49",
-    "type": "select_one p49_list"
+    "type": "select_multiple p49_list"
   },
   {
     "pilar": "Adecuación",
