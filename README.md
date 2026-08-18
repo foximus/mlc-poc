@@ -21,8 +21,8 @@ MLC POC/
 ├── js/
 │   └── script.js                 # Script JavaScript global
 ├── data/                         # Datos de las encuestas y catálogos
-│   ├── kobo/                     # Exports CSV originales de KoboToolbox
-│   ├── build_from_kobo.py        # CSV de Kobo → JSON de los dashboards
+│   ├── kobo/                     # Exports originales de KoboToolbox (.csv / .xlsx)
+│   ├── build_from_kobo.py        # Export de Kobo → JSON de los dashboards
 │   ├── mock-usuarios.json        # Respuestas de usuarios (schema + responses)
 │   ├── mock-prestadores.json     # Respuestas de prestadores
 │   ├── indicators-*.json         # Ficha de indicadores por pilar
@@ -160,12 +160,15 @@ levantadas en KoboToolbox (julio–agosto 2026):
 | Formulario | Export original | JSON del dashboard |
 |---|---|---|
 | Prestadores de servicios de salud | `data/kobo/kobo-prestadores.csv` | `data/mock-prestadores.json` |
-| Usuarios de servicios de salud | `data/kobo/kobo-usuarios.csv` | `data/mock-usuarios.json` |
+| Usuarios de servicios de salud | `data/kobo/kobo-usuarios.xlsx` | `data/mock-usuarios.json` |
 
 ### Cómo actualizar los datos
 
-1. Exportar de KoboToolbox en formato **CSV · labels · separador `;`**.
-2. Reemplazar los archivos en `data/kobo/` conservando los nombres.
+1. Exportar de KoboToolbox en formato **CSV · labels · separador `;`**, o dejar
+   el libro **.xlsx** ya depurado con esas mismas columnas.
+2. Reemplazar los archivos en `data/kobo/` conservando los nombres
+   (`kobo-usuarios.*`, `kobo-prestadores.*`). Si existen ambos formatos para un
+   formulario, el script usa el `.xlsx`.
 3. Ejecutar:
 
    ```bash
@@ -175,8 +178,9 @@ levantadas en KoboToolbox (julio–agosto 2026):
 
 El script canoniza el nombre del establecimiento contra `data/unidades-catalog.json`
 (para que los filtros en cascada lo encuentren), traduce las etiquetas del
-formulario a los códigos que usa `js/dashboard-data.js` y omite el
-*Código Construido* de la persona encuestada por tratarse de un pseudoidentificador.
+formulario a los códigos que usa `js/dashboard-data.js`, descarta submisiones con
+`_uuid` repetido y omite el *Código Construido* de la persona encuestada por
+tratarse de un pseudoidentificador.
 
 ---
 
