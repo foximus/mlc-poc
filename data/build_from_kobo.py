@@ -1,10 +1,11 @@
 """
-Convierte las exportaciones "labels" de KoboToolbox (CSV, separador ';') en los
-JSON que consumen los dashboards del sitio MLC.
+Convierte las exportaciones "labels" de KoboToolbox en los JSON que consumen
+los dashboards del sitio MLC. Acepta el export en CSV (separador ';') o el
+libro .xlsx ya depurado; si existen ambos para un formulario, gana el .xlsx.
 
 Entradas
-    data/kobo/kobo-prestadores.csv
-    data/kobo/kobo-usuarios.csv
+    data/kobo/kobo-prestadores.[xlsx|csv]
+    data/kobo/kobo-usuarios.[xlsx|csv]
     data/unidades-catalog.json   (catálogo de establecimientos, para canonizar nombres)
 
 Salidas
@@ -25,6 +26,7 @@ import json
 import re
 import sys
 import unicodedata
+from datetime import date, datetime, time
 from pathlib import Path
 
 BASE = Path(__file__).resolve().parent
@@ -45,11 +47,61 @@ def slug(s: str) -> str:
     return re.sub(r"_+", "_", norm(s).replace(" ", "_")).strip("_")
 
 
-def read_csv(path: Path):
-    with path.open(encoding="utf-8-sig", newline="") as fh:
-        rd = csv.reader(fh, delimiter=";")
-        header = next(rd)
-        rows = [r for r in rd if any(c.strip() for c in r)]
+def _cell(value) -> str:
+    """Normaliza una celda de xlsx al mismo texto que produciría el CSV."""
+    if value is None:
+        return ""
+    if isinstance(value, datetime):
+        # La fecha de recolección viene sin hora; _submission_time sí la trae.
+        fmt = "%Y-%m-%d" if value.time() == time(0, 0) else "%Y-%m-%d %H:%M:%S"
+        return value.strftime(fmt)
+    if isinstance(value, date):
+        return value.strftime("%Y-%m-%d")
+    if isinstance(value, float) and value.is_integer():
+        return str(int(value))
+    return str(value).strip()
+
+
+def read_table(name: str):
+    """Lee el export de Kobo en CSV (labels, separador ';') o en xlsx.
+
+    Devuelve (header, rows) con todas las celdas ya como texto y sin
+    submisiones repetidas: el `_uuid` es único por envío, así que una fila
+    con un uuid ya visto sólo puede ser un duplicado de la limpieza manual.
+    """
+    xlsx, csv_path = KOBO / f"{name}.xlsx", KOBO / f"{name}.csv"
+    if xlsx.exists():
+        import openpyxl
+        ws = openpyxl.load_workbook(xlsx, data_only=True).worksheets[0]
+        raw = [[_cell(c) for c in row] for row in ws.iter_rows(values_only=True)]
+        header, body = raw[0], raw[1:]
+    elif csv_path.exists():
+        with csv_path.open(encoding="utf-8-sig", newline="") as fh:
+            rd = csv.reader(fh, delimiter=";")
+            header = next(rd)
+            body = list(rd)
+    else:
+        raise SystemExit(f"No se encontró data/kobo/{name}.[xlsx|csv]")
+
+    header = [h.strip() for h in header]
+    try:
+        uuid_col = header.index("_uuid")
+    except ValueError:
+        uuid_col = None
+
+    rows, seen, dupes = [], set(), 0
+    for r in body:
+        if not any(str(c).strip() for c in r):
+            continue
+        if uuid_col is not None:
+            uid = str(r[uuid_col]).strip()
+            if uid and uid in seen:
+                dupes += 1
+                continue
+            seen.add(uid)
+        rows.append(r)
+    if dupes:
+        print(f"[aviso] {name}: {dupes} fila(s) descartadas por _uuid repetido")
     return header, rows
 
 
@@ -311,7 +363,7 @@ def apply_schema_updates(schema: list, labels: dict, types: dict) -> list:
 # ------------------------------------------------------------- prestadores
 
 def build_prestadores() -> dict:
-    header, rows = read_csv(KOBO / "kobo-prestadores.csv")
+    header, rows = read_table("kobo-prestadores")
 
     # columna del CSV -> campo del schema
     COL = {
@@ -416,7 +468,7 @@ def edad_bucket(raw: str) -> str:
 
 
 def build_usuarios() -> dict:
-    header, rows = read_csv(KOBO / "kobo-usuarios.csv")
+    header, rows = read_table("kobo-usuarios")
 
     COL = {
         3: "p00", 4: "p01", 5: "p02_1", 6: "p02_2", 7: "p02_3", 8: "p03",

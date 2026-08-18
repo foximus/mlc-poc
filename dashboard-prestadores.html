@@ -135,8 +135,10 @@
 
     <div class="dashboard-body" id="dashboard-body">
 
-    <!-- Filtros (dinámicos desde FILTER_CATALOG + estáticos para Comparar/Período) -->
-    <div class="filters">
+    <!-- Filtros (dinámicos desde FILTER_CATALOG + estáticos para Comparar/Período).
+         El id="filters" es el ámbito que usan populateOptionsFor / getCurrentFilters
+         para localizar los <select data-field>, repartidos en las filas de abajo. -->
+    <div class="filters" id="filters">
       <!-- Fila 1: Departamento, Municipio, Tipo de Centro -->
       <div id="filters-row1" class="filters-row filters-row-1"></div>
 
