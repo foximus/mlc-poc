@@ -1273,6 +1273,31 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   font-weight: 900;
 }
 
+/* Ubicación: depto abreviado + municipio, con el nombre completo en tooltip */
+.summary-table .su-geo-head {
+  background: #fff;
+  border-bottom: 1px solid #ccc;
+  vertical-align: bottom;
+  padding: 0.5rem 0.5rem;
+  font-weight: 700;
+  color: var(--deep-oceanic);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.summary-table .su-geo {
+  background: #FAFAFA;
+  color: #666;
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-align: left;
+  white-space: nowrap;
+  max-width: 190px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: help;
+}
+
 /* Tamaño de muestra: dato de contexto, no compite con los puntajes */
 .summary-table .su-n {
   background: #FAFAFA;
@@ -1344,6 +1369,38 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   color: #666;
 }
 .su-nota strong { color: var(--deep-oceanic); }
+
+/* ============================================================
+   Perfil de las personas encuestadas
+   ============================================================ */
+.perfil-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.perfil-card {
+  background: #fff;
+  padding: 1.25rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 48, 73, 0.08);
+  border-top: 4px solid var(--mystic-blue);
+}
+
+/* Departamento y establecimiento: muchas categorías y etiquetas largas, así que
+   ocupan toda la fila. La altura la fija el JS según cuántas barras haya. */
+.perfil-card--ancha { grid-column: 1 / -1; }
+
+.perfil-canvas-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 180px;
+}
+
+@media (max-width: 768px) {
+  .perfil-grid { grid-template-columns: 1fr; }
+}
 
 /* ============================================================
    Instrucciones / Metodología (panel introductorio del dashboard)
