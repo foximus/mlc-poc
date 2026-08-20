@@ -1015,11 +1015,13 @@
         return;
       }
       if (entry.optionsFrom === "catalog") {
-        // En el bloque del ranking, la pestaña activa acota el catálogo: sin esto
-        // el selector de unidad ofrecería centros que la tabla nunca mostrará.
+        // Las opciones salen de las respuestas, no del catálogo completo: ofrecer
+        // departamentos o centros sin monitoreo sólo lleva a tablas vacías. El
+        // catálogo se sigue usando para la línea de cobertura, que sí necesita el
+        // universo entero. En el ranking, además, la pestaña acota por tipo.
         let pool = scopeId === "summary-filters"
-          ? UNIDADES_CATALOG.filter(r => summaryTab().tipos.has(r._tipo))
-          : UNIDADES_CATALOG;
+          ? DATA.responses.filter(r => summaryTab().tipos.has(r._tipo))
+          : DATA.responses;
         const myIdx = CATALOG_FIELDS.indexOf(entry.field);
         for (let i = 0; i < myIdx; i++) {
           const parentField = CATALOG_FIELDS[i];

@@ -1545,6 +1545,16 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   height: 130px;
 }
 
+/* Variante ancha: para barras (verticales u horizontales apiladas) la caja
+   cuadrada de 130px aplasta las etiquetas. La leyenda ocupa el resto. */
+.indicator-card-chart--ancho { grid-template-columns: minmax(260px, 42%) 1fr; }
+
+.indicator-card-canvas--ancho {
+  width: 100%;
+  min-width: 260px;
+  height: 190px;
+}
+
 .indicator-card-question {
   font-size: 0.85rem;
   color: var(--deep-oceanic);
@@ -1566,6 +1576,16 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   letter-spacing: 0.5px;
   margin-bottom: 0.25rem;
   color: var(--blood-rust);
+}
+
+/* Aviso de respuestas que no aportan número al promedio ("no recuerda", etc.) */
+.indicator-card-aviso {
+  margin-top: 0.3rem;
+  padding-left: 0.5rem;
+  border-left: 2px solid #D8B24C;
+  color: #8A6D1F;
+  font-style: italic;
+  line-height: 1.35;
 }
 
 .indicator-card-legend-item {
@@ -2213,6 +2233,8 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   .indicator-card-num { font-size: 1.8rem; }
   .indicator-card-chart { grid-template-columns: 110px 1fr; gap: 0.5rem; }
   .indicator-card-canvas { width: 110px; height: 110px; }
+  .indicator-card-chart--ancho { grid-template-columns: minmax(200px, 46%) 1fr; }
+  .indicator-card-canvas--ancho { width: 100%; min-width: 200px; height: 170px; }
   .indicator-card-question { font-size: 0.8rem; }
   .indicator-card-legend { font-size: 0.7rem; }
   .indicator-card-text p { font-size: 0.85rem; }
@@ -2259,6 +2281,8 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   /* Indicator card: stack chart sobre texto */
   .indicator-card-chart { grid-template-columns: 1fr; }
   .indicator-card-canvas { width: 140px; height: 140px; margin: 0 auto; }
+  .indicator-card-chart--ancho { grid-template-columns: 1fr; }
+  .indicator-card-canvas--ancho { width: 100%; min-width: 0; height: 200px; margin: 0; }
 
   /* Logo más pequeño */
   .logo img { height: 36px; }
