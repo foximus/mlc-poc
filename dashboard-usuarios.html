@@ -53,28 +53,54 @@
       <button class="btn btn-secondary" onclick="resetSummaryFilters()">Limpiar</button>
     </div>
 
-    <!-- Panel resumen (heatmap unidad x pilar) -->
+    <!-- Panel resumen (ranking unidad x pilar, separado por tipo de establecimiento) -->
     <div class="summary-panel">
-      <div class="summary-panel-title">Resumen por establecimiento de salud</div>
+      <div class="summary-panel-title">Ranking por establecimiento de salud</div>
+
+      <!-- Pestañas por tipo: cada grupo responde bloques distintos del formulario,
+           así que sólo tiene sentido comparar dentro de cada uno. -->
+      <div class="su-tabs" id="summary-tabs" role="tablist"></div>
+
       <div class="summary-table-wrap">
         <table class="summary-table" id="summary-table">
           <thead>
             <tr>
+              <th class="su-pos-head" rowspan="2">#</th>
               <th class="su-corner" rowspan="2">Unidad de atención</th>
+              <th class="su-n-head" rowspan="2">n</th>
               <th class="su-pilar-group" colspan="5">Pilar</th>
-              <th class="su-valor-head" rowspan="2">valor</th>
+              <th class="su-valor-head su-sortable" rowspan="2"
+                  data-sort="total" tabindex="0" role="button" aria-sort="descending"
+                  title="Ordenar por promedio">Promedio<span class="su-sort-ind"></span></th>
             </tr>
             <tr>
-              <th class="su-pilar"><span>Disponibilidad</span></th>
-              <th class="su-pilar"><span>Accesibilidad</span></th>
-              <th class="su-pilar"><span>Aceptabilidad</span></th>
-              <th class="su-pilar"><span>Adecuación</span></th>
-              <th class="su-pilar"><span>Asequibilidad</span></th>
+              <th class="su-pilar su-sortable" data-sort="Disponibilidad" tabindex="0" role="button"
+                  aria-sort="none" title="Ordenar por Disponibilidad"><span>Disponibilidad<span class="su-sort-ind"></span></span></th>
+              <th class="su-pilar su-sortable" data-sort="Accesibilidad" tabindex="0" role="button"
+                  aria-sort="none" title="Ordenar por Accesibilidad"><span>Accesibilidad<span class="su-sort-ind"></span></span></th>
+              <th class="su-pilar su-sortable" data-sort="Aceptabilidad" tabindex="0" role="button"
+                  aria-sort="none" title="Ordenar por Aceptabilidad"><span>Aceptabilidad<span class="su-sort-ind"></span></span></th>
+              <th class="su-pilar su-sortable" data-sort="Adecuación" tabindex="0" role="button"
+                  aria-sort="none" title="Ordenar por Adecuación"><span>Adecuación<span class="su-sort-ind"></span></span></th>
+              <th class="su-pilar su-sortable" data-sort="Asequibilidad" tabindex="0" role="button"
+                  aria-sort="none" title="Ordenar por Asequibilidad"><span>Asequibilidad<span class="su-sort-ind"></span></span></th>
             </tr>
           </thead>
           <tbody id="summary-tbody"></tbody>
         </table>
       </div>
+
+      <p class="su-nota" id="summary-cobertura"></p>
+
+      <p class="su-nota">
+        <strong>Cómo se calcula:</strong> cada pregunta se promedia entre quienes la
+        contestaron (1 favorable · 0.5 parcial · 0 desfavorable) y luego se promedian las
+        preguntas del pilar, de modo que todas pesen igual. En preguntas como
+        «¿dejó de asistir por falta de dinero?» el «Sí» cuenta como desfavorable.
+        «No sé» y «Prefiero no responder» quedan fuera del denominador, y
+        <strong>n</strong> es el número de entrevistas. Los establecimientos con menos de 3
+        entrevistas se muestran aparte, sin posición en el ranking.
+      </p>
     </div>
 
     <!-- Pilares (siempre visibles, encima de las instrucciones) -->
@@ -679,7 +705,7 @@
       document.querySelectorAll(".pillar-tab").forEach(tab => {
         const p = tab.getAttribute("data-pillar");
         const score = MLC.pillarScore(DATA.schema, responses, p);
-        tab.querySelector("[data-count]").textContent = score;
+        tab.querySelector("[data-count]").textContent = score === null ? "—" : score;
       });
     }
 
@@ -701,47 +727,208 @@
       );
     }
 
+    // Grupos de la tabla resumen. UAI, VICITS y la red de primer nivel contestan
+    // bloques distintos del formulario (a un usuario de puesto de salud no se le
+    // pregunta por TAR ni carga viral), así que mezclarlos en una sola lista
+    // ordena por tipo de establecimiento antes que por desempeño.
+    const SUMMARY_TABS = [
+      { id: "uai",    label: "UAI",    tipos: new Set(["UAI"]) },
+      { id: "vicits", label: "VICITS", tipos: new Set(["VICITS"]) },
+      { id: "primer_nivel", label: "Puestos y centros de salud",
+        tipos: new Set([
+          "Centro de Salud", "Puesto de Salud", "Centro de Atención Permanente (CAP)",
+        ]) },
+    ];
+    // Mínimo de entrevistas para que un establecimiento reciba posición.
+    const MIN_ENTREVISTAS = 3;
+    let currentSummaryTab = SUMMARY_TABS[0].id;
+
+    // Columna por la que se ordena la tabla: "total" o el nombre de un pilar.
+    // Arranca en el promedio de mayor a menor, que es la lectura de ranking.
+    let summarySort = { key: "total", dir: "desc" };
+
+    function summaryTab() {
+      return SUMMARY_TABS.find(t => t.id === currentSummaryTab) || SUMMARY_TABS[0];
+    }
+
+    /** Valor de una fila para la columna activa de ordenamiento. */
+    function sortValue(fila) {
+      if (summarySort.key === "total") return fila.total;
+      const i = SUMMARY_PILLARS.indexOf(summarySort.key);
+      return i < 0 ? null : fila.scores[i];
+    }
+
+    /**
+     * Comparador del ranking. Los establecimientos sin dato en la columna activa
+     * van siempre al final, en cualquier dirección: no son "los peores", es que
+     * no hay con qué ordenarlos. Empate resuelto por nombre.
+     */
+    function compareFilas(a, b) {
+      const va = sortValue(a), vb = sortValue(b);
+      const na = va === null || va === undefined, nb = vb === null || vb === undefined;
+      if (na && nb) return a.nombre.localeCompare(b.nombre);
+      if (na) return 1;
+      if (nb) return -1;
+      if (va !== vb) return summarySort.dir === "desc" ? vb - va : va - vb;
+      return a.nombre.localeCompare(b.nombre);
+    }
+
+    /** Marca la columna activa en el encabezado (flecha + aria-sort). */
+    function renderSortIndicators() {
+      document.querySelectorAll("#summary-table th.su-sortable").forEach(th => {
+        const activa = th.dataset.sort === summarySort.key;
+        th.classList.toggle("is-sorted", activa);
+        th.setAttribute("aria-sort", activa
+          ? (summarySort.dir === "desc" ? "descending" : "ascending")
+          : "none");
+        const ind = th.querySelector(".su-sort-ind");
+        if (ind) ind.textContent = activa ? (summarySort.dir === "desc" ? " ▼" : " ▲") : "";
+      });
+    }
+
+    function bindSortHeaders() {
+      document.querySelectorAll("#summary-table th.su-sortable").forEach(th => {
+        // El thead es estático (no se re-renderiza), así que sin esta guarda una
+        // segunda llamada dejaría dos manejadores y cada clic invertiría dos veces.
+        if (th.dataset.sortBound === "1") return;
+        th.dataset.sortBound = "1";
+        const activar = () => {
+          const key = th.dataset.sort;
+          // Misma columna: invierte. Columna nueva: empieza de mayor a menor.
+          summarySort = (summarySort.key === key)
+            ? { key, dir: summarySort.dir === "desc" ? "asc" : "desc" }
+            : { key, dir: "desc" };
+          buildSummaryTable();
+        };
+        th.addEventListener("click", activar);
+        th.addEventListener("keydown", e => {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activar(); }
+        });
+      });
+    }
+
+    function renderSummaryTabs() {
+      const wrap = document.getElementById("summary-tabs");
+      if (!wrap) return;
+      wrap.innerHTML = SUMMARY_TABS.map(t => {
+        const n = uniqueUnidades(DATA.responses.filter(r => t.tipos.has(r._tipo))).length;
+        return `<button type="button" role="tab" class="su-tab${t.id === currentSummaryTab ? " active" : ""}"
+                  data-tab="${t.id}" aria-selected="${t.id === currentSummaryTab}">
+                  ${t.label} <span class="su-tab-count">${n}</span>
+                </button>`;
+      }).join("");
+      wrap.querySelectorAll("[data-tab]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          currentSummaryTab = btn.dataset.tab;
+          renderSummaryTabs();
+          // Las opciones de municipio/unidad dependen del tipo de la pestaña.
+          summaryFilterEntries().forEach(e => populateOptionsFor(e, "summary-filters"));
+          buildSummaryTable();
+        });
+      });
+    }
+
+    /** Cobertura del monitoreo: cuántos establecimientos del catálogo se visitaron. */
+    function renderCobertura(monitoreados, enCatalogo, tab) {
+      const el = document.getElementById("summary-cobertura");
+      if (!el) return;
+      if (!enCatalogo) { el.textContent = ""; return; }
+      el.innerHTML = `<strong>Cobertura:</strong> ${monitoreados} de ${enCatalogo} `
+        + `establecimientos del tipo «${tab.label}» registrados en el catálogo para la `
+        + `selección actual cuentan con entrevistas.`;
+    }
+
+    /** Celda de pilar con heatmap; "—" cuando el establecimiento no tiene dato. */
+    function pilarCell(v, pilar) {
+      const act = summarySort.key === pilar ? " is-sorted" : "";
+      if (v === null || v === undefined) return `<td class="su-cell su-nd${act}">—</td>`;
+      const a = (0.08 + ((100 - v) / 100) * 0.55).toFixed(2);
+      return `<td class="su-cell${act}" style="background: rgba(193, 17, 31, ${a})">${v}</td>`;
+    }
+
     function buildSummaryTable() {
       const tbody = document.getElementById("summary-tbody");
       if (!tbody) return;
       tbody.innerHTML = "";
 
+      const tab = summaryTab();
       const filters = getCurrentFilters("summary-filters");
-      const responses = MLC.filterResponses(DATA.responses, filters);
+      const responses = MLC.filterResponses(DATA.responses, filters)
+        .filter(r => tab.tipos.has(r._tipo));
 
-      // Si hay algún filtro activo, listar unidades desde el catálogo (xlsx);
-      // si no, mostrar solo las que tienen respuestas para no saturar la tabla.
-      const hasFilter = Object.values(filters).some(v => v);
-      let unidades;
-      if (hasFilter) {
-        let pool = UNIDADES_CATALOG;
-        for (const f of CATALOG_FIELDS) {
-          if (filters[f]) pool = pool.filter(r => r[f] === filters[f]);
-        }
-        unidades = uniqueUnidades(pool);
-      } else {
-        unidades = uniqueUnidades(responses);
+      // El ranking sólo lista establecimientos con al menos una entrevista: volcar
+      // el catálogo completo llenaría la tabla de filas sin datos. La cobertura
+      // frente al catálogo se informa aparte, debajo de la tabla.
+      const unidades = uniqueUnidades(responses);
+      let enCatalogo = UNIDADES_CATALOG.filter(r => tab.tipos.has(r._tipo));
+      for (const f of CATALOG_FIELDS) {
+        if (filters[f]) enCatalogo = enCatalogo.filter(r => r[f] === filters[f]);
       }
+      renderCobertura(unidades.length, uniqueUnidades(enCatalogo).length, tab);
       // Hay nombres de unidad que se repiten entre municipios (p. ej. "VICITS"):
       // se muestra el municipio para poder distinguirlos.
       const repetidos = unidades.reduce((m, u) => (m[u.unidad] = (m[u.unidad] || 0) + 1, m), {});
 
-      for (const u of unidades) {
+      const filas = unidades.map(u => {
         const rs = responses.filter(r => r._unidad === u.unidad && r._municipio === u.municipio);
         const scores = SUMMARY_PILLARS.map(p => MLC.pillarScore(DATA.schema, rs, p));
-        const total  = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-        const nombre = shortUnidad(u.unidad) + (repetidos[u.unidad] > 1 ? ` (${u.municipio})` : "");
-        const cells = scores.map(v => {
-          const a = (0.08 + ((100 - v) / 100) * 0.55).toFixed(2);
-          return `<td class="su-cell" style="background: rgba(193, 17, 31, ${a})">${v}</td>`;
-        }).join("");
+        const conDato = scores.filter(v => v !== null && v !== undefined);
+        return {
+          nombre: shortUnidad(u.unidad) + (repetidos[u.unidad] > 1 ? ` (${u.municipio})` : ""),
+          n: rs.length,
+          scores,
+          total: conDato.length
+            ? Math.round(conDato.reduce((a, b) => a + b, 0) / conDato.length)
+            : null,
+        };
+      }).sort(compareFilas);
+
+      renderSortIndicators();
+      const rankeados = filas.filter(f => f.n >= MIN_ENTREVISTAS);
+      const chicos    = filas.filter(f => f.n <  MIN_ENTREVISTAS);
+
+      if (!filas.length) {
         tbody.insertAdjacentHTML("beforeend", `
-          <tr>
-            <td class="su-unidad">${nombre}</td>
-            ${cells}
-            <td class="su-valor">${total}</td>
+          <tr><td class="su-sep" colspan="9">Sin establecimientos de este tipo para los filtros seleccionados.</td></tr>
+        `);
+        return;
+      }
+
+      const fila = (f, pos) => `
+        <tr${pos === null ? ' class="su-row-nd"' : ""}>
+          <td class="su-pos">${pos === null ? "·" : pos}</td>
+          <td class="su-unidad">${f.nombre}</td>
+          <td class="su-n">${f.n}</td>
+          ${f.scores.map((v, i) => pilarCell(v, SUMMARY_PILLARS[i])).join("")}
+          <td class="su-valor${summarySort.key === "total" ? " is-sorted" : ""}">${f.total === null ? "—" : f.total}</td>
+        </tr>
+      `;
+
+      rankeados.forEach((f, i) => tbody.insertAdjacentHTML("beforeend", fila(f, i + 1)));
+
+      // Promedio del grupo: permite leer cada establecimiento contra sus pares.
+      if (rankeados.length) {
+        const prom = SUMMARY_PILLARS.map(p => MLC.pillarScore(DATA.schema, responses, p));
+        const conDato = prom.filter(v => v !== null && v !== undefined);
+        tbody.insertAdjacentHTML("beforeend", `
+          <tr class="su-prom">
+            <td class="su-pos"></td>
+            <td class="su-unidad">Promedio · ${tab.label}</td>
+            <td class="su-n">${responses.length}</td>
+            ${prom.map(v => `<td class="su-cell">${v === null ? "—" : v}</td>`).join("")}
+            <td class="su-valor">${conDato.length
+              ? Math.round(conDato.reduce((a, b) => a + b, 0) / conDato.length) : "—"}</td>
           </tr>
         `);
+      }
+
+      if (chicos.length) {
+        tbody.insertAdjacentHTML("beforeend", `
+          <tr><td class="su-sep" colspan="9">
+            Muestra insuficiente — menos de ${MIN_ENTREVISTAS} entrevistas, sin posición en el ranking
+          </td></tr>
+        `);
+        chicos.forEach(f => tbody.insertAdjacentHTML("beforeend", fila(f, null)));
       }
     }
 
@@ -828,7 +1015,13 @@
         return;
       }
       if (entry.optionsFrom === "catalog") {
-        let pool = UNIDADES_CATALOG;
+        // Las opciones salen de las respuestas, no del catálogo completo: ofrecer
+        // departamentos o centros sin monitoreo sólo lleva a tablas vacías. El
+        // catálogo se sigue usando para la línea de cobertura, que sí necesita el
+        // universo entero. En el ranking, además, la pestaña acota por tipo.
+        let pool = scopeId === "summary-filters"
+          ? DATA.responses.filter(r => summaryTab().tipos.has(r._tipo))
+          : DATA.responses;
         const myIdx = CATALOG_FIELDS.indexOf(entry.field);
         for (let i = 0; i < myIdx; i++) {
           const parentField = CATALOG_FIELDS[i];
@@ -864,10 +1057,17 @@
     }
 
     // ===== Filtros independientes del Resumen por unidad =====
+    // El tipo de establecimiento lo controlan las pestañas del ranking, así que
+    // se omite aquí: dos mandos para la misma dimensión permiten combinaciones
+    // imposibles (pestaña UAI + filtro "Centro de Salud" = tabla vacía).
+    function summaryFilterEntries() {
+      return FILTER_CATALOG.filter(c => c.default && c.field !== "_tipo");
+    }
+
     function renderSummaryFilters() {
       const wrap = document.getElementById("summary-filters");
       if (!wrap) return;
-      const defaults = FILTER_CATALOG.filter(c => c.default);
+      const defaults = summaryFilterEntries();
       wrap.innerHTML = defaults.map(entry => `
         <div class="filter-group" data-filter-id="${entry.id}">
           <label for="sf-${entry.id}">${entry.label}:</label>
@@ -887,11 +1087,12 @@
       const catalogIdx = CATALOG_FIELDS.indexOf(changedField);
       if (catalogIdx >= 0) {
         for (let i = catalogIdx + 1; i < CATALOG_FIELDS.length; i++) {
-          const child = FILTER_CATALOG.find(c => c.field === CATALOG_FIELDS[i] && c.optionsFrom === "catalog" && c.default);
+          const child = summaryFilterEntries()
+            .find(c => c.field === CATALOG_FIELDS[i] && c.optionsFrom === "catalog");
           if (child) populateOptionsFor(child, "summary-filters");
         }
       }
-      FILTER_CATALOG.filter(c => c.default).forEach(entry => {
+      summaryFilterEntries().forEach(entry => {
         if (entry.dependsOn === changedField) populateOptionsFor(entry, "summary-filters");
       });
       buildSummaryTable();
@@ -899,7 +1100,7 @@
 
     function resetSummaryFilters() {
       document.querySelectorAll("#summary-filters select[data-field]").forEach(sel => sel.value = "");
-      FILTER_CATALOG.filter(c => c.default).forEach(e => populateOptionsFor(e, "summary-filters"));
+      summaryFilterEntries().forEach(e => populateOptionsFor(e, "summary-filters"));
       buildSummaryTable();
     }
 
@@ -1081,6 +1282,9 @@
       }
 
       DATA = await MLC.loadMock("usuarios");
+      // Fija el set de preguntas que puntúan, sobre el universo completo, para que
+      // los puntajes no cambien al filtrar ni al cambiar de pestaña.
+      MLC.initPuntaje(DATA.schema, DATA.responses);
       try {
         const r = await fetch("data/indicators-usuarios.json");
         INDICATORS = r.ok ? await r.json() : [];
@@ -1092,7 +1296,9 @@
 
       activeExtras = loadActiveExtras();
       renderFilters();
+      renderSummaryTabs();
       renderSummaryFilters();
+      bindSortHeaders();
       buildSummaryTable();
       updateTabCounts();
 

@@ -292,8 +292,9 @@
       {
         id: 1,
         items: [
-          { num: "P05", field: "P05", viz: "pie",       label: "Poblaciones clave atendidas" },
-          { num: "P06", field: "P06", viz: "card-avg",  label: "Personas con VIH atendidas",     unit: "personas atendidas" },
+          { num: "P05", field: "P05", viz: "barras",    label: "Poblaciones clave atendidas" },
+          { num: "P06", field: "P06", viz: "card-avg",  label: "Personas con VIH atendidas",     unit: "personas atendidas",
+            redondear: true, legendTitle: "Promedio de unidades de atención consideradas" },
           { num: "P07", field: "P07", viz: "pie",       label: "Datos desagregados OSIG" },
           { num: "P08", field: "P08", viz: "pie",       label: "Protocolos y guías VIH" },
           { num: "P09", field: "P09", viz: "pie",       label: "Conocimiento estrategia trans" },
@@ -354,6 +355,9 @@
       },
       {
         id: 6,
+        // Barras apiladas horizontales: con la caja cuadrada de 130px las cinco
+        // categorías de la escala quedan ilegibles, así que esta sección va ancha.
+        chartAncho: true,
         items: [
           { num: "P43", field: "P42", viz: "stack-bar", label: "Señalización interna" },
           { num: "P44", field: "P43", viz: "stack-bar", label: "Señalización servicios" },
@@ -458,6 +462,61 @@
       return { html, chartCfg };
     }
 
+    /**
+     * Barras verticales ordenadas de mayor a menor. A diferencia del histograma,
+     * las categorías se reordenan por frecuencia para que se lea de un vistazo
+     * cuáles predominan, y las etiquetas van sobre el eje X.
+     */
+    function buildBarrasCard(item, responses, canvasId) {
+      const counts = countByField(responses, item.field);
+      const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      const labels = entries.map(([k]) => MLC.prettyLabel(k));
+      const values = entries.map(([, v]) => v);
+      const total  = values.reduce((a, b) => a + b, 0);
+      const meta   = indicatorMeta(item.field);
+      const colors = labels.map((_, i) => PALETTE[i % PALETTE.length]);
+
+      const html = `
+        <div class="indicator-card-chart indicator-card-chart--ancho">
+          <div class="indicator-card-canvas indicator-card-canvas--ancho"><canvas id="${canvasId}"></canvas></div>
+          <div>
+            <p class="indicator-card-question">${meta.pregunta || item.label}</p>
+            <div class="indicator-card-legend">
+              <span class="indicator-card-legend-title">${total} menciones</span>
+              ${labels.map((l, i) => `
+                <div class="indicator-card-legend-item">
+                  <span class="swatch" style="background:${colors[i]}"></span>
+                  <span>${l}: <strong>${values[i]}</strong> (${total ? Math.round(values[i] / total * 100) : 0}%)</span>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+        </div>
+      `;
+
+      const chartCfg = total ? {
+        canvasId,
+        config: {
+          type: "bar",
+          data: { labels, datasets: [{ data: values, backgroundColor: colors }] },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: c => `${c.label}: ${c.parsed.y}` } },
+            },
+            scales: {
+              x: { ticks: { autoSkip: false, maxRotation: 60, minRotation: 45, font: { size: 10 } } },
+              y: { beginAtZero: true, ticks: { precision: 0 } },
+            },
+          },
+        },
+      } : null;
+
+      return { html, chartCfg };
+    }
+
     function buildHistogramCard(item, responses, canvasId) {
       const counts = countByField(responses, item.field);
       const labels = Object.keys(counts).map(MLC.prettyLabel);
@@ -505,6 +564,8 @@
     }
 
     function buildStackBarCard(item, responses, canvasId) {
+      const ancho = item.chartAncho ? " indicator-card-chart--ancho" : "";
+      const anchoCanvas = item.chartAncho ? " indicator-card-canvas--ancho" : "";
       const counts = countByField(responses, item.field);
       const labels = Object.keys(counts).map(MLC.prettyLabel);
       const values = Object.values(counts);
@@ -519,8 +580,8 @@
       }));
 
       const html = `
-        <div class="indicator-card-chart">
-          <div class="indicator-card-canvas"><canvas id="${canvasId}"></canvas></div>
+        <div class="indicator-card-chart${ancho}">
+          <div class="indicator-card-canvas${anchoCanvas}"><canvas id="${canvasId}"></canvas></div>
           <div>
             <p class="indicator-card-question">${meta.pregunta || item.label}</p>
             <div class="indicator-card-legend">
@@ -557,14 +618,52 @@
       return { html, chartCfg };
     }
 
+    /**
+     * Respuestas de texto libre que no contienen ningún número (p. ej. "no
+     * recuerda"). Son respuestas reales, pero no entran al promedio: hay que
+     * declararlas para que el conteo de la tarjeta no parezca un registro perdido.
+     */
+    function respuestasSinNumero(responses, field) {
+      return responses
+        .map(r => r[field])
+        .filter(v => v !== null && v !== undefined && String(v).trim() !== "")
+        .filter(v => typeof v !== "number" && !/-?\d/.test(String(v)))
+        .map(v => String(v).trim().replace(/\s+/g, " "));
+    }
+
+    /** Pie de tarjeta numérica: cuántas respuestas hay y cuántas dieron un número. */
+    function leyendaNumerica(responses, field, usadas) {
+      const sinNumero = respuestasSinNumero(responses, field);
+      const contestadas = usadas + sinNumero.length;
+      const titulo = contestadas
+        ? `Promedio de ${usadas} de ${contestadas} respuestas`
+        : "Sin respuestas";
+      if (!sinNumero.length) return { titulo, nota: "" };
+      const muestras = [...new Set(sinNumero)].slice(0, 2).map(t => `«${t}»`).join(", ");
+      const n = sinNumero.length;
+      return {
+        titulo,
+        nota: `<div class="indicator-card-aviso">${n} ${n === 1 ? "respuesta" : "respuestas"}`
+            + ` sin dato numérico: ${muestras}</div>`,
+      };
+    }
+
     function buildCardAvg(item, responses) {
       const meta = indicatorMeta(item.field);
       const vals = parseNumericField(responses, item.field);
       const avg  = vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length) : null;
-      const avgStr = avg === null ? "—" : (Number.isInteger(avg) ? String(avg) : avg.toFixed(1));
+      // `redondear` para magnitudes donde el decimal no aporta (personas atendidas).
+      const avgStr = avg === null ? "—"
+        : (item.redondear || Number.isInteger(avg)) ? String(Math.round(avg)) : avg.toFixed(1);
       const min  = vals.length ? Math.min(...vals) : null;
       const max  = vals.length ? Math.max(...vals) : null;
       const aux  = vals.length ? `Mín ${min} · Máx ${max}` : "Sin respuestas numéricas";
+      const base = leyendaNumerica(responses, item.field, vals.length);
+      // `legendTitle` permite nombrar sobre qué se promedia cuando "respuestas"
+      // resulta ambiguo; el conteo se conserva como línea secundaria.
+      const titulo = item.legendTitle || base.titulo;
+      const conteo = item.legendTitle ? `<div>${base.titulo}</div>` : "";
+      const nota = base.nota;
 
       const html = `
         <div class="indicator-card-chart">
@@ -575,8 +674,10 @@
           <div>
             <p class="indicator-card-question">${meta.pregunta || item.label}</p>
             <div class="indicator-card-legend">
-              <span class="indicator-card-legend-title">Tarjeta · promedio (${vals.length})</span>
+              <span class="indicator-card-legend-title">${titulo}</span>
+              ${conteo}
               <div>${aux}</div>
+              ${nota}
             </div>
           </div>
         </div>
@@ -632,6 +733,7 @@
         return buildCardPct({ ...item, positiveValues: [] }, responses);
       }
       const avg = nums.reduce((a, b) => a + b, 0) / nums.length;
+      const { titulo, nota } = leyendaNumerica(responses, item.field, nums.length);
       const html = `
         <div class="indicator-card-chart">
           <div class="indicator-stat-canvas">
@@ -641,8 +743,9 @@
           <div>
             <p class="indicator-card-question">${meta.pregunta || item.label}</p>
             <div class="indicator-card-legend">
-              <span class="indicator-card-legend-title">Tarjeta · promedio (${nums.length})</span>
+              <span class="indicator-card-legend-title">${titulo}</span>
               <div>Mín ${Math.min(...nums)} · Máx ${Math.max(...nums)}</div>
+              ${nota}
             </div>
           </div>
         </div>
@@ -656,6 +759,7 @@
       switch (item.viz) {
         case "pie":                  r = buildPieCard(item, responses, canvasId); break;
         case "histogram":            r = buildHistogramCard(item, responses, canvasId); break;
+        case "barras":               r = buildBarrasCard(item, responses, canvasId); break;
         case "stack-bar":            r = buildStackBarCard(item, responses, canvasId); break;
         case "card-avg":             r = buildCardAvg(item, responses); break;
         case "card-pct":             r = buildCardPct(item, responses); break;
@@ -690,8 +794,9 @@
         wrap.innerHTML = "";
 
         const charters = [];
-        for (const item of section.items) {
+        for (const base of section.items) {
           pos += 1;
+          const item = section.chartAncho ? { ...base, chartAncho: true } : base;
           const { wrapper, chartCfg } = buildIndicatorCard(item, responses, pos);
           wrap.insertAdjacentHTML("beforeend", wrapper);
           if (chartCfg) charters.push(chartCfg);
@@ -977,7 +1082,9 @@
         return;
       }
       if (entry.optionsFrom === "catalog") {
-        let pool = UNIDADES_CATALOG;
+        // Sólo se ofrecen valores presentes en las respuestas: un departamento sin
+        // encuestas no debe aparecer en el filtro.
+        let pool = DATA.responses;
         const myIdx = CATALOG_FIELDS.indexOf(entry.field);
         for (let i = 0; i < myIdx; i++) {
           const parentField = CATALOG_FIELDS[i];

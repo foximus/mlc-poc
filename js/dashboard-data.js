@@ -43,6 +43,28 @@ const MLC = {
     "prefiero_no_responder", "no_aplica", null, undefined, ""
   ]),
 
+  /**
+   * Preguntas donde "Sí" es la respuesta DESFAVORABLE. Su puntaje se invierte
+   * (1 − valor) antes de entrar al pilar. Los campos de usuarios van en
+   * minúscula y los de prestadores en mayúscula, así que no colisionan.
+   */
+  sentidoInverso: new Set([
+    "p18",  // ¿dejó de asistir a una cita por falta de permiso laboral?
+    "p23",  // ¿ha tenido que pagar medicamentos o pruebas fuera de la unidad?
+    "p25",  // ¿dejó de asistir a una cita por falta de dinero?
+    "p26",  // ¿hoy perdió ingresos o dejó de trabajar por asistir a su consulta?
+    "p36",  // ¿le dieron receta para comprarlo? (en vez de entregar el medicamento)
+    "p45",  // ¿ha sido discriminado por ser una persona con VIH en este servicio?
+  ]),
+
+  /** Preguntas que no miden calidad del servicio y quedan fuera del puntaje. */
+  sinPuntaje: new Set([
+    "p34",  // ¿ha consultado por alguna ITS? — tamizaje, no evalúa al servicio
+  ]),
+
+  /** Mínimo de respuestas en toda la encuesta para que una pregunta puntúe. */
+  minRespuestasPregunta: 3,
+
   /** Etiquetas legibles para códigos cuyo slug pierde tildes o mayúsculas. */
   labels: {
     si: "Sí", no: "No", no_se: "No sé", no_recuerda: "No recuerda",
@@ -133,30 +155,80 @@ const MLC = {
   },
 
   /**
-   * Calcula el % de respuestas "positivas" para un pilar dado.
-   * Considera sólo preguntas select_one con respuestas en la lista positiva o parcial.
-   * Una respuesta cuenta como 1.0 si está en `positivas`, 0.5 si en `parciales`, 0 si negativa.
-   * Las respuestas no_se / pnr no entran en el denominador.
+   * Valor 0..1 de una respuesta suelta: 1 favorable, 0.5 parcial, 0 desfavorable.
+   * Devuelve null cuando la respuesta no debe entrar al denominador
+   * (NS / PNR / sin respuesta, o un select_multiple, que no se puntúa).
+   */
+  valorRespuesta(v) {
+    if (Array.isArray(v)) return null;
+    if (this.noSabe.has(v)) return null;
+    if (this.positivas.has(v)) return 1;
+    if (this.parciales.has(v)) return 0.5;
+    return 0;
+  },
+
+  /** Preguntas elegibles por pilar, cacheadas por initPuntaje(). */
+  _elegibles: null,
+
+  /**
+   * Define, una sola vez sobre el universo completo de respuestas, qué preguntas
+   * puntúan en cada pilar: select_one, no excluida y contestada por al menos
+   * `minRespuestasPregunta` personas. El set se fija aquí —y no por
+   * establecimiento ni por filtro— para que los puntajes sigan siendo
+   * comparables cuando el usuario filtra o cambia de pestaña.
+   */
+  initPuntaje(schema, universo) {
+    this._elegibles = this._calcularElegibles(schema, universo);
+    return this._elegibles;
+  },
+
+  _calcularElegibles(schema, universo) {
+    const out = new Map();
+    for (const q of schema) {
+      if (typeof q.type !== "string" || !q.type.startsWith("select_one")) continue;
+      if (this.sinPuntaje.has(q.name)) continue;
+      let n = 0;
+      for (const r of universo) {
+        if (this.valorRespuesta(r[q.name]) !== null) n += 1;
+      }
+      if (n < this.minRespuestasPregunta) continue;
+      if (!out.has(q.pilar)) out.set(q.pilar, []);
+      out.get(q.pilar).push(q.name);
+    }
+    return out;
+  },
+
+  /**
+   * Puntaje 0-100 de un pilar para un conjunto de respuestas.
+   *
+   * Cada pregunta elegible se promedia primero entre quienes la contestaron y
+   * después se promedian las preguntas entre sí, de modo que todas pesen igual:
+   * con el conteo plano anterior, una pregunta que el formulario le mostró a
+   * más gente dominaba el pilar sin que eso fuera una decisión metodológica.
+   * Las preguntas de `sentidoInverso` se invierten antes de promediar.
+   *
+   * Devuelve null (no 0) cuando ninguna pregunta del pilar tiene respuestas,
+   * para poder distinguir "sin dato" de "puntaje cero".
    */
   pillarScore(schema, responses, pilarName) {
-    const qs = schema.filter(q =>
-      q.pilar === pilarName &&
-      typeof q.type === "string" &&
-      q.type.startsWith("select_one")
-    );
-    if (qs.length === 0 || responses.length === 0) return 0;
+    const elegibles = this._elegibles || this._calcularElegibles(schema, responses);
+    const nombres = elegibles.get(pilarName) || [];
+    if (!nombres.length || !responses.length) return null;
 
-    let num = 0, den = 0;
-    for (const r of responses) {
-      for (const q of qs) {
-        const v = r[q.name];
-        if (this.noSabe.has(v)) continue;
-        if (this.positivas.has(v))      { num += 1; den += 1; }
-        else if (this.parciales.has(v)) { num += 0.5; den += 1; }
-        else                            {            den += 1; }
+    const porPregunta = [];
+    for (const name of nombres) {
+      let suma = 0, n = 0;
+      for (const r of responses) {
+        const v = this.valorRespuesta(r[name]);
+        if (v === null) continue;
+        suma += this.sentidoInverso.has(name) ? 1 - v : v;
+        n += 1;
       }
+      if (n > 0) porPregunta.push(suma / n);
     }
-    return den === 0 ? 0 : Math.round((num / den) * 100);
+    if (!porPregunta.length) return null;
+    const media = porPregunta.reduce((a, b) => a + b, 0) / porPregunta.length;
+    return Math.round(media * 100);
   },
 
   /** Cuenta valores de una pregunta puntual (clave -> conteo). */

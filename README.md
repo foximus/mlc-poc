@@ -178,9 +178,13 @@ levantadas en KoboToolbox (julio–agosto 2026):
 
 El script canoniza el nombre del establecimiento contra `data/unidades-catalog.json`
 (para que los filtros en cascada lo encuentren), traduce las etiquetas del
-formulario a los códigos que usa `js/dashboard-data.js`, descarta submisiones con
-`_uuid` repetido y omite el *Código Construido* de la persona encuestada por
-tratarse de un pseudoidentificador.
+formulario a los códigos que usa `js/dashboard-data.js` y omite el *Código
+Construido* de la persona encuestada por tratarse de un pseudoidentificador.
+
+Las filas que repiten el `_uuid` de KoboToolbox se conservan como respuestas
+independientes: reciben `_uuid` y `_kobo_id` propios (sufijo `-dupN`) y quedan
+marcadas con `_duplicado_de` apuntando al envío original. Para quedarse sólo con
+la primera ocurrencia, cambiar `DUPLICADOS = "descartar"` en el script.
 
 ---
 
