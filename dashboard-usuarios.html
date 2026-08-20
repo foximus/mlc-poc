@@ -66,7 +66,8 @@
           <thead>
             <tr>
               <th class="su-pos-head" rowspan="2">#</th>
-              <th class="su-corner" rowspan="2">Unidad de atención</th>
+              <th class="su-corner" rowspan="2">Establecimiento de salud</th>
+              <th class="su-geo-head" rowspan="2">Ubicación</th>
               <th class="su-n-head" rowspan="2">n</th>
               <th class="su-pilar-group" colspan="5">Pilar</th>
               <th class="su-valor-head su-sortable" rowspan="2"
@@ -253,30 +254,30 @@
 
     <!-- Distribución demográfica -->
     <h2 class="section-title">Perfil de las personas encuestadas</h2>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-      <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
+    <div class="perfil-grid">
+      <div class="perfil-card">
         <h3 class="section-subtitle" style="font-size: 1rem;">Por etnia</h3>
         <canvas id="etniaChart"></canvas>
       </div>
-      <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
+      <div class="perfil-card">
         <h3 class="section-subtitle" style="font-size: 1rem;">Por rango de edad</h3>
         <canvas id="edadChart"></canvas>
       </div>
-      <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
+      <div class="perfil-card">
         <h3 class="section-subtitle" style="font-size: 1rem;">Por sexo</h3>
         <canvas id="sexoChart"></canvas>
       </div>
-      <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
+      <div class="perfil-card">
         <h3 class="section-subtitle" style="font-size: 1rem;">Por identidad de género</h3>
         <canvas id="generoChart"></canvas>
       </div>
-      <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
+      <div class="perfil-card perfil-card--ancha">
         <h3 class="section-subtitle" style="font-size: 1rem;">Por departamento</h3>
-        <canvas id="departamentoChart"></canvas>
+        <div class="perfil-canvas-wrap" id="departamentoWrap"><canvas id="departamentoChart"></canvas></div>
       </div>
-      <div style="background:#fff; padding: 1.25rem; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,48,73,0.08); border-top: 4px solid var(--mystic-blue);">
-        <h3 class="section-subtitle" style="font-size: 1rem;">Por unidad de atención</h3>
-        <canvas id="unidadChart"></canvas>
+      <div class="perfil-card perfil-card--ancha">
+        <h3 class="section-subtitle" style="font-size: 1rem;">Por establecimiento de salud</h3>
+        <div class="perfil-canvas-wrap" id="unidadWrap"><canvas id="unidadChart"></canvas></div>
       </div>
     </div>
 
@@ -649,43 +650,47 @@
         options: { plugins: { legend: { position: "bottom" } } }
       });
 
-      // Departamento (ubicación)
-      const depCounts = MLC.countValues(responses, "_departamento");
-      if (charts.departamento) charts.departamento.destroy();
-      charts.departamento = new Chart(document.getElementById("departamentoChart"), {
-        type: "bar",
-        data: {
-          labels: Object.keys(depCounts),
-          datasets: [{
-            label: "Respuestas",
-            data: Object.values(depCounts),
-            backgroundColor: "#669BBC"
-          }]
-        },
-        options: {
-          indexAxis: "y",
-          plugins: { legend: { display: false } },
-          scales: { x: { beginAtZero: true } }
-        }
-      });
+      // Departamento y establecimiento: barras horizontales de mayor a menor.
+      // Se les fija la altura según cuántas categorías haya, para que sigan
+      // legibles conforme se sumen establecimientos monitoreados.
+      barrasDescendentes("departamento", "departamentoChart", "departamentoWrap",
+        MLC.countValues(responses, "_departamento"), "#669BBC");
+      barrasDescendentes("unidad", "unidadChart", "unidadWrap",
+        MLC.countValues(responses, "_unidad"), "#003049");
+    }
 
-      // Unidad
-      const unidadCounts = MLC.countValues(responses, "_unidad");
-      if (charts.unidad) charts.unidad.destroy();
-      charts.unidad = new Chart(document.getElementById("unidadChart"), {
+    /** Barra horizontal ordenada desc, con alto proporcional a las categorías. */
+    function barrasDescendentes(key, canvasId, wrapId, counts, color) {
+      const entries = Object.entries(counts)
+        .filter(([k]) => k && k !== "undefined" && k !== "null")
+        .sort((a, b) => b[1] - a[1]);
+      const labels = entries.map(([k]) => MLC.prettyLabel(k));
+      const values = entries.map(([, v]) => v);
+      const total  = values.reduce((a, b) => a + b, 0);
+
+      const wrap = document.getElementById(wrapId);
+      if (wrap) wrap.style.height = `${Math.max(180, entries.length * 30 + 50)}px`;
+
+      if (charts[key]) charts[key].destroy();
+      charts[key] = new Chart(document.getElementById(canvasId), {
         type: "bar",
-        data: {
-          labels: Object.keys(unidadCounts),
-          datasets: [{
-            label: "Respuestas",
-            data: Object.values(unidadCounts),
-            backgroundColor: "#003049"
-          }]
-        },
+        data: { labels, datasets: [{ label: "Respuestas", data: values, backgroundColor: color }] },
         options: {
           indexAxis: "y",
-          plugins: { legend: { display: false } },
-          scales: { x: { beginAtZero: true } }
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: c => `${c.parsed.x} (${total ? Math.round(c.parsed.x / total * 100) : 0}%)`,
+              },
+            },
+          },
+          scales: {
+            x: { beginAtZero: true, ticks: { precision: 0 } },
+            y: { ticks: { autoSkip: false, font: { size: 11 } } },
+          },
         }
       });
     }
@@ -720,7 +725,8 @@
     function uniqueUnidades(rows) {
       const map = new Map();
       for (const r of rows) {
-        map.set(`${r._unidad}||${r._municipio}`, { unidad: r._unidad, municipio: r._municipio });
+        map.set(`${r._unidad}||${r._municipio}`,
+          { unidad: r._unidad, municipio: r._municipio, departamento: r._departamento });
       }
       return [...map.values()].sort(
         (a, b) => a.unidad.localeCompare(b.unidad) || a.municipio.localeCompare(b.municipio)
@@ -828,6 +834,19 @@
       });
     }
 
+    /** "Quetzaltenango" -> "Quetz." — la tabla ya va apretada de columnas. */
+    function abreviaDepto(dep) {
+      const d = String(dep || "");
+      return d.length <= 7 ? d : d.slice(0, 5) + ".";
+    }
+
+    /** Ubicación compacta; el nombre completo queda en el tooltip. */
+    function geoCell(dep, mun) {
+      const completo = `${dep} · ${mun}`.replace(/"/g, "&quot;");
+      const corto = `${abreviaDepto(dep)} · ${mun}`;
+      return `<td class="su-geo" title="${completo}">${corto}</td>`;
+    }
+
     /** Cobertura del monitoreo: cuántos establecimientos del catálogo se visitaron. */
     function renderCobertura(monitoreados, enCatalogo, tab) {
       const el = document.getElementById("summary-cobertura");
@@ -874,7 +893,12 @@
         const scores = SUMMARY_PILLARS.map(p => MLC.pillarScore(DATA.schema, rs, p));
         const conDato = scores.filter(v => v !== null && v !== undefined);
         return {
-          nombre: shortUnidad(u.unidad) + (repetidos[u.unidad] > 1 ? ` (${u.municipio})` : ""),
+          // La columna de ubicación ya distingue los nombres repetidos
+          // (p. ej. los dos "VICITS"), así que el nombre va limpio.
+          nombre: shortUnidad(u.unidad),
+          nombreCompleto: u.unidad,
+          departamento: u.departamento,
+          municipio: u.municipio,
           n: rs.length,
           scores,
           total: conDato.length
@@ -889,7 +913,7 @@
 
       if (!filas.length) {
         tbody.insertAdjacentHTML("beforeend", `
-          <tr><td class="su-sep" colspan="9">Sin establecimientos de este tipo para los filtros seleccionados.</td></tr>
+          <tr><td class="su-sep" colspan="10">Sin establecimientos de este tipo para los filtros seleccionados.</td></tr>
         `);
         return;
       }
@@ -897,7 +921,8 @@
       const fila = (f, pos) => `
         <tr${pos === null ? ' class="su-row-nd"' : ""}>
           <td class="su-pos">${pos === null ? "·" : pos}</td>
-          <td class="su-unidad">${f.nombre}</td>
+          <td class="su-unidad" title="${String(f.nombreCompleto).replace(/"/g, "&quot;")}">${f.nombre}</td>
+          ${geoCell(f.departamento, f.municipio)}
           <td class="su-n">${f.n}</td>
           ${f.scores.map((v, i) => pilarCell(v, SUMMARY_PILLARS[i])).join("")}
           <td class="su-valor${summarySort.key === "total" ? " is-sorted" : ""}">${f.total === null ? "—" : f.total}</td>
@@ -914,6 +939,7 @@
           <tr class="su-prom">
             <td class="su-pos"></td>
             <td class="su-unidad">Promedio · ${tab.label}</td>
+            <td class="su-geo"></td>
             <td class="su-n">${responses.length}</td>
             ${prom.map(v => `<td class="su-cell">${v === null ? "—" : v}</td>`).join("")}
             <td class="su-valor">${conDato.length
@@ -924,7 +950,7 @@
 
       if (chicos.length) {
         tbody.insertAdjacentHTML("beforeend", `
-          <tr><td class="su-sep" colspan="9">
+          <tr><td class="su-sep" colspan="10">
             Muestra insuficiente — menos de ${MIN_ENTREVISTAS} entrevistas, sin posición en el ranking
           </td></tr>
         `);
