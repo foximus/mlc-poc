@@ -62,12 +62,21 @@ def _cell(value) -> str:
     return str(value).strip()
 
 
+# Qué hacer con filas que repiten el `_uuid` (identificador único por envío
+# de KoboToolbox). "renumerar" las conserva como respuestas independientes
+# asignándoles un id propio; "descartar" se queda sólo con la primera.
+DUPLICADOS = "renumerar"
+
+# Marca que separa el uuid original del número de repetición.
+DUP_SEP = "-dup"
+
+
 def read_table(name: str):
     """Lee el export de Kobo en CSV (labels, separador ';') o en xlsx.
 
-    Devuelve (header, rows) con todas las celdas ya como texto y sin
-    submisiones repetidas: el `_uuid` es único por envío, así que una fila
-    con un uuid ya visto sólo puede ser un duplicado de la limpieza manual.
+    Devuelve (header, rows) con todas las celdas ya como texto. Las filas que
+    repiten `_uuid` se tratan según `DUPLICADOS`: al renumerar se les añade el
+    sufijo `-dupN` al `_uuid` y al `_id` para que no colisionen entre sí.
     """
     xlsx, csv_path = KOBO / f"{name}.xlsx", KOBO / f"{name}.csv"
     if xlsx.exists():
@@ -84,25 +93,41 @@ def read_table(name: str):
         raise SystemExit(f"No se encontró data/kobo/{name}.[xlsx|csv]")
 
     header = [h.strip() for h in header]
-    try:
-        uuid_col = header.index("_uuid")
-    except ValueError:
-        uuid_col = None
+    col = {c: header.index(c) for c in ("_uuid", "_id") if c in header}
+    uuid_col = col.get("_uuid")
 
-    rows, seen, dupes = [], set(), 0
+    rows, vistos, dupes = [], {}, 0
     for r in body:
         if not any(str(c).strip() for c in r):
             continue
         if uuid_col is not None:
             uid = str(r[uuid_col]).strip()
-            if uid and uid in seen:
-                dupes += 1
-                continue
-            seen.add(uid)
+            if uid:
+                n = vistos.get(uid, 0) + 1
+                vistos[uid] = n
+                if n > 1:
+                    dupes += 1
+                    if DUPLICADOS == "descartar":
+                        continue
+                    # Id propio para cada repetición, conservando el original.
+                    r = list(r)
+                    r[uuid_col] = f"{uid}{DUP_SEP}{n}"
+                    if "_id" in col:
+                        r[col["_id"]] = f"{str(r[col['_id']]).strip()}{DUP_SEP}{n}"
         rows.append(r)
     if dupes:
-        print(f"[aviso] {name}: {dupes} fila(s) descartadas por _uuid repetido")
+        accion = ("descartada(s)" if DUPLICADOS == "descartar"
+                  else "conservada(s) con id propio")
+        print(f"[aviso] {name}: {dupes} fila(s) con _uuid repetido — {accion}")
     return header, rows
+
+
+def split_dup(uid: str):
+    """'<uuid>-dup2' -> ('<uuid>-dup2', '<uuid>'); si no es repetición, ('<uuid>', '')."""
+    uid = str(uid).strip()
+    if DUP_SEP in uid:
+        return uid, uid.rsplit(DUP_SEP, 1)[0]
+    return uid, ""
 
 
 def as_number(raw: str):
@@ -395,12 +420,14 @@ def build_prestadores() -> dict:
     responses = []
     for i, row in enumerate(rows, start=1):
         loc = resolve_unidad(row[5], row[6], row[7], row[8])
+        _uuid, _orig = split_dup(row[84])
         r = {
             "_id": f"P{i:03d}",
             **loc,
             "_fecha": row[4].strip(),
             "_kobo_id": row[83].strip(),
-            "_uuid": row[84].strip(),
+            "_uuid": _uuid,
+            "_duplicado_de": _orig,
             "_ambito": code(row[0]),
             "_consentimiento": code(row[3]),
             "_area_otros": row[14].strip(),
@@ -502,12 +529,14 @@ def build_usuarios() -> dict:
     responses = []
     for i, row in enumerate(rows, start=1):
         loc = resolve_unidad(row[5], row[6], row[7], row[8])
+        _uuid, _orig = split_dup(row[92])
         r = {
             "_id": f"U{i:03d}",
             **loc,
             "_fecha": row[4].strip(),
             "_kobo_id": row[91].strip(),
-            "_uuid": row[92].strip(),
+            "_uuid": _uuid,
+            "_duplicado_de": _orig,
             "_ambito": code(row[0]),
             "_etnia": code(row[28]),
             "_edad": as_number(row[12]),
