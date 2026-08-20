@@ -1207,6 +1207,144 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   font-size: 1rem;
 }
 
+/* Pestañas del ranking por tipo de establecimiento */
+.su-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.85rem;
+  border-bottom: 2px solid #E0E0E0;
+  padding-bottom: 0.5rem;
+}
+
+.su-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid #D5D5D5;
+  border-radius: 999px;
+  background: #F5F5F5;
+  color: var(--deep-oceanic);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.su-tab:hover { background: #E8E8E8; }
+
+.su-tab.active {
+  background: var(--blood-rust);
+  border-color: var(--blood-rust);
+  color: var(--vanilla-cream);
+}
+
+.su-tab-count {
+  display: inline-block;
+  min-width: 1.4rem;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  background: rgba(0, 48, 73, 0.12);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.su-tab.active .su-tab-count { background: rgba(253, 240, 213, 0.25); }
+
+/* Encabezados de las columnas de posición y tamaño de muestra */
+.summary-table .su-pos-head,
+.summary-table .su-n-head {
+  background: #fff;
+  border-bottom: 1px solid #ccc;
+  vertical-align: bottom;
+  padding: 0.5rem 0.4rem;
+  font-weight: 700;
+  color: var(--deep-oceanic);
+  text-align: center;
+  width: 38px;
+}
+
+/* Posición en el ranking */
+.summary-table .su-pos {
+  background: #F5F5F5;
+  color: var(--blood-rust);
+  font-weight: 900;
+}
+
+/* Tamaño de muestra: dato de contexto, no compite con los puntajes */
+.summary-table .su-n {
+  background: #FAFAFA;
+  color: #777;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* Pilar sin dato para ese establecimiento */
+.summary-table .su-nd { color: #AAA; font-weight: 600; }
+
+/* Encabezados ordenables */
+.summary-table th.su-sortable {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s;
+}
+.summary-table th.su-sortable:hover { background: #A9A9A9; }
+.summary-table th.su-valor-head.su-sortable:hover { background: var(--blood-rust); }
+.summary-table th.su-sortable:focus-visible {
+  outline: 2px solid var(--deep-oceanic);
+  outline-offset: -2px;
+}
+.summary-table th.su-sortable.is-sorted { background: #8F8F8F; }
+.summary-table th.su-valor-head.su-sortable.is-sorted { background: var(--blood-rust); }
+.summary-table th.su-sortable.is-sorted > span,
+.summary-table th.su-sortable.is-sorted { color: #fff; }
+
+/* Flecha de dirección; ocupa lugar fijo para que el encabezado no salte */
+.su-sort-ind {
+  display: inline-block;
+  min-width: 0.9em;
+  font-size: 0.8em;
+}
+
+/* Columna activa resaltada en el cuerpo */
+.summary-table td.su-cell.is-sorted { box-shadow: inset 0 0 0 2px rgba(0, 48, 73, 0.35); }
+.summary-table td.su-valor.is-sorted { box-shadow: inset 0 0 0 2px rgba(121, 0, 0, 0.45); }
+
+/* Fila de promedio del grupo */
+.summary-table .su-prom td {
+  background: rgba(0, 48, 73, 0.07);
+  font-style: italic;
+  border-top: 2px solid var(--deep-oceanic);
+}
+.summary-table .su-prom .su-unidad { background: rgba(0, 48, 73, 0.07); }
+
+/* Separador del bloque de muestra insuficiente */
+.summary-table .su-sep {
+  background: #EFEFEF;
+  color: #666;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 0.5rem 0.85rem;
+}
+
+/* Filas sin posición: se leen como contexto, no como ranking */
+.summary-table .su-row-nd .su-unidad,
+.summary-table .su-row-nd .su-pos { color: #888; }
+
+/* Nota metodológica al pie de la tabla */
+.su-nota {
+  margin: 0.85rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #666;
+}
+.su-nota strong { color: var(--deep-oceanic); }
+
 /* ============================================================
    Instrucciones / Metodología (panel introductorio del dashboard)
    ============================================================ */
@@ -2086,7 +2224,12 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   .summary-table .su-pilar { width: auto; height: auto; padding: 0.4rem 0.4rem; }
   .summary-table .su-pilar > span { font-size: 0.7rem; }
   .summary-table .su-valor-head { padding: 0.4rem 0.6rem; font-size: 0.85rem; }
+  .summary-table .su-pos-head,
+  .summary-table .su-n-head { width: 30px; padding: 0.4rem 0.25rem; font-size: 0.75rem; }
   .summary-table tbody td { padding: 0.35rem 0.45rem; font-size: 0.8rem; }
+  .summary-table .su-n { font-size: 0.75rem; }
+  .su-tab { padding: 0.35rem 0.7rem; font-size: 0.78rem; }
+  .su-nota { font-size: 0.75rem; }
   .summary-table .su-unidad { padding-left: 0.5rem; font-size: 0.8rem; }
 
   /* Intro */
@@ -2129,4 +2272,9 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   .summary-table .su-pilar { width: auto; height: auto; padding: 0.35rem 0.3rem; }
   .summary-table .su-pilar > span { font-size: 0.65rem; }
   .summary-table tbody td { font-size: 0.75rem; padding: 0.3rem; }
+  .summary-table .su-pos-head,
+  .summary-table .su-n-head { width: 26px; font-size: 0.7rem; }
+  .su-tabs { gap: 0.3rem; }
+  .su-tab { padding: 0.3rem 0.55rem; font-size: 0.72rem; }
+  .su-tab-count { min-width: 1.1rem; font-size: 0.68rem; }
 }
