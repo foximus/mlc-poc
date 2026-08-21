@@ -53,6 +53,7 @@ const MLC = {
     "p23",  // ¿ha tenido que pagar medicamentos o pruebas fuera de la unidad?
     "p25",  // ¿dejó de asistir a una cita por falta de dinero?
     "p26",  // ¿hoy perdió ingresos o dejó de trabajar por asistir a su consulta?
+    "p27",  // ¿ha dejado de tomar sus antirretrovirales por más de una semana?
     "p36",  // ¿le dieron receta para comprarlo? (en vez de entregar el medicamento)
     "p45",  // ¿ha sido discriminado por ser una persona con VIH en este servicio?
   ]),
