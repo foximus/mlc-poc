@@ -1085,6 +1085,13 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   overflow: hidden;
 }
 
+.summary-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
 .summary-panel-title {
   font-family: var(--font-display);
   font-weight: 900;
@@ -1092,8 +1099,87 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   font-size: 1rem;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  margin-bottom: 0.75rem;
 }
+
+/* Texto sólo para lectores de pantalla */
+.su-sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Aviso emergente sobre el alcance del ordenamiento */
+.su-info { position: relative; display: inline-flex; }
+
+.su-info-btn {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: var(--deep-oceanic);
+  color: var(--vanilla-cream);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.su-info-btn:hover { background: var(--crimson-blaze); transform: scale(1.1); }
+.su-info-btn:focus-visible {
+  outline: 2px solid var(--crimson-blaze);
+  outline-offset: 2px;
+}
+.su-info-btn[aria-expanded="true"] { background: var(--crimson-blaze); }
+
+.su-info-pop {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 20;
+  width: min(360px, 78vw);
+  background: #fff;
+  border: 1px solid rgba(0, 48, 73, 0.15);
+  border-left: 4px solid var(--crimson-blaze);
+  border-radius: 6px;
+  box-shadow: 0 6px 20px rgba(0, 48, 73, 0.18);
+  padding: 0.85rem 1rem 0.9rem;
+}
+.su-info-pop[hidden] { display: none; }
+
+.su-info-pop-title {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--blood-rust);
+}
+
+.su-info-pop p {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: #555;
+}
+
+.su-info-close {
+  margin-top: 0.7rem;
+  border: none;
+  background: var(--deep-oceanic);
+  color: var(--vanilla-cream);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.su-info-close:hover { background: var(--crimson-blaze); }
 
 .summary-table-wrap {
   overflow: auto;
@@ -1102,6 +1188,9 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
 
 .summary-table {
   width: 100%;
+  /* Fijo: reparte el ancho disponible entre las columnas declaradas para que la
+     tabla entre completa y la columna de promedio quede siempre a la vista. */
+  table-layout: fixed;
   border-collapse: separate;
   border-spacing: 1px;
   background: #fff;
@@ -1128,7 +1217,19 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   font-weight: 700;
   color: var(--deep-oceanic);
   text-align: left;
-  width: 200px;
+  width: 26%;
+  min-width: 160px;
+}
+
+/* Subtítulo del encabezado: anuncia la ubicación embebida en la celda */
+.summary-table .su-corner-sub {
+  display: block;
+  margin-top: 0.1rem;
+  font-weight: 600;
+  font-size: 0.72rem;
+  color: #7A8791;
+  text-transform: none;
+  letter-spacing: 0;
 }
 
 .summary-table .su-pilar-group {
@@ -1147,19 +1248,23 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   background: #BDBDBD;
   height: auto;
   vertical-align: middle;
-  padding: 0.5rem 0.6rem;
+  padding: 0.5rem 0.35rem;
   position: relative;
-  width: auto;
+  width: 10%;
   text-align: center;
 }
 
 .summary-table .su-pilar > span {
-  display: inline-block;
+  /* En bloque —y no inline-block— para que el ancho de la columna mande sobre el
+     de la palabra: nombres largos («Disponibilidad») se parten con guion en
+     columnas angostas en vez de desbordar bajo la celda vecina. */
+  display: block;
   transform: none;
   white-space: normal;
+  overflow-wrap: break-word;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: #333;
   line-height: 1.15;
 }
@@ -1168,12 +1273,13 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
 .summary-table .su-valor-head {
   background: var(--crimson-blaze);
   color: var(--vanilla-cream);
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.6rem;
   font-family: var(--font-display);
   font-weight: 900;
   font-size: 1rem;
   text-align: center;
   vertical-align: middle;
+  width: 12%;
   border-top-right-radius: 6px;
   border-bottom-right-radius: 6px;
 }
@@ -1194,6 +1300,8 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   background: #F5F5F5;
   color: var(--deep-oceanic);
   padding-left: 0.85rem;
+  cursor: help;
+  overflow-wrap: anywhere;
 }
 
 /* Celda heatmap (background-color via inline style basada en valor) */
@@ -1273,29 +1381,21 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   font-weight: 900;
 }
 
-/* Ubicación: depto abreviado + municipio, con el nombre completo en tooltip */
-.summary-table .su-geo-head {
-  background: #fff;
-  border-bottom: 1px solid #ccc;
-  vertical-align: bottom;
-  padding: 0.5rem 0.5rem;
-  font-weight: 700;
-  color: var(--deep-oceanic);
-  text-align: left;
-  white-space: nowrap;
+/* Ubicación: va dentro de la celda del establecimiento —depto abreviado y
+   municipio bajo el nombre— para que la tabla entre sin scroll horizontal.
+   El nombre y la ubicación completos quedan en el tooltip de la celda. */
+.summary-table .su-unidad-nom {
+  display: block;
+  line-height: 1.2;
 }
 
-.summary-table .su-geo {
-  background: #FAFAFA;
-  color: #666;
+.summary-table .su-unidad-geo {
+  display: block;
+  margin-top: 0.15rem;
   font-weight: 600;
-  font-size: 0.82rem;
-  text-align: left;
-  white-space: nowrap;
-  max-width: 190px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  cursor: help;
+  font-size: 0.75rem;
+  color: #7A8791;
+  line-height: 1.2;
 }
 
 /* Tamaño de muestra: dato de contexto, no compite con los puntajes */
@@ -2299,7 +2399,10 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   /* Summary table */
   .summary-panel { padding: 1rem; }
   .summary-table { font-size: 0.75rem; }
-  .summary-table .su-corner { width: 110px; padding: 0.4rem 0.5rem; font-size: 0.75rem; }
+  .summary-panel-head { align-items: flex-start; }
+  .summary-table .su-corner { width: 130px; min-width: 130px; padding: 0.4rem 0.5rem; font-size: 0.75rem; }
+  .summary-table .su-corner-sub { font-size: 0.65rem; }
+  .summary-table .su-unidad-geo { font-size: 0.68rem; }
   .summary-table .su-pilar { width: auto; height: auto; padding: 0.4rem 0.4rem; }
   .summary-table .su-pilar > span { font-size: 0.7rem; }
   .summary-table .su-valor-head { padding: 0.4rem 0.6rem; font-size: 0.85rem; }
