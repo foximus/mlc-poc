@@ -42,8 +42,9 @@
       <h2>Evaluación del Desempeño por Establecimiento de Salud</h2>
       <p>
         Utilice los filtros superiores para segmentar la información por ubicación y tipo de centro.
-        Esta sección presenta un ranking detallado basado en los pilares de calidad del servicio,
-        permitiéndole identificar fortalezas y áreas de mejora en cada unidad de atención.
+        Esta sección presenta los resultados comparativos por establecimiento, basados en los
+        pilares de calidad del servicio, permitiéndole identificar fortalezas y áreas de mejora
+        en cada unidad de atención.
       </p>
     </div>
 
@@ -53,9 +54,33 @@
       <button class="btn btn-secondary" onclick="resetSummaryFilters()">Limpiar</button>
     </div>
 
-    <!-- Panel resumen (ranking unidad x pilar, separado por tipo de establecimiento) -->
+    <!-- Panel resumen (unidad x pilar, separado por tipo de establecimiento) -->
     <div class="summary-panel">
-      <div class="summary-panel-title">Ranking por establecimiento de salud</div>
+      <div class="summary-panel-head">
+        <div class="summary-panel-title">Resultados comparativos por establecimiento de salud</div>
+
+        <!-- Aviso emergente: acota qué significa —y qué no— el ordenamiento. -->
+        <div class="su-info">
+          <button type="button" class="su-info-btn" id="su-info-btn"
+                  aria-expanded="false" aria-controls="su-info-pop"
+                  title="Cómo leer estos resultados">
+            <span aria-hidden="true">i</span>
+            <span class="su-sr">Cómo leer estos resultados</span>
+          </button>
+          <div class="su-info-pop" id="su-info-pop" role="dialog"
+               aria-labelledby="su-info-pop-title" hidden>
+            <p class="su-info-pop-title" id="su-info-pop-title">Cómo leer estos resultados</p>
+            <p>
+              El dashboard genera un ordenamiento de los establecimientos a partir de los
+              puntajes obtenidos en los indicadores monitoreados. Ese ordenamiento describe
+              los datos recolectados en este ciclo; no constituye una evaluación integral de
+              la calidad del establecimiento ni permite afirmar que un establecimiento sea,
+              en términos generales, mejor o peor que otro.
+            </p>
+            <button type="button" class="su-info-close" id="su-info-close">Entendido</button>
+          </div>
+        </div>
+      </div>
 
       <!-- Pestañas por tipo: cada grupo responde bloques distintos del formulario,
            así que sólo tiene sentido comparar dentro de cada uno. -->
@@ -66,8 +91,7 @@
           <thead>
             <tr>
               <th class="su-pos-head" rowspan="2">#</th>
-              <th class="su-corner" rowspan="2">Establecimiento de salud</th>
-              <th class="su-geo-head" rowspan="2">Ubicación</th>
+              <th class="su-corner" rowspan="2">Establecimiento de salud<span class="su-corner-sub">Departamento · municipio</span></th>
               <th class="su-n-head" rowspan="2">n</th>
               <th class="su-pilar-group" colspan="5">Pilar</th>
               <th class="su-valor-head su-sortable" rowspan="2"
@@ -76,15 +100,15 @@
             </tr>
             <tr>
               <th class="su-pilar su-sortable" data-sort="Disponibilidad" tabindex="0" role="button"
-                  aria-sort="none" title="Ordenar por Disponibilidad"><span>Disponibilidad<span class="su-sort-ind"></span></span></th>
+                  aria-sort="none" title="Ordenar por Disponibilidad"><span>Dispo&shy;nibilidad<span class="su-sort-ind"></span></span></th>
               <th class="su-pilar su-sortable" data-sort="Accesibilidad" tabindex="0" role="button"
-                  aria-sort="none" title="Ordenar por Accesibilidad"><span>Accesibilidad<span class="su-sort-ind"></span></span></th>
+                  aria-sort="none" title="Ordenar por Accesibilidad"><span>Accesi&shy;bilidad<span class="su-sort-ind"></span></span></th>
               <th class="su-pilar su-sortable" data-sort="Aceptabilidad" tabindex="0" role="button"
-                  aria-sort="none" title="Ordenar por Aceptabilidad"><span>Aceptabilidad<span class="su-sort-ind"></span></span></th>
+                  aria-sort="none" title="Ordenar por Aceptabilidad"><span>Acepta&shy;bilidad<span class="su-sort-ind"></span></span></th>
               <th class="su-pilar su-sortable" data-sort="Adecuación" tabindex="0" role="button"
-                  aria-sort="none" title="Ordenar por Adecuación"><span>Adecuación<span class="su-sort-ind"></span></span></th>
+                  aria-sort="none" title="Ordenar por Adecuación"><span>Adecua&shy;ción<span class="su-sort-ind"></span></span></th>
               <th class="su-pilar su-sortable" data-sort="Asequibilidad" tabindex="0" role="button"
-                  aria-sort="none" title="Ordenar por Asequibilidad"><span>Asequibilidad<span class="su-sort-ind"></span></span></th>
+                  aria-sort="none" title="Ordenar por Asequibilidad"><span>Asequi&shy;bilidad<span class="su-sort-ind"></span></span></th>
             </tr>
           </thead>
           <tbody id="summary-tbody"></tbody>
@@ -100,7 +124,7 @@
         «¿dejó de asistir por falta de dinero?» el «Sí» cuenta como desfavorable.
         «No sé» y «Prefiero no responder» quedan fuera del denominador, y
         <strong>n</strong> es el número de entrevistas. Los establecimientos con menos de 3
-        entrevistas se muestran aparte, sin posición en el ranking.
+        entrevistas se muestran aparte, sin posición en el ordenamiento.
       </p>
     </div>
 
@@ -296,7 +320,7 @@
       <div class="resp-modal-body">
         <table class="resp-table">
           <thead>
-            <tr><th style="width:48px">#</th><th>Unidad de atención</th><th>Respuesta</th></tr>
+            <tr><th style="width:48px">#</th><th>Establecimiento de salud</th><th>Respuesta</th></tr>
           </thead>
           <tbody id="resp-modal-tbody"></tbody>
         </table>
@@ -813,6 +837,32 @@
       });
     }
 
+    /** Aviso emergente sobre el alcance del ordenamiento. */
+    function bindInfoPopover() {
+      const btn = document.getElementById("su-info-btn");
+      const pop = document.getElementById("su-info-pop");
+      const cerrar = document.getElementById("su-info-close");
+      if (!btn || !pop) return;
+
+      const setOpen = abierto => {
+        pop.hidden = !abierto;
+        btn.setAttribute("aria-expanded", String(abierto));
+        if (abierto) pop.focus();
+      };
+      btn.addEventListener("click", e => {
+        e.stopPropagation();
+        setOpen(pop.hidden);
+      });
+      if (cerrar) cerrar.addEventListener("click", () => { setOpen(false); btn.focus(); });
+      // Clic fuera y Escape: el aviso es informativo, no debe atrapar al usuario.
+      document.addEventListener("click", e => {
+        if (!pop.hidden && !pop.contains(e.target) && e.target !== btn) setOpen(false);
+      });
+      document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && !pop.hidden) { setOpen(false); btn.focus(); }
+      });
+    }
+
     function renderSummaryTabs() {
       const wrap = document.getElementById("summary-tabs");
       if (!wrap) return;
@@ -840,11 +890,19 @@
       return d.length <= 7 ? d : d.slice(0, 5) + ".";
     }
 
-    /** Ubicación compacta; el nombre completo queda en el tooltip. */
-    function geoCell(dep, mun) {
-      const completo = `${dep} · ${mun}`.replace(/"/g, "&quot;");
-      const corto = `${abreviaDepto(dep)} · ${mun}`;
-      return `<td class="su-geo" title="${completo}">${corto}</td>`;
+    /**
+     * Celda de establecimiento: nombre y, debajo, su ubicación. Van juntos en una
+     * sola columna para que la tabla entre completa en pantalla sin scroll
+     * horizontal, que obligaba a desplazarse para ver la columna de promedio.
+     */
+    function unidadCell(f) {
+      const completo = `${f.nombreCompleto} — ${f.departamento} · ${f.municipio}`
+        .replace(/"/g, "&quot;");
+      const geo = `${abreviaDepto(f.departamento)} · ${f.municipio}`;
+      return `<td class="su-unidad" title="${completo}">
+                <span class="su-unidad-nom">${f.nombre}</span>
+                <span class="su-unidad-geo">${geo}</span>
+              </td>`;
     }
 
     /** Cobertura del monitoreo: cuántos establecimientos del catálogo se visitaron. */
@@ -913,7 +971,7 @@
 
       if (!filas.length) {
         tbody.insertAdjacentHTML("beforeend", `
-          <tr><td class="su-sep" colspan="10">Sin establecimientos de este tipo para los filtros seleccionados.</td></tr>
+          <tr><td class="su-sep" colspan="9">Sin establecimientos de este tipo para los filtros seleccionados.</td></tr>
         `);
         return;
       }
@@ -921,8 +979,7 @@
       const fila = (f, pos) => `
         <tr${pos === null ? ' class="su-row-nd"' : ""}>
           <td class="su-pos">${pos === null ? "·" : pos}</td>
-          <td class="su-unidad" title="${String(f.nombreCompleto).replace(/"/g, "&quot;")}">${f.nombre}</td>
-          ${geoCell(f.departamento, f.municipio)}
+          ${unidadCell(f)}
           <td class="su-n">${f.n}</td>
           ${f.scores.map((v, i) => pilarCell(v, SUMMARY_PILLARS[i])).join("")}
           <td class="su-valor${summarySort.key === "total" ? " is-sorted" : ""}">${f.total === null ? "—" : f.total}</td>
@@ -938,8 +995,7 @@
         tbody.insertAdjacentHTML("beforeend", `
           <tr class="su-prom">
             <td class="su-pos"></td>
-            <td class="su-unidad">Promedio · ${tab.label}</td>
-            <td class="su-geo"></td>
+            <td class="su-unidad"><span class="su-unidad-nom">Promedio · ${tab.label}</span></td>
             <td class="su-n">${responses.length}</td>
             ${prom.map(v => `<td class="su-cell">${v === null ? "—" : v}</td>`).join("")}
             <td class="su-valor">${conDato.length
@@ -950,8 +1006,8 @@
 
       if (chicos.length) {
         tbody.insertAdjacentHTML("beforeend", `
-          <tr><td class="su-sep" colspan="10">
-            Muestra insuficiente — menos de ${MIN_ENTREVISTAS} entrevistas, sin posición en el ranking
+          <tr><td class="su-sep" colspan="9">
+            Muestra insuficiente — menos de ${MIN_ENTREVISTAS} entrevistas, sin posición en el ordenamiento
           </td></tr>
         `);
         chicos.forEach(f => tbody.insertAdjacentHTML("beforeend", fila(f, null)));
@@ -1325,6 +1381,7 @@
       renderSummaryTabs();
       renderSummaryFilters();
       bindSortHeaders();
+      bindInfoPopover();
       buildSummaryTable();
       updateTabCounts();
 
