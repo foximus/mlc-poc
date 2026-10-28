@@ -360,7 +360,7 @@ p { color: var(--deep-oceanic); }
 }
 
 .brand-banner img {
-  max-width: 480px;
+  max-width: min(480px, 100%);
   margin: 0 auto;
 }
 
@@ -2396,13 +2396,24 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
   .indicator-card-legend { font-size: 0.7rem; }
   .indicator-card-text p { font-size: 0.85rem; }
 
+  /* Selector de paneles: la palabra «SERVICIOS» a 3.5rem no entra en 360px y
+     se partía letra por letra. */
+  .brand-banner { padding: 2rem 1rem 1.5rem; }
+  .role-card { padding: 2.5rem 1.25rem; }
+  .role-title { font-size: 1.6rem; }
+  .role-title .servicios { font-size: clamp(2.25rem, 12vw, 3.5rem); }
+
   /* Summary table */
   .summary-panel { padding: 1rem; }
-  .summary-table { font-size: 0.75rem; }
+  /* Con cinco pilares, el ancho fijo de un teléfono dejaba columnas de ~30px:
+     los nombres caían letra por letra y los puntajes se pegaban entre sí. Con
+     un mínimo, la tabla se desplaza en horizontal dentro de su contenedor. */
+  .summary-table { font-size: 0.75rem; min-width: 640px; }
+  .summary-table .su-pilar > span { hyphens: auto; overflow-wrap: normal; }
   .summary-panel-head { align-items: flex-start; }
-  .summary-table .su-corner { width: 130px; min-width: 130px; padding: 0.4rem 0.5rem; font-size: 0.75rem; }
-  .summary-table .su-corner-sub { font-size: 0.65rem; }
-  .summary-table .su-unidad-geo { font-size: 0.68rem; }
+  .summary-table .su-corner { width: 170px; min-width: 170px; padding: 0.4rem 0.5rem; font-size: 0.75rem; }
+  .summary-table .su-corner-sub { font-size: 0.7rem; }
+  .summary-table .su-unidad-geo { font-size: 0.72rem; }
   .summary-table .su-pilar { width: auto; height: auto; padding: 0.4rem 0.4rem; }
   .summary-table .su-pilar > span { font-size: 0.7rem; }
   .summary-table .su-valor-head { padding: 0.4rem 0.6rem; font-size: 0.85rem; }
@@ -2454,11 +2465,11 @@ table td.critical { color: var(--crimson-blaze); font-weight: 600; }
 
   /* Summary table aún más compacto */
   .summary-table .su-pilar { width: auto; height: auto; padding: 0.35rem 0.3rem; }
-  .summary-table .su-pilar > span { font-size: 0.65rem; }
+  .summary-table .su-pilar > span { font-size: 0.7rem; }
   .summary-table tbody td { font-size: 0.75rem; padding: 0.3rem; }
   .summary-table .su-pos-head,
   .summary-table .su-n-head { width: 26px; font-size: 0.7rem; }
   .su-tabs { gap: 0.3rem; }
   .su-tab { padding: 0.3rem 0.55rem; font-size: 0.72rem; }
-  .su-tab-count { min-width: 1.1rem; font-size: 0.68rem; }
+  .su-tab-count { min-width: 1.1rem; font-size: 0.7rem; }
 }
